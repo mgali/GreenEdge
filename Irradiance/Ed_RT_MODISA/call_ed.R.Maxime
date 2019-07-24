@@ -1,0 +1,82 @@
+#!/usr/bin/r
+#
+# File: call_ed.R
+# Version 1
+# Author: Maxime Benoit-Gagne
+# Date:   September 26 2014
+#
+# Brief description of the script:
+# Example of a call to the function ed(infile, lut, lat, lon) in
+# takuvik.R.
+#
+# Function ed(infile, lut, lat, lon).
+# infile: The infile containing the following data set: Moderate Resolution 
+#         Imaging Spectroradiometer (MODIS)/Aqua Aerosol Cloud Water Vapor
+#         Ozone Daily L3 Global 1Deg CMG (MYD08 D3).
+#         This data set comes from the National Aeronautics and Space
+#         Administration (NASA) Level 1 and Atmosphere Archive and
+#         Distribution System (LAADS) (v5.1).
+#         The platform is Aqua.
+#         The sensor is MODIS.
+#         The temporal resolution is daily.
+#         The spatial resolution is 1 x 1 degree.
+#         Information on this data set can be found at this website:
+#         http://ladsweb.nascom.nasa.gov/data/ftp_site.html
+#         Data itself can be found at this ftp url:
+#         ftp://ladsweb.nascom.nasa.gov/allData/51/MYD08_D3/
+# lut: The lookup table that takes the wavelength, the thetas, the ozone and
+#      the optical thickness to retrieve the downward irradiance.
+#      The dimensions of the lut are:
+#      Wavelength(83) * Thetas(19) * Ozone(8) * TauCld(8).
+# lat: The latitude in degrees N from -90 to 90.
+# lon: The longitude in degrees E from -180 to 180.
+# Return a matrix.
+# The first dimension is the indices of the wavelengths from 290 nm to 700 nm
+# by step of 5 nm.
+# The second dimension is the indices of the times from 0h UTC (Coordinated
+# Universal Time) to 21h by step of 3 h.
+# The values are the downward irradiance computed using the lookup table.
+# The units are umol photons.m^-2.s^-1.nm^-1.
+#
+# Example
+#
+# infile <- "/Volumes/taku-njall/MODISA/L3BIN/2006/225/MYD08_D3.A2006225.051.2009067041625.hdf"
+# lut <- "/Volumes/taku-njall/LUTS/Ed0moins_LUT.dat"
+# lat <- 45.020832
+# lon <- -179.970520
+# matrix_ilambda_itime_ed0minus < ed(
+#   infile = infile,
+#   lut = lut,
+#   lat = lat,
+#   lon = lon
+# )
+#
+# matrix_ilambda_itime_ed0minus[23, 1] contains
+# 3.133502
+#
+# Installation procedure:
+# See svn/Takuvik/Teledetection/SOP/TakuvikPrograms/R/Ed/Ed_Installation.docx.
+
+############################# TO MODIFIY #############################
+### Edited by Martí Galí Tàpias 20170210 for tests with run_call_ed.R! ###
+#============================================================================
+# Source takuvik.R.
+source("/Users/martigalitapias/svn/Takuvik/Teledetection/Util/takuvik.R")
+#============================================================================
+
+#============================================================================
+# Constants and parameters.
+infile <- "/Volumes/taku-njall/MODISA/L3BIN/2006/225/MYD08_D3.A2006225.051.2009067041625.hdf"
+lut <- "/Volumes/taku-njall/LUTS/Ed0moins_LUT.dat"
+lat <- 45.020832
+lon <- -179.970520
+#============================================================================
+
+############################# END OF TO MODIFIY ############################# 
+
+matrix_ilambda_itime_ed0minus <- ed(
+  infile = infile,
+  lut = lut,
+  lat = lat,
+  lon = lon
+  )
