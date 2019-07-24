@@ -19,6 +19,8 @@
 *.zip
 *.nc
 *.hdf
+*.dat
+*.html
 Irradiance/COPS_profiles/
 Achim_Randelhoff/
 DMSP_O_acrylate/
