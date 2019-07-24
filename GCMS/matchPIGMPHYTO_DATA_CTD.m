@@ -1,7 +1,7 @@
 clear, clc
 
 %% Load data
-load('surf_profile_ALL_4plot.mat','SURF','headSURF','DATA_CTD','headDATA_CTD')
+load('surf_profile_ALL_4plot.mat')
 clear headSURF; clear SURF;
 compact = [1 2 3 6 7 12 13 45 48:54 56];
 headDATA_CTD = headDATA_CTD(compact);
@@ -13,7 +13,7 @@ ca.DATA_CTD = DATA_CTD(:,strcmp('cast',headDATA_CTD));
 st.DATA_CTD = DATA_CTD(:,strcmp('stn',headDATA_CTD));
 
 %% Load turner pigments
-headPITU = {'sampleID' 'date' 'stn' 'cast' 'WaterOrIce' 'niskin' 'depth' 'chla(ug/L)' 'phaeo(ug/L)'}';
+headPITU = {'sampleID' 'date' 'stn' 'cast' 'WaterOrIce' 'niskin' 'depth' 'chla_Tu_ugL' 'phaeo_Tu_ugL'}';
 iPITU = [8 9];
 PITU = xlsread('~/Desktop/GreenEdge/GE_Amundsen_2016_ExtractedChl.xlsx');
 z.PITU = PITU(:,strcmp('depth',headPITU));
@@ -30,8 +30,9 @@ headHPLC = {'date_anal' 'cruise' 'leg' 'type' 'lat' 'lon' 'date_sam' 't_sam' 'st
     'viola' 'viola-QA' 'hex' 'Hex-QA' 'asta' 'Asta-QA' 'micral' 'micral-QA' 'diadino' 'Diadino-QA'...
     'anthera' 'Anthera-QA' 'allo' 'Allo-QA' 'diato' 'Diato-QA' 'zea' 'Zea-QA' 'lut' 'Lut-QA' 'bchla' 'Bchla-QA'...
     'chlb' 'Chlb-QA' 'dvchla' 'DVChla-QA' 'chla' 'Chla-QA' 'tchla' 'Tchla-QA' 'phytnaSUM' 'Phytna-QA'...
-    'caro_like_Prasi' 'caro_like_Prasi-QA' 'tcar' 'Tcar-QA' '19BF_like' '19BF_like-QA' '19HF_likeSUM' '19HF_likeSUM-QA'}';
+    'caro_like_Prasi' 'caro_like_Prasi-QA' 'tcar' 'Tcar-QA' 'but19_like' 'but19_like-QA' 'hex19_likeSUM' 'hex19_likeSUM-QA'}';
 iHPLC = 15:74;
+iexportHPLC = 15:2:length(headHPLC);
 HPLC = xlsread('~/Desktop/GreenEdge/GreenEdge-Amundsen-pigments-180131.xlsx');
 z.HPLC = HPLC(:,strcmp('depth',headHPLC));
 z.HPLC(z.HPLC==0) = 0.7;
@@ -58,6 +59,7 @@ ca.TAXO = TAXO(:,strcmp('cast',headTAXO));
 % Preallocate
 A.PITU = nan(size(DATA_CTD,1),length(iPITU));
 A.HPLC = nan(size(DATA_CTD,1),length(iHPLC));
+A.exportHPLC = nan(size(DATA_CTD,1),length(iexportHPLC));
 A.TAXO = nan(size(DATA_CTD,1),length(iTAXO));
 
 dz = [0.5 1]; % Search radii in case no data found
@@ -98,6 +100,7 @@ for j = 1:size(DATA_CTD,1)
         end
     end
     A.HPLC(j,:) = nanmean(HPLC(mHPLC,iHPLC),1);
+    A.exportHPLC(j,:) = nanmean(HPLC(mHPLC,iexportHPLC),1);
     
     % Match TAXO counts using cast number and depth
     mTAXO = (z.TAXO==z.DATA_CTD(j)) & (ca.TAXO==ca.DATA_CTD(j));
@@ -118,10 +121,13 @@ for j = 1:size(DATA_CTD,1)
 end
 
 
-%% APPEND AND SAVE
-DATA = [DATA_CTD A.PITU A.HPLC];
-headDATA = [headDATA_CTD; headPITU(iPITU); headHPLC(iHPLC)];
+%% APPEND
+DATA = [DATA_CTD A.PITU A.HPLC A.TAXO];
+headDATA = [headDATA_CTD; headPITU(iPITU); headHPLC(iHPLC); headTAXO(iTAXO)];
 
+%% AND SAVE
+save('PIGM_TAXO_matched.mat', 'A',...
+    'headPITU', 'iPITU', 'headHPLC', 'iexportHPLC', 'headTAXO', 'iTAXO')
 
 %% Quick scatterplot DMS vs. total carotenoids
 % cmap = flip(parula);
