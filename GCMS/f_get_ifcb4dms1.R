@@ -10,7 +10,7 @@ f_get_ifcb4dms1 <- function(y) {
   
   # Define taxonomic groups to be extracted
   g <- list()
-  g$detritus_mg_L <- 'detritus (not living)'
+  g$detritus_mg_L <- 'detritus (not-living)'
   g$diat_pelagic_mg_L <- c('centric (Bacillariophyta)',
                       'Thalassiosira (Mediophyceae)',
                       'Chaetoceros (Mediophyceae)',
@@ -37,7 +37,7 @@ f_get_ifcb4dms1 <- function(y) {
   out <- lapply(g, function(x) sum(y$mgC_per_L[y$object_annotation_category %in% x], na.rm = T))
   out <- as.data.frame(t(unlist(out)))
   out$tot_mg_L <- sum(y$mgC_per_L, na.rm = T)
-  out$phaeocystis_n_mL <- sum(y$mgC_per_L[y$object_annotation_category %in% 'Phaeocystis (Phaeocystaceae)'], na.rm = T)
+  out$phaeo_n_mL <- sum(y$validated_counts_per_ml[y$object_annotation_category %in% 'Phaeocystis (Phaeocystaceae)'], na.rm = T)
   return(out)
   
 }
