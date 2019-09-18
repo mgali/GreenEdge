@@ -11,7 +11,7 @@ clc
 load ALLSURF
 
 %% GENERAL SETTINGS
-h = 'hBD'; % hBD, mld, isolu, z60, z10
+h = 'z10'; % hBD, mld, isolu, z60, z10
 varlist = {'dms' 'fdmsW97c24' 'OWD'...
     sprintf('idms_%s',h) sprintf('idmspt_%s',h) sprintf('ddratio_%s',h)...
     sprintf('icp_%s',h) sprintf('iTchla_%s',h) sprintf('ccratio_%s',h)};
@@ -22,8 +22,13 @@ titles = {'DMS (nM)' 'FDMS (µmol m^{-2} d^{-1})'...
 icol.fdms = strcmp(headALLSURF,'fdmsW97c24');
 icol = strcmp(headALLSURF,'dms');
 icolpt = strcmp(headALLSURF,'dmspt');
-colors = brewermap(11,'Blues');
-ccmat = colors([6 8 11],:);
+% colors = brewermap(11,'Blues');
+% ccmat = colors([6 8 11],:);
+% colors = brewermap(11,'Spectral');
+% ccmat = colors([10 9 3],:);
+% ccmat = colors([11 9 2],:);
+colors = brewermap(21,'Spectral');
+ccmat = colors([20 17 6],:);
 xtl = {'ICE' 'MIZ' 'OW'};
 ncols = 3;
 nrows = 3;
@@ -43,22 +48,25 @@ if strcmp(h,'hBD')
 elseif strcmp(h,'mld')
     ymaxs = [20 20 25 250 2500 0.33 10 30  0.9];
 elseif strcmp(h,'z10')
-    ymaxs = [20 20 25 250 2500 0.33 10 30  0.9];
+    ymaxs = [20 20 23 200 2000 0.4 8 20  0.8];
+%     yletters = [15 15 11 150 1500 0.3 6 15 0.6];
 elseif strcmp(h,'isolu')
     ymaxs = [20 20 25 900 9000 0.33 30 100  0.9];
 elseif strcmp(h,'z60')
     ymaxs = [20 20 25 900 9000 0.33 30 100  0.9];
 end
+yletters = [17.5 17.5 17.5 175 1750 0.35 7 17 0.7];
+pletters = {'a' 'b' 'c' 'd' 'e' 'f' 'g' 'h' 'i'};
 ymins = -ymaxs*ymintomax;
 ymins(3) = -25; % Specific for OWD
 ytexts = ymins + 0.07*(ymaxs-ymins);
 
 %% Classify by ice cover
-icemean = nanmean(ALLSURF(:,11:13),2);
+icemean = nanmean(ALLSURF(:,11:13),2); % 3 day ice mean
 icemin = nanmin(ALLSURF(:,11:13),[],2);
 icemax = nanmax(ALLSURF(:,11:13),[],2);
 icecrit1 = 0.10;
-icecrit2 = 0.80;
+icecrit2 = 0.85;
 icebin = 2*ones(size(icemax));
 icebin(icemax<icecrit1) = 3; % Open: Persistent <10% ice
 icebin(icemin>icecrit2) = 1; % Covered: Persistent >80% ice (85% gives similar results)
@@ -70,7 +78,7 @@ ALLSURF(isnan(ALLSURF(:,32)),strcmp(headALLSURF,'OWD')) = nan;
 % ALLSURF(isnan(ALLSURF(:,31)),45:49) = nan;
 % ALLSURF(isnan(ALLSURF(:,31)),51:5) = nan;
 
-% OR: Set to NaN icp and iTChla data where no dmspt is available
+% OR: Set to NaN icp and iTChla data for leg 1a
 ALLSURF(ALLSURF(:,1)<400,45:49) = nan;
 ALLSURF(ALLSURF(:,1)<400,51:55) = nan;
 
@@ -80,50 +88,59 @@ ccratio = ALLSURF(:,strcmp(headALLSURF,sprintf('icp_%s',h)))./ALLSURF(:,strcmp(h
 ALLSURF = [ALLSURF ddratio ccratio];
 headALLSURF = [headALLSURF; sprintf('ddratio_%s',h); sprintf('ccratio_%s',h)];
 
+%% Correct DMS flux multiplying by SIC
+dayice = nanmean([ALLSURF(:,strcmp(headALLSURF,'SICday')) ALLSURF(:,strcmp(headALLSURF,'IceConcentration_percent'))/100],2);
+Fice = ALLSURF(:,strcmp(headALLSURF,'fdmsW97c24'));
+nanmean(Fice)
+% ALLSURF(:,strcmp(headALLSURF,'fdmsW97c24')) = Fice.*(1-dayice);
+ALLSURF(:,strcmp(headALLSURF,'fdmsW97c24')) = Fice.*(1-icemean);
+nanmean(ALLSURF(:,strcmp(headALLSURF,'fdmsW97c24')))
+
 %% Boxplots by ice cover
-% 
-% figure(33), clf
-% set(gcf,'units','centimeters','position',[1 2 twidth theight])
-% % set(gcf,'units','centimeters','position',[1 2 15 20])
-% 
-% for j = 1:nrows
-%     for k = 1:ncols
-%         jk = (k-1)*nrows+j;
-%         sposition = [x0offset+(j-1)*(pwidth+xspace) theight-k*(pheight+yspace) pwidth pheight];
-%         sposition([1 3]) = sposition([1 3])/twidth;
-%         sposition([2 4]) = sposition([2 4])/theight;
-%         subplot('position',sposition);
-%         %         subplot(nrows,ncols,jk)
-%         icol = strcmp(headALLSURF,varlist{jk});
-%         xplot = ALLSURF(:,icol);
-%         % Ice cover correction for FDMS only
-%         if strcmp(varlist{jk},'fdmsW97c24') || strcmp(varlist{jk},'fdmsW97c24')
-%             xplot = xplot.*(1-icemean);
-%         end
-%         % Traditional
-%         boxplot(xplot,icebin,'colors',ccmat,'symbol','+k',...
-%             'boxstyle','outline','widths',.5,'plotstyle','traditional','medianstyle','line'), hold on
-%         %         % Compact
-%         %         boxplot(xplot,icebin,'colors',ccmat,'symbol','+k',...
-%         %             'plotstyle','compact','width',.5), hold on
-%         for ii = 1:3
-%             plot(ii+[-.25 .25],[1 1]*nanmedian(xplot(icebin==ii)),'-','markersize',10,...
-%                 'color',ccmat(ii,:),'linewidth',2)
-%             plot(ii,nanmean(xplot(icebin==ii)),'o','markersize',4,...
-%                 'markeredgecolor',ccmat(ii,:),'markerfacecolor','w','linewidth',1.5)
-%             text(ii-0.1,ytexts(jk),sprintf('%i',sum(~isnan(xplot(icebin==ii)))),'fontsize',5,'color',[.5 .5 .5])
-%             % text(ii-0.2,ytexts(jk),sprintf('N=%i',sum(~isnan(xplot(icebin==ii)))),'fontsize',5,'color',[.5 .5 .5])
-%         end
-%         title(titles(jk),'fontsize',9,'fontweight','bold')
-%         ylim([ymins(jk) ymaxs(jk)])
-%         set(gca,'tickdir','in','ticklength',[.02 .02],'xtick',1:max(icebin),...
-%             'xticklabel',{''},'fontsize',8,'linewidth',0.75,...
-%             'xlim',[0.5 3.5])
-%         if k == 3
-%             set(gca,'xticklabel',xtl)
-%         end
-%     end
-% end
+
+figure(33), clf
+set(gcf,'units','centimeters','position',[1 2 twidth theight])
+% set(gcf,'units','centimeters','position',[1 2 15 20])
+
+for j = 1:nrows
+    for k = 1:ncols
+        jk = (k-1)*nrows+j;
+        sposition = [x0offset+(j-1)*(pwidth+xspace) theight-k*(pheight+yspace) pwidth pheight];
+        sposition([1 3]) = sposition([1 3])/twidth;
+        sposition([2 4]) = sposition([2 4])/theight;
+        subplot('position',sposition);
+        %         subplot(nrows,ncols,jk)
+        icol = strcmp(headALLSURF,varlist{jk});
+        xplot = ALLSURF(:,icol);
+        % Ice cover correction for FDMS only
+        if strcmp(varlist{jk},'fdmsW97c24') || strcmp(varlist{jk},'fdmsW97c24')
+            xplot = xplot.*(1-icemean);
+        end
+        % Traditional
+        boxplot(xplot,icebin,'colors',ccmat,'symbol','.w','outliersize',0.1,'notch','on',...
+            'boxstyle','outline','widths',.5,'plotstyle','traditional','medianstyle','line'), hold on
+        %         % Compact
+        %         boxplot(xplot,icebin,'colors',ccmat,'symbol','+k',...
+        %             'plotstyle','compact','width',.5), hold on
+        for ii = 1:3
+            plot(ii+[-.15 .15],[1 1]*nanmedian(xplot(icebin==ii)),'-','markersize',10,...
+                'color',ccmat(ii,:),'linewidth',2)
+            plot(ii,nanmean(xplot(icebin==ii)),'o','markersize',4,...
+                'markeredgecolor',ccmat(ii,:),'markerfacecolor','w','linewidth',1.5)
+            text(ii-0.1,ytexts(jk),sprintf('%i',sum(~isnan(xplot(icebin==ii)))),'fontsize',5,'color',[.5 .5 .5])
+            % text(ii-0.2,ytexts(jk),sprintf('N=%i',sum(~isnan(xplot(icebin==ii)))),'fontsize',5,'color',[.5 .5 .5])
+        end
+        title(titles(jk),'fontsize',9,'fontweight','bold')
+        text(0.7,yletters(jk),sprintf('%s',pletters{jk}),'fontsize',9,'color','k','fontweight','bold')
+        ylim([ymins(jk) ymaxs(jk)])
+        set(gca,'tickdir','in','ticklength',[.02 .02],'xtick',1:max(icebin),...
+            'xticklabel',{''},'fontsize',8,'linewidth',0.75,...
+            'xlim',[0.5 3.5])
+        if k == 3
+            set(gca,'xticklabel',xtl)
+        end
+    end
+end
 
 % NOTE
 % boxstyle filled vs outline (allows for width to be set)

@@ -8,6 +8,7 @@
 # Martí Galí August 2019
 
 library(dplyr)
+library(purrr)
 source('~/Desktop/GreenEdge/GCMS/f_get_ifcb4dms1.R')
 
 # Set general data path
@@ -83,7 +84,16 @@ for (jc in cast) {
 match_ifcb <- do.call("rbind",tmp.cd)
 
 # ------------------------------------------------------------------------
-# Match prof.all and ifcb
+# Match prof.all and ifcb. SAVE DATA AS CSV
 prof.all <- merge(x = prof.all, y = match_ifcb, by = c('cast','depth'), all.x = T, all.y = F)
 View(prof.all)
+
+write.csv(prof.all, file = paste0(genpath,'GE2016.profiles.ALL.csv'))
+
+# # Some plots to check consistency between IFCB and microscopy counts
+# plot(prof.all$Phaeo, prof.all$phaeo_n_mL)
+# plot(prof.all$diat_pen+prof.all$diat_cen, prof.all$diat_pelagic_mg_L)
+# plot(prof.all$diat_cen, prof.all$diat_pelagic_mg_L)
+# plot(prof.all$diat_pen, prof.all$diat_pelagic_mg_L)
+
 
