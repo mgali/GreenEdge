@@ -94,9 +94,9 @@ col.dbm.line <- col.cp.line
 # col.ncline.line <- rgb(red = 102/255, green = 102/255, blue = 0, alpha = 0.3)
 
 # ------------------------- PLOT ------------------------- 
-# png(filename = paste0(genpath,pdir,'Fig4','.png'),
-#     width = 8, height = 16, units = 'cm', pointsize = 8, # height 10 for 3 panels, 13 for 4 panels
-#     bg = 'white', res = 300, type = 'cairo')
+png(filename = paste0(genpath,pdir,'Fig4','.png'),
+    width = 8, height = 16, units = 'cm', pointsize = 8, # height 10 for 3 panels, 13 for 4 panels
+    bg = 'white', res = 300, type = 'cairo')
 
 # Layout
 m <- rbind(matrix(data=1,nrow = 4, ncol = 6), matrix(data=2,nrow = 4, ncol = 6), matrix(data=3,nrow = 4, ncol = 6))
@@ -119,6 +119,8 @@ lines(spline(dfi$OWD, dfi$dmspt * f.dmspt, n = 201, method = 'natural'), col = c
 axis(4, labels = T, tcl = -0.3, at = seq(0,30,10))
 mtext('FDMS (µmol/m2/d)', side = 4, cex = .8, line = 2.5, srt = 180)
 
+# Legend: DMS, FDMS, DMSPt
+
 # Panel B
 par(mar = c(1,4,0.5,4))
 plot(df$OWD, df$tchla, axes = F, xlim = xl, ylim = yltchla, col = col.tchla, pch = 19, ylab = 'TChla (µg/L)', cex.lab = 1.2)
@@ -127,8 +129,10 @@ axis(1, labels = F, tcl = -0.3, at = xticks)
 axis(2, labels = T, tcl = -0.3)
 points(df$OWD, df$cpsmooth1 * f.cp, col = col.cp, pch = 19)
 lines(spline(dfi$OWD, dfi$cpsmooth1 * f.cp, n = 201, method = 'natural'), col = col.cp.line, lwd = 3)
-axis(4, labels = T, tcl = -0.3, at = seq(0,4,1))
+axis(4, tcl = -0.3, at = seq(0,4,1), labels = seq(0,0.8,0.2))
 mtext('Cp (1/m)', side = 4, cex = .8, line = 2.5, srt = 180)
+
+# Legend: TChla, Cp
 
 # Panel C
 par(mar = c(1,4,0.5,4))
@@ -140,6 +144,8 @@ points(df$OWD, df$sal * 2 - 64, ylim = yldmspt, col = col.sss, pch = 19)
 lines(spline(dfi$OWD, dfi$sal  * 2 - 64, n = 201, method = 'natural'), col = col.sss.line, lwd = 3)
 axis(4, tcl = -0.3, at = seq(-2,4,2), labels = seq(31,34,1))
 mtext('SSS', side = 4, cex = .8, line = 2.5, srt = 180)
+
+# Legend: SST, SSS
 
 # Panel D
 par(mar = c(1,4,0.5,4))
@@ -161,5 +167,6 @@ lines(spline(dfi$OWD, dfi$dbm, n = 201, method = 'natural'), col = col.dbm.line,
 # points(df$OWD, df$Nitracline_m, col = col.ncline, pch = 19)
 # lines(spline(dfi$OWD, dfi$Nitracline_m, n = 201, method = 'natural'), col = col.ncline.line, lwd = 3)
 
+# Legend: depth of hBD, mld_0.03, dbm
 
-# dev.off()
+dev.off()
