@@ -18,7 +18,7 @@ prof.plots$ANP <- prof.plots$anp
 # Create labels dictionary? Not possible if using xvar and yvar as colnames
 
 
-# Rename vaiables and create labels
+# Rename variables and create labels
 # prof.plots$xvar <- prof.plots[,'chla']; xl <- 'Chla (µg/L)'
 # prof.plots$xvar <- prof.plots[,'cpsmooth1']; xl <- 'Cp (1/m)'
 prof.plots$xvar <- prof.plots[,'dmspt']; xl <- 'DMSPt (nM)'
