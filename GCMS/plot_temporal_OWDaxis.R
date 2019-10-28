@@ -8,6 +8,16 @@ pdir <- 'plots_temporal_OWDaxis/'
 prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header = T)
 df <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
+# Exporting image?
+exportimg <- T
+
+if (exportimg) {
+  png(filename = paste0(genpath,pdir,'Fig4','.png'),
+      width = 8, height = 16, units = 'cm', pointsize = 8, # height 10 for 3 panels, 13 for 4 panels
+      bg = 'white', res = 300, type = 'cairo')
+}
+
+
 # ---- Remove rows with no DMS data
 df <- df[!is.na(df$dms),]
 
@@ -78,8 +88,8 @@ col.cp <- rgb(red = 204/255, green = 204/255, blue = 0, alpha = 1)
 col.cp.line <- rgb(red = 204/255, green = 204/255, blue = 0, alpha = 0.3)
 col.sst <- rgb(red = 1, green = 0, blue = .5, alpha = 1)
 col.sst.line <- rgb(red = 1, green = 0, blue = .5, alpha = 0.3)
-col.sss <- rgb(red = .6, green = 0, blue = .6, alpha = 1)
-col.sss.line <- rgb(red = .6, green = 0, blue = .6, alpha = 0.3)
+col.sss <- rgb(red = 0, green = 0, blue = 0, alpha = 1) #rgb(red = .6, green = 0, blue = .6, alpha = 1)
+col.sss.line <- rgb(red = 0, green = 0, blue = 0, alpha = 0.3) #rgb(red = .6, green = 0, blue = .6, alpha = 0.3)
 col.par <- rgb(red = 1, green = .9, blue = 0, alpha = 1)
 col.par.line <- rgb(red = 1, green = .9, blue = 0, alpha = 0.3)
 col.hBD <- rgb(red = 0, green = 0, blue = 0, alpha = 1)
@@ -94,9 +104,6 @@ col.dbm.line <- col.cp.line
 # col.ncline.line <- rgb(red = 102/255, green = 102/255, blue = 0, alpha = 0.3)
 
 # ------------------------- PLOT ------------------------- 
-png(filename = paste0(genpath,pdir,'Fig4','.png'),
-    width = 8, height = 16, units = 'cm', pointsize = 8, # height 10 for 3 panels, 13 for 4 panels
-    bg = 'white', res = 300, type = 'cairo')
 
 # Layout
 m <- rbind(matrix(data=1,nrow = 4, ncol = 6), matrix(data=2,nrow = 4, ncol = 6), matrix(data=3,nrow = 4, ncol = 6))
@@ -120,6 +127,12 @@ axis(4, labels = T, tcl = -0.3, at = seq(0,30,10))
 mtext('FDMS (µmol/m2/d)', side = 4, cex = .8, line = 2.5, srt = 180)
 
 # Legend: DMS, FDMS, DMSPt
+legend(x = -20, y = 30, pch = 19,
+       cex = 0.8,
+       lwd = rep(3,3),
+       legend = c('DMS','DMSPt','FDMS'),
+       col = c(col.dms,col.dmspt,col.fdms),
+       bg= "gray97", box.col = "gray97")
 
 # Panel B
 par(mar = c(1,4,0.5,4))
@@ -133,6 +146,12 @@ axis(4, tcl = -0.3, at = seq(0,4,1), labels = seq(0,0.8,0.2))
 mtext('Cp (1/m)', side = 4, cex = .8, line = 2.5, srt = 180)
 
 # Legend: TChla, Cp
+legend(x = 30, y = 3, pch = 19,
+       cex = 0.8,
+       lwd = rep(3,3),
+       legend = c('TChla','Cp'),
+       col = c(col.tchla,col.cp),
+       bg= "gray97", box.col = "gray97")
 
 # Panel C
 par(mar = c(1,4,0.5,4))
@@ -146,6 +165,12 @@ axis(4, tcl = -0.3, at = seq(-2,4,2), labels = seq(31,34,1))
 mtext('SSS', side = 4, cex = .8, line = 2.5, srt = 180)
 
 # Legend: SST, SSS
+legend(x = -20, y = 4, pch = 19,
+       cex = 0.8,
+       lwd = rep(3,3),
+       legend = c('SST','SSS'),
+       col = c(col.sst,col.sss),
+       bg= "gray97", box.col = "gray97")
 
 # Panel D
 par(mar = c(1,4,0.5,4))
@@ -168,5 +193,11 @@ lines(spline(dfi$OWD, dfi$dbm, n = 201, method = 'natural'), col = col.dbm.line,
 # lines(spline(dfi$OWD, dfi$Nitracline_m, n = 201, method = 'natural'), col = col.ncline.line, lwd = 3)
 
 # Legend: depth of hBD, mld_0.03, dbm
+legend(x = 33, y = -5, pch = 19,
+       cex = 0.8,
+       lwd = rep(3,3),
+       legend = c('hBD','mLD','DBM'),
+       col = c(col.hBD,col.mld,col.dbm),
+       bg= "gray97", box.col = "gray97")
 
-dev.off()
+if (exportimg) {dev.off()}
