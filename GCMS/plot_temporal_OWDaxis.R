@@ -82,8 +82,8 @@ col.dms <- rgb(red = 1, green = 0, blue = 0, alpha = 1)
 col.dms.line <- rgb(red = 1, green = 0, blue = 0, alpha = 0.3)
 col.dmspt <- rgb(red = 0, green = 0, blue = 1, alpha = 1)
 col.dmspt.line <- rgb(red = 0, green = 0, blue = 1, alpha = 0.3)
-col.tchla <- rgb(red = 76/255, green = 153/255, blue = 0, alpha = 1)
-col.tchla.line <- rgb(red = 76/255, green = 153/255, blue = 0, alpha = 0.3)
+col.tchla <- rgb(red = 30/255, green = 153/255, blue = 0, alpha = 1)
+col.tchla.line <- rgb(red = 30/255, green = 153/255, blue = 0, alpha = 0.3)
 col.cp <- rgb(red = 204/255, green = 204/255, blue = 0, alpha = 1)
 col.cp.line <- rgb(red = 204/255, green = 204/255, blue = 0, alpha = 0.3)
 col.sst <- rgb(red = 1, green = 0, blue = .5, alpha = 1)
@@ -124,31 +124,32 @@ lines(spline(dfi$OWD, dfi$dms, n = 201, method = 'natural'), col = col.dms.line,
 points(df$OWD, df$dmspt * f.dmspt, ylim = yldmspt, col = col.dmspt, pch = 19)
 lines(spline(dfi$OWD, dfi$dmspt * f.dmspt, n = 201, method = 'natural'), col = col.dmspt.line, lwd = 3)
 axis(4, labels = T, tcl = -0.3, at = seq(0,30,10))
-mtext('FDMS (µmol/m2/d)', side = 4, cex = .8, line = 2.5, srt = 180)
+mtext(expression(paste('FDMS (µmol ',m^-2,' ',d^-1,')')), side = 4, cex = .8, line = 3, srt = 180)
 
 # Legend: DMS, FDMS, DMSPt
 legend(x = -20, y = 30, pch = 19,
-       cex = 0.8,
-       lwd = rep(3,3),
+       cex = 0.9,
+       lwd = rep(2,3),
        legend = c('DMS','DMSPt','FDMS'),
        col = c(col.dms,col.dmspt,col.fdms),
        bg= "gray97", box.col = "gray97")
 
 # Panel B
 par(mar = c(1,4,0.5,4))
-plot(df$OWD, df$tchla, axes = F, xlim = xl, ylim = yltchla, col = col.tchla, pch = 19, ylab = 'TChla (µg/L)', cex.lab = 1.2)
-lines(spline(dfi$OWD, dfi$tchla, n = 201, method = 'natural'), col = col.tchla.line, lwd = 3)
+plot(df$OWD, df$tchla, axes = F, xlim = xl, ylim = yltchla, col = col.tchla, pch = 19, ylab = "")
+mtext(expression(paste('TChla (µg ',L^-1,')')), side = 2, cex = 0.8, line = 3) # Put ylabel out of plot to control position (line)
+lines(spline(dfi$OWD, dfi$tchla, n = 201, method = 'natural'), col = col.tchla.line, lwd = 2, cex.lab = 1.2)
 axis(1, labels = F, tcl = -0.3, at = xticks)
 axis(2, labels = T, tcl = -0.3)
 points(df$OWD, df$cpsmooth1 * f.cp, col = col.cp, pch = 19)
 lines(spline(dfi$OWD, dfi$cpsmooth1 * f.cp, n = 201, method = 'natural'), col = col.cp.line, lwd = 3)
 axis(4, tcl = -0.3, at = seq(0,4,1), labels = seq(0,0.8,0.2))
-mtext('Cp (1/m)', side = 4, cex = .8, line = 2.5, srt = 180)
+mtext(expression(paste('Cp (',m^-1,')')), side = 4, cex = .8, line = 3, srt = 180)
 
 # Legend: TChla, Cp
-legend(x = 30, y = 3, pch = 19,
-       cex = 0.8,
-       lwd = rep(3,3),
+legend(x = -20, y = 4, pch = 19,
+       cex = 0.9,
+       lwd = rep(2,2),
        legend = c('TChla','Cp'),
        col = c(col.tchla,col.cp),
        bg= "gray97", box.col = "gray97")
@@ -166,15 +167,16 @@ mtext('SSS', side = 4, cex = .8, line = 2.5, srt = 180)
 
 # Legend: SST, SSS
 legend(x = -20, y = 4, pch = 19,
-       cex = 0.8,
-       lwd = rep(3,3),
+       cex = 0.9,
+       lwd = rep(2,2),
        legend = c('SST','SSS'),
        col = c(col.sst,col.sss),
        bg= "gray97", box.col = "gray97")
 
 # Panel D
 par(mar = c(1,4,0.5,4))
-plot(df$OWD, df$par_srd, axes = F, xlim = xl, ylim = ylpar, col = col.par, pch = 19, ylab = 'PAR (mol/m2/d)', cex.lab = 1.2)
+plot(df$OWD, df$par_srd, axes = F, xlim = xl, ylim = ylpar, col = col.par, pch = 19, ylab = "")
+mtext(expression(paste(PAR[hBD],' (mol ',m^-2,' ',d^-1,')')), side = 2, cex = 0.8, line = 3)
 lines(spline(dfi$OWD, dfi$par_srd, n = 201, method = 'natural'), col = col.par.line, lwd = 3)
 axis(1, labels = F, tcl = -0.3, at = xticks)
 axis(2, labels = T, tcl = -0.3, at = seq(0,25,5))
@@ -193,9 +195,9 @@ lines(spline(dfi$OWD, dfi$dbm, n = 201, method = 'natural'), col = col.dbm.line,
 # lines(spline(dfi$OWD, dfi$Nitracline_m, n = 201, method = 'natural'), col = col.ncline.line, lwd = 3)
 
 # Legend: depth of hBD, mld_0.03, dbm
-legend(x = 33, y = -5, pch = 19,
-       cex = 0.8,
-       lwd = rep(3,3),
+legend(x = -5, y = 25, pch = 19,
+       cex = 0.9,
+       lwd = rep(2,3),
        legend = c('hBD','mLD','DBM'),
        col = c(col.hBD,col.mld,col.dbm),
        bg= "gray97", box.col = "gray97")
