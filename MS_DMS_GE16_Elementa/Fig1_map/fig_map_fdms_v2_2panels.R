@@ -136,6 +136,8 @@ box()
 plot(coastlineWorldFine, clon = mlon, clat = mlat, span = 565,
      col = col.land, bg = rgb(red = 1, green = 1, blue = 1, alpha = 0), lwd = 0.5,
      axes = F) # xlab="Longitude", ylab="Latitude")
+# image(x = sat3$lon, y = sat3$lat, z = sat3$`sea-ice`, add = T, col = oce.colors(10))
+
 axis(side = 1, at = c(-67,-53))
 axis(side = 1, at = c(-65,-60,-55), labels = c(expression(paste('',65*degree,'W')),expression(paste('',60*degree,'W')),expression(paste('',55*degree,'W'))))
 axis(side = 2, at = c(67,72))
