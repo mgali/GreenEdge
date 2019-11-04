@@ -17,7 +17,7 @@ ANP(ANP(:,strcmp(headANP,'depth'))>100,:) = [];
 %% INITIAL SETTINGS
 idms = 46;
 idmspt = 49;
-zSURF = 7;
+zSURF = 5;
 
 %% PREPARE DATA
 
@@ -33,7 +33,7 @@ headSURF = ({'stn' 'lat' 'lon' 'year' 'month' 'day' 'dms'...
     'SICm2d' 'SICm1d' 'SICday' 'wsp72' 'wsp24' 'wsc24'...
     'sst' 'sal' 'fdmsW97c24'  'fdmsN00c24' 'sigt' 'O2' 'CDOM' 'NO3' 'cpsmooth1'...
     'mld03' 'mld125' 'N2max03' 'zN2max03'  'N2max125' 'zN2max125' 'dmspt' 'dbm'})';
-clear DMSOUT data
+% clear DMSOUT data
 
 % Create station list
 station = DATA(:,6);
@@ -106,7 +106,7 @@ for j = 1:length(lon) % loop on transects
             dbm = cp_out.zdbm;
             
             % Fill SURF matrix
-            tmp = tmpall(tmpall(:,13)>zSURF,:);
+            tmp = tmpall(tmpall(:,13)<zSURF,:);
             
             if ~isempty(tmp)
                 APPEND = nan(1,length(headSURF));

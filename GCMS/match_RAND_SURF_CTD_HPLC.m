@@ -7,7 +7,7 @@ load samples.GE2016only.castsOnly.mat
 GE2016 = samplesGE2016castsOnly;
 load gcms_greenedge_proc
 load ~/Desktop/GreenEdge/CTD_rosette/GreenEdge_CTD_2016_MGT.mat
-headCTD = CTD{1}.head;
+headCTD = CTD{1}.head; % avoid issues caused by missing headers in some CTD structures
 load surf_profile_ALL_4plot
 path_rand = '~/Desktop/GreenEdge/Achim_Randelhoff/data/Randelhoff-et-al_Ice-edge-paper_per-station_v0.1.csv';
 RAND = csvread(path_rand, 1, 0);
@@ -43,18 +43,21 @@ chl.HPLC = HPLC(:,strcmp(headHPLC,'tchla'));
 %% Apend data in loop
 
 headALLSURF = [headRAND;...
-    headSURF([8:15 18:22 23:24 25 27 26 28 30 29 7 16 17]);...
+    headSURF([8:15 18:24 25 27 26 28 30 29 7 16 17]);...
     {'idms_mld'; 'idms_hBD'; 'idms_isolu'; 'idms_z60';'idms_z10';...
     'idmspt_mld'; 'idmspt_hBD'; 'idmspt_isolu'; 'idmspt_z60'; 'idmspt_z10';...
     'icp_mld'; 'icp_hBD'; 'icp_isolu'; 'icp_z60'; 'icp_z10';...
     'Tchla'; 'iTchla_mld'; 'iTchla_hBD'; 'iTchla_isolu'; 'iTchla_z60'; 'iTchla_z10';...
     }];
-to_correct = headALLSURF(26:29);
-headALLSURF([27 29 26 28]) = to_correct;
-ALLSURF = nan(size(GE2016,1),length(headALLSURF));
 
+% % Correct issue in headers
+% to_correct = headALLSURF(26:29);
+% headALLSURF([27 29 26 28]) = to_correct;
+
+ALLSURF = nan(size(GE2016,1),length(headALLSURF));
 profstart = 86;
 profend = size(GE2016,1);
+
 for k = profstart:profend % loop on transect stations
     
     kstn = GE2016(:,strcmp(headerGE2016,'stn'));
@@ -84,17 +87,18 @@ for k = profstart:profend % loop on transect stations
         NO3 = tmp3.DATA(:,strcmp(headCTD,'NO3'));
         
         % Process CTD profile and append mld and stratification data
+        % Reference depth of 2, and if empty 4, to avoid missing data
         [mld,N2max,zN2max] = get_mld(depth,sigt,N2,kstn);
         ALLSURF(k,24:29) = [mld.d03 mld.d125 N2max.d03 N2max.d125 zN2max.d03 zN2max.d125];
         
         % Calculate cp profile and append DBM depth
         cp_out = get_cp(Trans,depth,kstn);
-        cp = cp_out.q;
+        cpsmooth1 = cp_out.s;
         ALLSURF(k,30) = cp_out.zdbm;
         
-        % Add surface CTD data
-        isf = depth<=2;
-        ALLSURF(k,17:22) = nanmean([temp(isf) sal(isf) sigt(isf) O2(isf) CDOM(isf) NO3(isf)],1);
+        % Add surface CTD data. Cutoff depth of 4 to avoid missing data
+        isf = depth<=4;
+        ALLSURF(k,17:23) = nanmean([temp(isf) sal(isf) sigt(isf) O2(isf) CDOM(isf) NO3(isf) cpsmooth1(isf)],1);
     end
     
     % Define bounds for vertical integrals, integrate
