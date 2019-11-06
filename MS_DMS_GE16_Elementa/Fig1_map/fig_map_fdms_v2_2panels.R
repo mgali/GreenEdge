@@ -43,6 +43,9 @@ gebcofile <- open.nc("~/Desktop/GreenEdge/GEBCO_2019_01_Nov_2019_89f1161f595f/ge
 gebco <- read.nc(gebcofile)
 gebco$elevation[gebco$elevation > -50] <- NA
 
+# # Correct error in cordinates: already corrected in csv file
+# ge_fdms$lon[ge_fdms$stn==507] <- -59.123
+
 # Remove some ice data in southwest corner which do not display nicely (they overlap land)
 mask <- matrix(data = F, nrow = length(sat1$lon), ncol = length(sat1$lat))
 latmat <- t(matrix(data = sat1$lat, ncol = length(sat1$lon), nrow = length(sat1$lat)))
@@ -145,10 +148,6 @@ axis(side = 2, at = seq(68,71,1), labels = c(expression(paste('',68*degree,'N'))
 box()
 # arrows(x0 = -63, y0 = 71, x1 = -65, y1 = 70.8, col = col.ice2, lwd = 1)
 text(x = -66.2, y = 70.9, labels = 'b)', offset = 0.5, cex = 1.3, srt = 0, col = 'black')
-text(x = -56.4, y = 68.1, labels = 'tr.400', offset = 0.5, cex = 1, srt = 0, col = 'black')
-text(x = -64, y = 70, labels = 'tr.500', offset = 0.5, cex = 1, srt = 0, col = 'black')
-text(x = -65, y = 70.5, labels = 'tr.600', offset = 0.5, cex = 1, srt = 0, col = 'black')
-text(x = -64, y = 69.5, labels = 'tr.700', offset = 0.5, cex = 1, srt = 0, col = 'black')
 
 contour(sat1$lon,sat1$lat,sat1$`sea-ice`,
         levels = c(0.10),
@@ -203,5 +202,22 @@ legend(x = xpos, y = 70.10, pch = 1, lty = 0, lwd = 1,
        title = "DMS (nM)                   ",
        ncol = 1,
        bg= "gray97", box.lwd = 0, box.col = "gray95")
+
+# Labels for transects and dates
+text(x = -62.8, y = 68.40, labels = 't.400', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -62.7, y = 68.27, labels = 'd176 ->', offset = 0.5, cex = 1, srt = 0, col = 'red')
+text(x = -56.4, y = 68.13, labels = '-> d181', offset = 0.5, cex = 1, srt = 0, col = 'red')
+
+text(x = -57, y = 70.23, labels = 't.500', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -57, y = 70.1, labels = '<- d181', offset = 0.5, cex = 1, srt = 0, col = 'red')
+text(x = -63.7, y = 70.0, labels = 'd184 <-', offset = 0.5, cex = 1, srt = 0, col = 'red')
+
+text(x = -65, y = 70.63, labels = 't.600', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -64.9, y = 70.5, labels = 'd185 ->', offset = 0.5, cex = 1, srt = 0, col = 'red')
+text(x = -58.2, y = 70.5, labels = '-> d188', offset = 0.5, cex = 1, srt = 0, col = 'red')
+
+text(x = -57, y = 69.63, labels = 't.700', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -57, y = 69.5, labels = '<- d189', offset = 0.5, cex = 1, srt = 0, col = 'red')
+text(x = -64.1, y = 69.5, labels = 'd191 <-', offset = 0.5, cex = 1, srt = 0, col = 'red')
 
 if (exportimg) {dev.off()}

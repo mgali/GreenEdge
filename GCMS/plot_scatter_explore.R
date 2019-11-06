@@ -20,10 +20,10 @@ prof.plots$ANP <- prof.plots$anp
 
 # Rename variables and create labels
 # prof.plots$xvar <- prof.plots[,'chla']; xl <- 'Chla (µg/L)'
-# prof.plots$xvar <- prof.plots[,'cpsmooth1']; xl <- 'Cp (1/m)'
-prof.plots$xvar <- prof.plots[,'dmspt']; xl <- 'DMSPt (nM)'
-prof.plots$yvar <- prof.plots[,'dms_consens_cf68']; yl <- 'DMS (nM)'
-# prof.plots$yvar <- prof.plots[,'dmspt']; yl <- 'DMSPt (nM)'
+prof.plots$xvar <- prof.plots[,'cpsmooth1']; xl <- 'Cp (1/m)'
+# prof.plots$xvar <- prof.plots[,'dmspt']; xl <- 'DMSPt (nM)'
+# prof.plots$yvar <- prof.plots[,'dms_consens_cf68']; yl <- 'DMS (nM)'
+prof.plots$yvar <- prof.plots[,'dmspt']; yl <- 'DMSPt (nM)'
 bb <- c(0.01,0.02,0.05,0.1,0.2,0.5,1,2,5,10,20,50,100,200,500)
 
 # Plot xvar (chl, cp, DMSPt) vs. yvar (DMS, DMSPt) by depth and ANP
@@ -42,4 +42,9 @@ p + scale_color_gradient(low="blue", high="red") +
 # Save
 fname <- paste('fig','DMSPt','DMS','z','ANP',sep = '_')
 ggsave(paste0(genpath,pdir,fname,'.png'))
+
+# Correlations
+
+cor(prof.plots$xvar,prof.plots$yvar, use = "pairwise", method = "spearman")
+
        
