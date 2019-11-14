@@ -27,7 +27,7 @@ cf <- 32e-9 # Gg S / mol S
 
 # Quick calculation of mean and std emission from comparable domains
 
-selmiz <- 'B'
+selmiz <- 'A'
 selperiod <- 'mjja'
 
 for (j in 1:4) {
@@ -37,6 +37,6 @@ for (j in 1:4) {
   
   print(paste0('Mean MIZ EDMS = ',mmiz))
   print(paste0('Mean OO EDMS = ',moo))
-  print(paste0('Mean MIZ/OO % = ',100*mmiz/moo))
+  print(paste0('Mean MIZ/(OO+MIZ) % = ',100*mmiz/(moo+mmiz)))
   
 }
