@@ -15,7 +15,7 @@ exportimg <- T
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_phyto/"
 
 # Phyto group plotted
-pg <- "diat_pen" # Phaeo, diat_cen, diat_pen
+pg <- "Phaeo" # Phaeo, diat_cen, diat_pen
 xl <- list(diat_pen = "Pennate diatoms (cells/mL)",
            diat_cen = "Centric diatoms (cells/mL)",
            Phaeo = 'Phaeocystis (cells/mL)')
@@ -89,7 +89,7 @@ plot(x = pplot[[pg]], y = pplot$dmspt, log = "xy",
      ylab = "DMSPt (nM)",
      ylim = c(10,550)
      )
-# axis(side = 1, at = 10^(4:7), cex.axis = 1, labels = NULL) # , format = "%m"
+if (pg=="Phaeo") {axis(side = 1, at = 10^(4:7), cex.axis = 1, labels = NULL)}
 points(x = pplot[[pg]][pplot$scm=='surface'], y = pplot$dmspt[pplot$scm=='surface'],
        pch = 1,
        lwd = 1,
@@ -110,7 +110,7 @@ plot(x = pplot[[pg]], y = pplot$dms_consens_cf68, log = "xy",
      pch = 19,
      cex = 1.2,
      cex.axis = 0.9,
-     # xaxp = c(10^4, 10^7, 1),
+     xaxp = c(10^4, 10^7, 1), # Uncomment only if (pg=="Phaeo") 
      # yaxp = c(1, 100, 2),
      xlab = xl[[pg]],
      ylab = "DMS (nM)",
