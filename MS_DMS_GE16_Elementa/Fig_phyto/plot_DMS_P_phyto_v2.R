@@ -1,7 +1,7 @@
 # MAKE PLOTS OF DMS AND DMSP VS. PHYTO COUNTS AND ADDITIONAL Z VARIABLES
 
 library(RColorBrewer)
-library(classInt)
+library(classInt) # for function classIntervals
 # Check http://geog.uoregon.edu/GeogR/topics/multiplots01.html
 
 # Load data
