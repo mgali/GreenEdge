@@ -90,7 +90,7 @@ col.ice3 <- 'skyblue3'
 exportimg <- T
 
 if (exportimg) {
-  png(filename = '~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig1_map/Fig1_2panels_v2.png',
+  png(filename = '~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig1_map/Fig1_2panels_v3.png',
       width = 15, height = 7, units = 'cm', pointsize = 8, # height 10 for 3 panels, 13 for 4 panels
       bg = 'white', res = 600, type = 'cairo')
 }
@@ -204,19 +204,19 @@ legend(x = xpos, y = 70.10, pch = 1, lty = 0, lwd = 1,
        bg= "gray97", box.lwd = 0, box.col = "gray95")
 
 # Labels for transects and dates
-text(x = -62.8, y = 68.40, labels = 't.400', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -62.8, y = 68.40, labels = 'T4', offset = 0.5, cex = 1, srt = 0, col = 'black')
 text(x = -62.7, y = 68.27, labels = 'd176 ->', offset = 0.5, cex = 1, srt = 0, col = 'red')
 text(x = -56.4, y = 68.13, labels = '-> d181', offset = 0.5, cex = 1, srt = 0, col = 'red')
 
-text(x = -57, y = 70.23, labels = 't.500', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -57, y = 70.23, labels = 'T5', offset = 0.5, cex = 1, srt = 0, col = 'black')
 text(x = -57, y = 70.1, labels = '<- d181', offset = 0.5, cex = 1, srt = 0, col = 'red')
 text(x = -63.7, y = 70.0, labels = 'd184 <-', offset = 0.5, cex = 1, srt = 0, col = 'red')
 
-text(x = -65, y = 70.63, labels = 't.600', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -65, y = 70.63, labels = 'T6', offset = 0.5, cex = 1, srt = 0, col = 'black')
 text(x = -64.9, y = 70.5, labels = 'd185 ->', offset = 0.5, cex = 1, srt = 0, col = 'red')
 text(x = -58.2, y = 70.5, labels = '-> d188', offset = 0.5, cex = 1, srt = 0, col = 'red')
 
-text(x = -57, y = 69.63, labels = 't.700', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -57, y = 69.63, labels = 'T7', offset = 0.5, cex = 1, srt = 0, col = 'black')
 text(x = -57, y = 69.5, labels = '<- d189', offset = 0.5, cex = 1, srt = 0, col = 'red')
 text(x = -64.1, y = 69.5, labels = 'd191 <-', offset = 0.5, cex = 1, srt = 0, col = 'red')
 
