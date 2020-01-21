@@ -55,71 +55,82 @@ pplot$dmspt2cp <- pplot$dmspt/pplot$cpsmooth1         # dmspt/cp ratio
 # Bin profiles by station categories
 df2bin <- pplot
 z_class <- cut(df2bin$depth, breaks = c(0,9,21,41,81), labels = c(0,1,2,3))
-
-pplot.bin <- list(mean = aggregate.data.frame(df2bin,
-                                              by = list(
-                                                Z_CLASS=z_class, SIC_CLASS=pplot$sic_class),
-                                              FUN = mean,
-                                              na.rm = T),
-                  median = aggregate.data.frame(df2bin,
-                                                by = list(
-                                                  Z_CLASS=z_class, SIC_CLASS=pplot$sic_class),
-                                                FUN = median,
-                                                na.rm = T),
-                  count = aggregate.data.frame(df2bin,
-                                               by = list(
-                                                 Z_CLASS=z_class, SIC_CLASS=pplot$sic_class),
-                                               FUN = function(x) sum(!is.na(x), na.rm = T))
-)
+# st_class <- pplot$sic_class
+st_class <- list(sic_class = pplot$sic_class,
+                 owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,4.5,35), labels = c("ICE","MIZ","OW")))
 
 # ---------------------
 # Plot settings
-
-xvar <- "dms"; xlabel <- "DMS (nM)"
-# xvar <- "dmspt"; xlabel <- "DMSPt (nM)"
-# xvar <- "tchla"; xlabel <- "TChla (µg/L)"
-# xvar <- "cpsmooth1"; xlabel <- "Cp (1/m)"
-# xvar <- "chlc3_2_tchla"; xlabel <- "Chlc3/TChla"
-# xvar <- "xcp"; xlabel <- "(Dt+Dd)/TChla"
-# xvar <- "dms2dmspt"; xlabel <- "DMS/DMSPt"
-# xvar <- "dmspt2tchla"; xlabel <- "DMSPt/TChla"
-xvar <- "dmspt2cp"; xlabel <- "DMSPt/Cp"
-
-xl <- c(0, 1.1*max(pplot.bin$mean[,xvar], na.rm = T))
+xvarS <- list(dms = "DMS (nM)",
+              dmspt = "DMSPt (nM)",
+              tchla = "TChla (µg/L)",
+              cpsmooth1 = "Cp (1/m)",
+              chlc3_2_tchla = "Chlc3/TChla",
+              xcp = "(Dt+Dd)/TChla",
+              dms2dmspt = "DMS/DMSPt",
+              dmspt2cp = "DMSPt/Cp")
 yvar <- "depth"
 
 # ---------------------
-if (exportimg) {png(filename = paste0(opath,xvar,".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = 600, type = 'cairo')}
+# Loop on different station classifications
 
-plot(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
-     y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
-     ylim = c(70,0), xlim = xl,
-     pch = 19, col = col[1], cex = 1.9,
-     xlab = xlabel, ylab = "Depth", cex.lab = 1.2)
-points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
-      y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
-      pch = 19,  col = col[2], cex = 1.9)
-points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="OW",xvar],
-       y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
-       pch = 19, col = col[3], cex = 1.9)
-lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
-     y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
-     col = col[1], lwd = 2)
-lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
-       y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
-       col = col[2], lwd = 2)
-lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="OW",xvar],
-       y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
-       col = col[3], lwd = 2)
-lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",xvar],
-      y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
-      col = col[1], lwd = 1.5, lty = 3)
-lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
-      y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
-      col = col[2], lwd = 1.5, lty = 3)
-lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",xvar],
-      y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
-      col = col[3], lwd = 1.5, lty = 3)
-
-if (exportimg) {dev.off()}
-
+for (sc in names(st_class)) {
+  
+  rm(pplot.bin)
+  pplot.bin <- list(mean = aggregate.data.frame(df2bin,
+                                                by = list(
+                                                  Z_CLASS=z_class, SIC_CLASS=st_class[[sc]]),
+                                                FUN = mean,
+                                                na.rm = T),
+                    median = aggregate.data.frame(df2bin,
+                                                  by = list(
+                                                    Z_CLASS=z_class, SIC_CLASS=st_class[[sc]]),
+                                                  FUN = median,
+                                                  na.rm = T),
+                    count = aggregate.data.frame(df2bin,
+                                                 by = list(
+                                                   Z_CLASS=z_class, SIC_CLASS=st_class[[sc]]),
+                                                 FUN = function(x) sum(!is.na(x), na.rm = T))
+  )
+  
+  for (xvar in names(xvarS)) {
+    
+    if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = 600, type = 'cairo')}
+    
+    print(xvar)
+    print(max(pplot.bin$mean[,xvar], na.rm = T))
+    xl <- c(0, 1.1*max(pplot.bin$mean[,xvar], na.rm = T))
+    
+    plot(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
+         y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
+         ylim = c(70,0), xlim = xl,
+         pch = 19, col = col[1], cex = 1.9,
+         xlab = xvarS[[xvar]], ylab = "Depth", cex.lab = 1.2)
+    points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
+           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
+           pch = 19,  col = col[2], cex = 1.9)
+    points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="OW",xvar],
+           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
+           pch = 19, col = col[3], cex = 1.9)
+    lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
+          col = col[1], lwd = 2)
+    lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
+          col = col[2], lwd = 2)
+    lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="OW",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
+          col = col[3], lwd = 2)
+    lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
+          col = col[1], lwd = 1.5, lty = 3)
+    lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
+          col = col[2], lwd = 1.5, lty = 3)
+    lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
+          col = col[3], lwd = 1.5, lty = 3)
+    
+    if (exportimg) {dev.off()}
+  }
+}
