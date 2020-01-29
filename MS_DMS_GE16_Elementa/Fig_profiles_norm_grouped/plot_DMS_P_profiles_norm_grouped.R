@@ -2,8 +2,6 @@
 
 library(RColorBrewer)
 library(dplyr)
-library(classInt) # for function classIntervals
-# Check http://geog.uoregon.edu/GeogR/topics/multiplots01.html
 
 # Load data
 genpath <- '~/Desktop/GreenEdge/GCMS/'
@@ -12,8 +10,11 @@ prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header
 surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
 # Exporting image?
-exportimg <- T
+exportimg <- F
+doplot <- F
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_profiles_norm_grouped/"
+
+showtable <- "owd_class"
 
 # ---------------------
 
@@ -32,16 +33,20 @@ prof.all <- prof.all[,toinclude]
 # Remove data where no DMS or DMSPt are available
 prof.all <- prof.all[(!is.na(prof.all$dms) | !is.na(prof.all$dmspt)) & !is.na(prof.all$depth),]
 
+# !!!!!! Correct DMS and DMSPt in stn 519 surface !!!!!
+prof.all[prof.all$stn==519 & prof.all$depth==0.7,c("dms","dmspt")] <- c(3.93,79.9)
+
 # Add MIZ classification
 icecrit1 <- 0.15
-icecrit2 <- 0.85
+icecrit2 <- 0.70
 ICE <- surf.all[,c("SICm2d","SICm1d","SICday")]
-icemin <- apply(ICE, 1, min, na.rm = T)
-icemax <- apply(ICE, 1, max, na.rm = T)
-surf.all$sic_class <- "MIZ"
+icemin <- apply(ICE, 1, min, na.rm = T) # Min-max SIC criterion
+icemax <- apply(ICE, 1, max, na.rm = T) # Min-max SIC criterion
+icemean <- apply(ICE, 1, min, na.rm = T) # Mean concentration criterion
+surf.all$sic_class <- NA
 surf.all$sic_class[icemax<icecrit1] <- "OW"
 surf.all$sic_class[icemin>icecrit2] <- "ICE"
-surf.all$sic_class[is.na(rowSums(ICE))] <- NA
+surf.all$sic_class[icemax>=icecrit1 & icemin<=icecrit2] <- "MIZ"
 
 # Merge with profiles to get clustering coefficient and SIC classification
 pplot <- merge(x = prof.all, y = surf.all, all.x = T, all.y = F, by = 'stn', suffixes = "")
@@ -80,25 +85,27 @@ pplot[pplot$phaeo2chl > 3 & !is.na(pplot$phaeo2chl),c("phaeo_Tu_ugL","chla_Tu_ug
 # Bin profiles by station categories
 df2bin <- pplot
 z_class <- cut(df2bin$depth, breaks = c(0,9,21,41,81), labels = c(0,1,2,3))
-# st_class <- pplot$sic_class
 st_class <- list(sic_class = pplot$sic_class,
-                 owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,4.5,35), labels = c("ICE","MIZ","OW")))
+                 # owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,4.5,35), labels = c("ICE","MIZ","OW")))
+                 # owd_class = cut(df2bin$OWD, breaks = c(-35,-2.5,5.5,35), labels = c("ICE","MIZ","OW")))
+                 # owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MIZ","OW"))) # STANDARD?
+                 owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MIZ","OW")))
 
 # ---------------------
 # Plot settings
-# xvarS <- list(dms = "DMS (nM)",
-# #               dmspt = "DMSPt (nM)",
-# #               tchla = "TChla (µg/L)",
-#               # cpsmooth1 = "Cp (1/m)",
-#               cp2tchla = "Cp/TChla (m2/mg)",
-# #               dms2dmspt = "DMS/DMSPt",
-# #               dmspt2tchla = "DMSPt/TChla",
-# #               dmspt2cp = "DMSPt/Cp",
-# #               temp = "Temperature (C)",
-# #               sal = "Salinity",
-# #               sigt = "sigma-t (kg/m3)",
-# #               anp = "ANP",
-#               par_d_p24h_ein_m_2_day_1 = "PAR (µE/m2/d)")
+xvarS <- list(dms = "DMS (nM)",
+              dmspt = "DMSPt (nM)",
+              tchla = "TChla (µg/L)",
+              cpsmooth1 = "Cp (1/m)",
+              cp2tchla = "Cp/TChla (m2/mg)",
+              dms2dmspt = "DMS/DMSPt",
+              dmspt2tchla = "DMSPt/TChla",
+              dmspt2cp = "DMSPt/Cp",
+              temp = "Temperature (C)",
+              sal = "Salinity",
+              sigt = "sigma-t (kg/m3)",
+              anp = "ANP",
+              par_d_p24h_ein_m_2_day_1 = "PAR (µE/m2/d)")
 # xvarS <- list(diat_pelagic_mg_L = "Diatoms (mg C/L)",
 #               melo_mg_L = "Melosira (mg C/L)",
 #               phaeo_mg_L = "Phaeocystis (mg C/L)",
@@ -113,15 +120,15 @@ st_class <- list(sic_class = pplot$sic_class,
 #               hetero = "HNF (cells/mL)",
 #               choano = "Choanoflagellates (cells/mL)",
 #               cilli = "Cilliates (cells/mL)")
-xvarS <- list(ppc2psc = "PPC/PSC",
-              # npp = "PPC/TPig",
-              # ppc2tchla = "PPC/TChla",
-              psc2tchla = "PSC/TChla",
-              # chlc3_2_tchla = "Chlc3/TChla",
-              # chlc3_2_psc = "Chlc3/PSC",
-              # phaeo2chl = "Phaeopigments/Chla (Turner)",
-              dd = "(Dd+Dt)/TChla",
-              vaz = "(Vi+Anth+Zea)/TChla")
+# xvarS <- list(ppc2psc = "PPC/PSC",
+#               npp = "PPC/TPig",
+#               ppc2tchla = "PPC/TChla",
+#               psc2tchla = "PSC/TChla",
+#               chlc3_2_tchla = "Chlc3/TChla",
+#               chlc3_2_psc = "Chlc3/PSC",
+#               phaeo2chl = "Phaeopigments/Chla (Turner)",
+#               dd = "(Dd+Dt)/TChla",
+#               vaz = "(Vi+Anth+Zea)/TChla")
 yvar <- "depth"
 
 # ---------------------
@@ -136,20 +143,20 @@ for (sc in names(st_class)) {
                                                 FUN = mean,
                                                 na.rm = T),
                     sd = aggregate.data.frame(df2bin,
-                                                by = list(
-                                                  Z_CLASS=z_class, SIC_CLASS=st_class[[sc]]),
-                                                FUN = sd,
-                                                na.rm = T),
+                                              by = list(
+                                                Z_CLASS=z_class, SIC_CLASS=st_class[[sc]]),
+                                              FUN = sd,
+                                              na.rm = T),
                     median = aggregate.data.frame(df2bin,
                                                   by = list(
                                                     Z_CLASS=z_class, SIC_CLASS=st_class[[sc]]),
                                                   FUN = median,
                                                   na.rm = T),
                     min = aggregate.data.frame(df2bin,
-                                                  by = list(
-                                                    Z_CLASS=z_class, SIC_CLASS=st_class[[sc]]),
-                                                  FUN = min,
-                                                  na.rm = T),
+                                               by = list(
+                                                 Z_CLASS=z_class, SIC_CLASS=st_class[[sc]]),
+                                               FUN = min,
+                                               na.rm = T),
                     max = aggregate.data.frame(df2bin,
                                                by = list(
                                                  Z_CLASS=z_class, SIC_CLASS=st_class[[sc]]),
@@ -163,66 +170,80 @@ for (sc in names(st_class)) {
   
   for (xvar in names(xvarS)) {
     
-    if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = 600, type = 'cairo')}
+    if (doplot) {
+      if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = 600, type = 'cairo')}
+      # if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,"m2to3owd",sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = 600, type = 'cairo')}
+      
+      print(xvar)
+      xl <- c(min(c(0,1.1*min(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T))),
+              1.1*max(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T))
+      if (xvar  %in% c("sal","sigt")) {xl[1] <- 0.9*min(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T)}
+      if (xvar  == "anp") {xl <- rev(xl)}
+      print(xl)
+      
+      plot(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
+           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
+           ylim = c(70,0), xlim = xl,
+           pch = 19, col = col[1], cex = 1.9,
+           xlab = xvarS[[xvar]], ylab = "Depth", cex.lab = 1.2)
+      points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
+             y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
+             pch = 19,  col = col[2], cex = 1.9)
+      points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="OW",xvar],
+             y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
+             pch = 19, col = col[3], cex = 1.9)
+      lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
+            y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
+            col = col[1], lwd = 2)
+      lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
+            y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
+            col = col[2], lwd = 2)
+      lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="OW",xvar],
+            y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
+            col = col[3], lwd = 2)
+      lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",xvar],
+            y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
+            col = col[1], lwd = 1.5, lty = 3)
+      lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
+            y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
+            col = col[2], lwd = 1.5, lty = 3)
+      lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",xvar],
+            y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
+            col = col[3], lwd = 1.5, lty = 3)
+      
+      if (exportimg) {dev.off()}
+    }
+  }
+  
+  if (showtable == sc) {
+    # --------------------------------------------------
+    # View some tables, compute some summary stats
     
-    print(xvar)
-    xl <- c(min(c(0,1.1*min(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T))),
-            1.1*max(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T))
-    if (xvar  %in% c("sal","sigt")) {xl[1] <- 0.9*min(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T)}
-    if (xvar  == "anp") {xl <- rev(xl)}
-    print(xl)
-    
-    plot(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
-         y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
-         ylim = c(70,0), xlim = xl,
-         pch = 19, col = col[1], cex = 1.9,
-         xlab = xvarS[[xvar]], ylab = "Depth", cex.lab = 1.2)
-    points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
-           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
-           pch = 19,  col = col[2], cex = 1.9)
-    points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="OW",xvar],
-           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
-           pch = 19, col = col[3], cex = 1.9)
-    lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
-          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
-          col = col[1], lwd = 2)
-    lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
-          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
-          col = col[2], lwd = 2)
-    lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="OW",xvar],
-          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
-          col = col[3], lwd = 2)
-    lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",xvar],
-          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
-          col = col[1], lwd = 1.5, lty = 3)
-    lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
-          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
-          col = col[2], lwd = 1.5, lty = 3)
-    lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",xvar],
-          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
-          col = col[3], lwd = 1.5, lty = 3)
-    
-    if (exportimg) {dev.off()}
+    # View(pplot[,c("stn","OWD","dms","dmspt")])
+    # View(pplot.bin$count[,c("stn","OWD","dms","dmspt")])
+    # View(pplot.bin$mean[,grep("SIC",names(pplot.bin$mean))]) # equivalent to: View(pplot.bin$mean[,c("SIC_CLASS","SICm2d","SICm1d","SICday")])
+
+    # a <- as.matrix(pplot.bin$mean[,c("SICm2d","SICm1d","SICday")])
+    # print(mean(a[c(1,2),1]))
+    # print(mean(a[c(5,6),1]))
+    # b <- as.matrix(pplot.bin$mean[,"OWD"])
+    # print(mean(b[c(1,2),1]))
+    # print(mean(b[c(5,6),1]))
+
+    # dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==0,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
+    # dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==0,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
+    # dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==0,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
+    # View(cbind(dmean,dmin,dmax))
   }
 }
 
 # --------------------------------------------------
-# View some tables, compute some summary stats
+# Compare classifications based on SIC and OWD
 
-# View(pplot[,c("stn","OWD","dms","dmspt")])
-# View(pplot.bin$count[,c("stn","OWD","dms","dmspt")])
-# View(pplot.bin$mean[,grep("SIC",names(pplot.bin$mean))]) # equivalent to: View(pplot.bin$mean[,c("SIC_CLASS","SICm2d","SICm1d","SICday")])
-# View(pplot.bin$mea[,c("stn","OWD","dms","dmspt")])
-# View(pplot.bin$mean[,c("SIC_CLASS","OWD")])
-# 
-# a <- as.matrix(pplot.bin$mean[,c("SICm2d","SICm1d","SICday")])
-# mean(a[seq(5,6),1])
-# 
-# b <- as.matrix(pplot.bin$mean[,"OWD"])
-# mean(b[seq(1,2),1])
+sel <- c(diff(pplot$station),1)
+sel <- !is.na(sel) & sel!=0
+cl_summary <- cbind(pplot[sel,c("stn","SICm2d","SICm1d","SICday","sic_class","OWD")],st_class$owd_class[sel])
+View(cl_summary)
 
-dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==0,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm")]
-dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==0,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm")]
-dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==0,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm")]
-View(cbind(dmean,dmin,dmax))
-
+print(table(cl_summary$sic_class))
+print(table(cl_summary$`st_class$owd_class[sel]`))
