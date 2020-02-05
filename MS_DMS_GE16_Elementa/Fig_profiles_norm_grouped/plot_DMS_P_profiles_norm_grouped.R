@@ -10,8 +10,8 @@ prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header
 surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
 # Exporting image?
-exportimg <- F
-doplot <- F
+exportimg <- T
+doplot <- T
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_profiles_norm_grouped/"
 
 showtable <- "owd_class"
@@ -22,10 +22,8 @@ showtable <- "owd_class"
 pal <- colorRampPalette(brewer.pal(9, "Spectral"))
 col <- pal(n = 21)[c(21,18,5)]
 
-# Rename DMS variable
+# Rename DMS variable and remove unnecessary DMS variables
 prof.all$dms <- prof.all$dms_consens_cf68
-
-# Remove unnecessary DMS variables
 toinclude <- names(prof.all)[grep("dms",names(prof.all), invert = T)]
 toinclude <- c(toinclude,"dms","dmspt")
 prof.all <- prof.all[,toinclude]
@@ -34,7 +32,8 @@ prof.all <- prof.all[,toinclude]
 prof.all <- prof.all[(!is.na(prof.all$dms) | !is.na(prof.all$dmspt)) & !is.na(prof.all$depth),]
 
 # !!!!!! Correct DMS and DMSPt in stn 519 surface !!!!!
-prof.all[prof.all$stn==519 & prof.all$depth==0.7,c("dms","dmspt")] <- c(3.93,79.9)
+# prof.all[prof.all$stn==519 & prof.all$depth==0.7,c("dms","dmspt")] <- c(3.93,79.9)
+prof.all[prof.all$stn==519 & prof.all$depth==0.7,c("dms","dmspt")] <- c(11.42,79.9)
 
 # Add MIZ classification
 icecrit1 <- 0.15
@@ -54,7 +53,7 @@ pplot <- merge(x = prof.all, y = surf.all, all.x = T, all.y = F, by = 'stn', suf
 # Remove duplicated variables
 pplot <- pplot[,grep("NA",names(pplot), invert = T)]
 
-# Hide data from transect 400
+# Hide data from stn 400
 pplot[pplot$stn<=400,] <- NA
 
 # Calculate photosynthetic and photoprotective carotenoids (Bricaud 2004)
@@ -222,7 +221,7 @@ for (sc in names(st_class)) {
     # View(pplot[,c("stn","OWD","dms","dmspt")])
     # View(pplot.bin$count[,c("stn","OWD","dms","dmspt")])
     # View(pplot.bin$mean[,grep("SIC",names(pplot.bin$mean))]) # equivalent to: View(pplot.bin$mean[,c("SIC_CLASS","SICm2d","SICm1d","SICday")])
-
+    
     # a <- as.matrix(pplot.bin$mean[,c("SICm2d","SICm1d","SICday")])
     # print(mean(a[c(1,2),1]))
     # print(mean(a[c(5,6),1]))
@@ -230,10 +229,15 @@ for (sc in names(st_class)) {
     # print(mean(b[c(1,2),1]))
     # print(mean(b[c(5,6),1]))
 
-    # dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==0,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
-    # dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==0,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
-    # dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==0,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
-    # View(cbind(dmean,dmin,dmax))
+    dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
+    dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
+    dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
+    
+    # dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
+    # dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
+    # dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
+    
+    View(cbind(dmean,dmin,dmax))
   }
 }
 
@@ -247,3 +251,5 @@ View(cl_summary)
 
 print(table(cl_summary$sic_class))
 print(table(cl_summary$`st_class$owd_class[sel]`))
+
+

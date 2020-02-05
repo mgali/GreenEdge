@@ -6,7 +6,6 @@ library(classInt) # for function classIntervals
 
 # Load data
 genpath <- '~/Desktop/GreenEdge/GCMS/'
-pdir <- 'plots_pigments_vs_DMS_zColorScale/'
 prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header = T)
 surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
