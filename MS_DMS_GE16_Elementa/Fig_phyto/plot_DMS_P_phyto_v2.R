@@ -32,7 +32,7 @@ pplot <- pplot[!duplicated(pplot[[pg]]),]
 
 # Add surface and SCM categories
 pplot$scm <- 'SCM'
-pplot$scm[pplot$depth <= 10] <- 'surface'
+pplot$scm[pplot$depth < 10] <- 'surface'
 
 # Irradiance color scale
 # col.par <- colorRamp(brewer.pal(11, 'Spectral'))
