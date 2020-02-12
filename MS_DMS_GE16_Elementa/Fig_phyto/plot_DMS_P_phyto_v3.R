@@ -43,7 +43,7 @@ Xall$prym_noPhaeo <- Xall$prym - Xall$Phaeo
 Xall[Xall == 0] <- NA
 Xsel <- Xall[,c("diat_cen","diat_pen","dino_athec","dino_thec","chrys","crypt","Phaeo","flag")]
 # boxplot(Xsel, log = "y")
-# !!!!!! Explore: dictyo, raph, eugl, choano !!!!!!
+# !!!!!! dictyochales = silicoflagellata, raphidophyceae: filum Heterocontophyta, mostly Heterosigma akashiwo, Euglenophyta, Choanoflagellates !!!!!!
 
 R <- list()
 R.r1 <- list()

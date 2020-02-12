@@ -1,5 +1,6 @@
 # MAKE PLOTS OF DMS AND DMSP VS. PHYTO COUNTS AND ADDITIONAL Z VARIABLES
 
+library(dplyr)
 library(RColorBrewer)
 library(classInt) # for function classIntervals
 # Check http://geog.uoregon.edu/GeogR/topics/multiplots01.html
@@ -26,13 +27,7 @@ MendenDeuer_Lessard <- function(esd_microm, cell_conc, is_diatom) {
 # ---------------------
 # Data wrangling
 
-# Remove unnecessary DMS variables
-prof$dms <- prof$dms_consens_cf68
-toinclude <- names(prof)[grep("dms",names(prof), invert = T)]
-toinclude <- c(toinclude,"dms","dmspt")
-prof <- prof[,toinclude]
-
-# Remove duplicated variables appended with NA, and stations where microscopy counts not done
+# Remove stations where microscopy counts not done
 prof <- prof[,grep("NA",names(prof), invert = T)]
 prof <- prof[pplot$stn >= 418,]
 
@@ -44,23 +39,29 @@ prof <- prof[prof$depth!=0.1 & !is.na(prof$prescreen) ,]
 prof$scm <- 'SCM'
 prof$scm[prof$depth <= 10] <- 'surface'
 
+# Rename DMS and remove unnecessary variables
+prof$dms <- prof$dms_consens_cf68
+prof <- select(prof, c(stn,depth,cast,year,month,day,scm,dmspt,diat_cen,diat_pen,dino_athec,dino_thec,chrys,crypt,Phaeo,flag))
 
 # ---------------------
-# Convert Phaeocystis and diatom counts to DMSP to estimate contribution
+# Convert phyto counts to DMSP to estimate contribution
 
 # Generalize to other species and make bar plots for surface and SCM. Calculate group-specific DMSPt and % in loop
 
+# Assume DMSPp is 90% of DMSPt
+fp <- 0.9
+
 # Using Phaeocystis DMSP cell quota (q)
 qdmsp.phaeo <- 10                                                 # fmol DMSP / cell
-prof$dmspt_phaeo.counts <- prof$Phaeo * qdmsp.phaeo * 1e-6        # DMSPt-Phaeo
-prof$dmspt_phaeo.counts.pc <- 100*prof$dmspt_phaeo.counts/prof$dmspt
-print(summary(prof$dmspt_phaeo.counts.pc))
+prof$dmspt.Phaeo.counts <- prof$Phaeo * qdmsp.phaeo * 1e-6        # DMSPt-Phaeo
+prof$dmspt.Phaeo.counts.pc <- 100 * prof$dmspt.Phaeo.counts / (fp * prof$dmspt)
+print(summary(prof$dmspt.Phaeo.counts.pc))
 
 # # Using Phaeocystis carbon from iFCB: WEIRD
 # rdmsp.phaeo <- 0.05
-# prof$dmspt_phaeo.Cifcb <- prof$phaeo_mg_L * rdmsp.phaeo * (1/12) * (1/5) * 1e6
-# prof$dmspt_phaeo.Cifcb.pc <- 100*prof$dmspt_phaeo.Cifcb/prof$dmspt
-# print(summary(prof$dmspt_phaeo.Cifcb.pc))
+# prof$dmspt.Phaeo.Cifcb <- prof$phaeo_mg_L * rdmsp.phaeo * (1/12) * (1/5) * 1e6
+# prof$dmspt.Phaeo.Cifcb.pc <- 100*prof$dmspt.Phaeo.Cifcb/prof$dmspt
+# print(summary(prof$dmspt.Phaeo.Cifcb.pc))
 
 # Using carbon biomass based on cell counts and ESD estimated from abundance-weighted average of size intervals (see Taxonomy xls v2018)
 rdmsp <- list(diat_cen = 0.01,
@@ -88,33 +89,13 @@ for (nn in names(rdmsp)) {
   }
   prof[[paste(nn,"mgC_L.mic",sep = ".")]] <- tmp
   prof[[paste("dmspt",nn,"Cmic",sep = ".")]] <- tmp * rdmsp[[nn]] * (1/12) * (1/5) * 1e6
-  prof[[paste("dmspt",nn,"Cmic.pc",sep = ".")]] <- tmp * rdmsp[[nn]] * (1/12) * (1/5) * 1e6 / prof$dmspt
+  prof[[paste("dmspt",nn,"Cmic.pc",sep = ".")]] <- 100 * tmp * rdmsp[[nn]] * (1/12) * (1/5) * 1e6 / (fp * prof$dmspt)
 }
 
-# prof$Phaeo_mgC_L.microscopy <- MendenDeuer_Lessard(esd_microm = 5, cell_conc = prof$Phaeo, is_diatom = F) * 1e-9
-# rdmsp.phaeo <- 0.10
-# prof$dmspt_phaeo.Cmic <- prof$Phaeo_mgC_L.microscopy * rdmsp.phaeo * (1/12) * (1/5) * 1e6
-# prof$dmspt_phaeo.Cmic.pc <- 100 * prof$dmspt_phaeo.Cmic / prof$dmspt
-# print(summary(prof$dmspt_phaeo.Cmic.pc))
-# 
-# prof$diat_cen_mgC_L.microscopy <- MendenDeuer_Lessard(esd_microm = 100, cell_conc = prof$diat_cen, is_diatom = T) * 1e-9
-# prof$diat_pen_mgC_L.microscopy <- MendenDeuer_Lessard(esd_microm = 20, cell_conc = prof$diat_pen, is_diatom = T) * 1e-9
-# prof$diat_mgC_L.microscopy <- prof$diat_cen_mgC_L.microscopy + prof$diat_pen_mgC_L.microscopy
-# rdmsp.diat <- 0.02
-# prof$dmspt_diat.Cmic <- prof$diat_mgC_L.microscopy * rdmsp.diat * (1/12) * (1/5) * 1e6
-# prof$dmspt_diat.Cmic.pc <- 100 * prof$dmspt_diat.Cmic / prof$dmspt
-# print(summary(prof$dmspt_diat.Cmic.pc))
-
-
 # OUTPUT
-OUT <- prof[,c("stn","depth",
-               "Phaeo","diat_cen","diat_pen",
-               "Phaeo_mgC_L.microscopy","diat_cen_mgC_L.microscopy","diat_pen_mgC_L.microscopy","diat_mgC_L.microscopy",
-               "dmspt_phaeo.counts","dmspt_phaeo.Cmic","dmspt_diat.Cmic",
-               "dmspt",
-               "dmspt_phaeo.counts.pc","dmspt_phaeo.Cmic.pc","dmspt_diat.Cmic.pc")]
+OUT <- prof
 View(OUT)
-write.csv(x = OUT, file = paste0(opath,"Fraction_DMSPt_Phaeo_diat.csv"), row.names = F)
+write.csv(x = OUT, file = paste0(opath,"Fraction_DMSPt_phyto.csv"), row.names = F)
 
 
 # ---------------------
@@ -131,3 +112,27 @@ write.csv(x = OUT, file = paste0(opath,"Fraction_DMSPt_Phaeo_diat.csv"), row.nam
 # plot(prof$Phaeo, 1e3*prof$phaeo_n_mL / prof$Phaeo, xlab = "Phaeocystis cells/L, microscopy", ylab = "Fraction detected: iFCB / microscopy")
 # plot(prof$Phaeo_mgC_L.microscopy, prof$phaeo_mg_L, xlab = "Phaeocystis mgC/L, microscopy", ylab = "Phaeocystis mgC/L, iFCB")
 plot(prof$diat_mgC_L.microscopy, prof$diat_pelagic_mg_L, xlab = "Diatoms mgC/L, microscopy", ylab = "Diatoms mgC/L, iFCB")
+
+
+# --------------------------
+# OLD
+# prof$Phaeo_mgC_L.microscopy <- MendenDeuer_Lessard(esd_microm = 5, cell_conc = prof$Phaeo, is_diatom = F) * 1e-9
+# rdmsp.phaeo <- 0.10
+# prof$dmspt_phaeo.Cmic <- prof$Phaeo_mgC_L.microscopy * rdmsp.phaeo * (1/12) * (1/5) * 1e6
+# prof$dmspt_phaeo.Cmic.pc <- 100 * prof$dmspt_phaeo.Cmic / (fp * prof$dmspt)
+# print(summary(prof$dmspt_phaeo.Cmic.pc))
+# 
+# prof$diat_cen_mgC_L.microscopy <- MendenDeuer_Lessard(esd_microm = 100, cell_conc = prof$diat_cen, is_diatom = T) * 1e-9
+# prof$diat_pen_mgC_L.microscopy <- MendenDeuer_Lessard(esd_microm = 20, cell_conc = prof$diat_pen, is_diatom = T) * 1e-9
+# prof$diat_mgC_L.microscopy <- prof$diat_cen_mgC_L.microscopy + prof$diat_pen_mgC_L.microscopy
+# rdmsp.diat <- 0.02
+# prof$dmspt_diat.Cmic <- prof$diat_mgC_L.microscopy * rdmsp.diat * (1/12) * (1/5) * 1e6
+# prof$dmspt_diat.Cmic.pc <- 100 * prof$dmspt_diat.Cmic / (fp * prof$dmspt)
+# print(summary(prof$dmspt_diat.Cmic.pc))
+
+# OUT <- prof[,c("stn","depth",
+#                "Phaeo","diat_cen","diat_pen",
+#                "Phaeo_mgC_L.microscopy","diat_cen_mgC_L.microscopy","diat_pen_mgC_L.microscopy","diat_mgC_L.microscopy",
+#                "dmspt.Phaeo.counts","dmspt_phaeo.Cmic","dmspt_diat.Cmic",
+#                "dmspt",
+#                "dmspt.Phaeo.counts.pc","dmspt_phaeo.Cmic.pc","dmspt_diat.Cmic.pc")]
