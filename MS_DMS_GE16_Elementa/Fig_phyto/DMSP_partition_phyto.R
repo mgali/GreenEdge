@@ -32,8 +32,9 @@ toinclude <- names(prof)[grep("dms",names(prof), invert = T)]
 toinclude <- c(toinclude,"dms","dmspt")
 prof <- prof[,toinclude]
 
-# Remove duplicated variables appended with NA
+# Remove duplicated variables appended with NA, and stations where microscopy counts not done
 prof <- prof[,grep("NA",names(prof), invert = T)]
+prof <- prof[pplot$stn >= 418,]
 
 # Remove data where no phyto counts available
 prof <- prof[!is.na(prof$Phaeo) & !is.na(prof$dmspt) & !is.na(prof$depth),]
@@ -46,6 +47,8 @@ prof$scm[prof$depth <= 10] <- 'surface'
 
 # ---------------------
 # Convert Phaeocystis and diatom counts to DMSP to estimate contribution
+
+# Generalize to other species and make bar plots for surface and SCM. Calculate group-specific DMSPt and % in loop
 
 # Using DMSP cell quota (q)
 qdmsp.phaeo <- 10                                                 # fmol DMSP / cell

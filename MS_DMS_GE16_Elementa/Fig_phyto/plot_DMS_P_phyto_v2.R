@@ -23,8 +23,9 @@ xl <- list(diat_pen = "Pennate diatoms (cells/mL)",
 # Add clustering coefficient as per station by merging with profiles
 pplot <- merge(x = prof.all, y = surf.all, all.x = T, all.y = F, by = 'stn', suffixes = "")
 
-# Remove DMS data points where DMSPt or Phaeocystis are missing
+# Remove DMS data points where DMSPt or Phaeocystis are missing, and stations where microscopy counts not done
 pplot <- pplot[!is.na(pplot$dmspt) & !is.na(pplot$dms_consens_cf68),]
+pplot <- pplot[pplot$stn >= 418,]
 
 # If phyto counts duplicated, remove duplicates
 # NOTE: meging DMS(P) and taxonomy by station led to duplicate Phaeo values in stations with DMS in >1 cast
@@ -54,14 +55,6 @@ parcol <- findColours(class, parpal)
 
 # Converting phyto counts to biomass would make a much stronger case for DMSP contribution to S and C cycling
 # Lines of C_DMSP:C_tot could be added to plot panels
-
-# ---------------------
-# Correlations
-
-rs.sur <- cor(pplot[[pg]][pplot$scm=='surface'],pplot$dmspt[pplot$scm=='surface'], use = "pairwise", method = "spearman")
-rs.scm <- cor(pplot[[pg]][pplot$scm!='surface'],pplot$dmspt[pplot$scm!='surface'], use = "pairwise", method = "spearman")
-ps.sur <- cor.test(pplot[[pg]][pplot$scm=='surface'],pplot$dmspt[pplot$scm=='surface'], use = "pairwise", method = "spearman")
-ps.scm <- cor.test(pplot[[pg]][pplot$scm!='surface'],pplot$dmspt[pplot$scm!='surface'], use = "pairwise", method = "spearman")
 
 
 # ---------------------
@@ -141,11 +134,3 @@ mtext(text = expression(paste('daily PAR (mol photons ',m^-2,' ',d^-1,')')), sid
 
 if (exportimg) {dev.off()}
 
-
-# # Correlations
-# 
-# print(cor(pplot$xvar,pplot$yvar, use = "pairwise", method = "spearman"))
-# print(cor(pplot$xvar,pplot$yvar, use = "pairwise", method = "pearson"))
-# print((cor(pplot$xvar,pplot$yvar, use = "pairwise", method = "pearson"))^2)
-
-       
