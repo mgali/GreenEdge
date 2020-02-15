@@ -20,12 +20,17 @@ xl <- list(diat_pen = "Pennate diatoms (cells/L)",
            diat_cen = "Centric diatoms (cells/L)",
            Phaeo = 'Phaeocystis (cells/L)')
 
+# Rename DMS variable and remove unnecessary DMS variables
+prof.all$dms <- prof.all$dms_consens_cf68
+toinclude <- names(prof.all)[grep("dms",names(prof.all), invert = T)]
+toinclude <- c(toinclude,"dms","dmspt")
+prof.all <- prof.all[,toinclude]
 
 # Add clustering coefficient as per station by merging with profiles
 pplot <- merge(x = prof.all, y = surf.all, all.x = T, all.y = F, by = 'stn', suffixes = "")
 
 # Remove DMS data points where DMSPt or Phaeocystis are missing, and stations where microscopy counts not done
-pplot <- pplot[!is.na(pplot$dmspt) & !is.na(pplot$dms_consens_cf68),]
+pplot <- pplot[!is.na(pplot$dmspt) & !is.na(pplot$dms),]
 pplot <- pplot[pplot$stn >= 418,]
 
 # If phyto counts duplicated, remove duplicates
@@ -97,10 +102,10 @@ xlbars <- list("diat_cen"="Diat_C",
                "crypt"="Crypto",
                "Phaeo"="Phaeocystis",
                "flag"="Flag_other")
-xpos <- seq(1, dim(y_bars)[2])*3-1.5
+xpos <- seq(1, length(xbars))*3-1.5
 
 for (mm in c("spearman","pearson")) {
-  if (exportimg) {png(filename = paste0(opath,"dms_dmspt_",pg,"_counts_corr_",mm,".png"), width = 16, height = 8, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig6_phytoCounts_dms_dmspt_corr_",mm,".png"), width = 16, height = 8, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
   
   # ---------------------
   # Multipanel setup
@@ -179,7 +184,7 @@ for (mm in c("spearman","pearson")) {
   # ---------------------
   # d) DMS vs. Phaeocystis
   par(mar = c(5,5,0,1))
-  plot(x = pplot[[pg]], y = pplot$dms_consens_cf68, log = "xy",
+  plot(x = pplot[[pg]], y = pplot$dms, log = "xy",
        type = "p",
        col = parcol,
        pch = 19,
@@ -194,12 +199,12 @@ for (mm in c("spearman","pearson")) {
        ylim = c(0.5,100),
        axes = F
   )
-  points(x = pplot[[pg]][pplot$scm=='surface'], y = pplot$dms_consens_cf68[pplot$scm=='surface'],
+  points(x = pplot[[pg]][pplot$scm=='surface'], y = pplot$dms[pplot$scm=='surface'],
          pch = 1,
          lwd = 1,
          col = "gray",
          cex = 1.6)
-  points(x = pplot[[pg]][pplot$scm=='SCM'], y = pplot$dms_consens_cf68[pplot$scm=='SCM'],
+  points(x = pplot[[pg]][pplot$scm=='SCM'], y = pplot$dms[pplot$scm=='SCM'],
          pch = 1,
          lwd = 1,
          col = "black",
