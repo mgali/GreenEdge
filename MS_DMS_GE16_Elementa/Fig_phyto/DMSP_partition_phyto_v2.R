@@ -8,6 +8,8 @@ library(classInt) # for function classIntervals
 # Load data
 genpath <- '~/Desktop/GreenEdge/GCMS/'
 prof <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header = T)
+diatL <- read.csv(file = "~/Desktop/GreenEdge/DiatomsLafond.tsv", header = T, sep = "\t")
+diatL$diat_Laf.mgC_L.mic <- diatL$diat_Laf.mgC_L.mic/1000 # Correct units
 
 # Exporting image?
 exportimg <- T
@@ -15,7 +17,7 @@ opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_phyto/"
 
 # Function to compute carbon content of phytoplankton
 MendenDeuer_Lessard <- function(esd_microm, cell_conc, is_diatom) {
-  vol <- (4/3) * pi * (esd_microm/2) # µm^3
+  vol <- (4/3) * pi * ((esd_microm/2)^3) # µm^3
   if (is_diatom) {
     pgC <- 0.288 * vol^0.811
   } else {
@@ -27,9 +29,12 @@ MendenDeuer_Lessard <- function(esd_microm, cell_conc, is_diatom) {
 # ---------------------
 # Data wrangling
 
+# Merge Lafond diatoms data
+prof <- merge(prof, diatL, by = c("stn","depth"))
+
 # Remove stations where microscopy counts not done
 prof <- prof[,grep("NA",names(prof), invert = T)]
-prof <- prof[pplot$stn >= 418,]
+prof <- prof[prof$stn >= 418,]
 
 # Remove data where no phyto counts available
 prof <- prof[!is.na(prof$Phaeo) & !is.na(prof$dmspt) & !is.na(prof$depth),]
@@ -41,7 +46,7 @@ prof$scm[prof$depth <= 10] <- 'surface'
 
 # Rename DMS and remove unnecessary variables
 prof$dms <- prof$dms_consens_cf68
-prof <- select(prof, c(stn,depth,cast,year,month,day,scm,dmspt,diat_cen,diat_pen,dino_athec,dino_thec,chrys,crypt,Phaeo,flag))
+prof <- select(prof, c(stn,depth,cast,year,month,day,scm,dmspt,diat_cen,diat_pen,dino_athec,dino_thec,chrys,crypt,Phaeo,flag,diat_Laf.mgC_L.mic))
 
 # ---------------------
 # Convert phyto counts to DMSP to estimate contribution
@@ -64,24 +69,25 @@ print(summary(prof$dmspt.Phaeo.counts.pc))
 # print(summary(prof$dmspt.Phaeo.Cifcb.pc))
 
 # Using carbon biomass based on cell counts and ESD estimated from abundance-weighted average of size intervals (see Taxonomy xls v2018)
-rdmsp <- list(diat_cen = 0.01,
-              diat_pen = 0.03,
-              dino_athec = 0.10,
-              dino_thec = 0.10,
-              chrys = 0.10,
-              crypt = 0.02,
-              Phaeo = 0.10,
-              flag = 0.10)
-esd <- list(diat_cen = 100,
-            diat_pen = 20,
-            dino_athec = 15,
+esd <- list(dino_athec = 15,
             dino_thec = 15,
+            diat_cen = 20,
+            diat_pen = 20,
             chrys = 10,
             crypt = 5,
             Phaeo = 5,
             flag = 5)
+rdmsp <- list(dino_athec = 0.10,
+              dino_thec = 0.10,
+              diat_cen = 0.02,
+              diat_pen = 0.02,
+              chrys = 0.10,
+              crypt = 0.02,
+              Phaeo = 0.10,
+              flag = 0.10,
+              diat_all = 0.02)
 
-for (nn in names(rdmsp)) {
+for (nn in names(esd)) {
   if (nn %in% c("diat_cen","diat_pen")) {
     tmp <- MendenDeuer_Lessard(esd_microm = esd[[nn]], cell_conc = prof[[nn]], is_diatom = T) * 1e-9
   } else {
@@ -92,26 +98,59 @@ for (nn in names(rdmsp)) {
   prof[[paste("dmspt",nn,"Cmic.pc",sep = ".")]] <- 100 * tmp * rdmsp[[nn]] * (1/12) * (1/5) * 1e6 / (fp * prof$dmspt)
 }
 
+# # Compare Lafond estimates and ESD-based estimates. ESD of 20 for both centric and pennates gives good approximation
+# plot(prof$diat_Laf.mgC_L.mic, prof$diat_cen.mgC_L.mic + prof$diat_pen.mgC_L.mic,
+#      main = paste0("r = ",cor(prof$diat_Laf.mgC_L.mic, prof$diat_cen.mgC_L.mic + prof$diat_pen.mgC_L.mic, "pairwise.complete.obs", method = "s")))
+
+# Add DMSP for Lafond diatoms
+prof$dmspt.diat_Laf.Cmic <- prof$diat_Laf.mgC_L.mic * rdmsp$diat_all * (1/12) * (1/5) * 1e6
+prof$dmspt.diat_Laf.Cmic.pc <- 100 * prof$dmspt.diat_Laf.Cmic / (fp * prof$dmspt)
+
+# Remove microscopy counts-based data
+prof <- select(prof, -c(diat_cen.mgC_L.mic, dmspt.diat_cen.Cmic, dmspt.diat_cen.Cmic.pc, diat_pen.mgC_L.mic, dmspt.diat_pen.Cmic, dmspt.diat_pen.Cmic.pc))
+
+# Add sum of percentages
+prof$sum.pc <- rowSums(prof[ , grepl(".pc",names(prof))])
+# View(prof$sum.pc)
+
 # OUTPUT
 OUT <- prof
-View(OUT)
+# View(OUT)
 write.csv(x = OUT, file = paste0(opath,"Fraction_DMSPt_phyto.csv"), row.names = F)
 
 
 # ---------------------
 # Plot
-# Add lines of C_DMSP:C_tot?
+
+phynames <- list("dmspt.diat_Laf.Cmic"="Diat_all",
+                 "dmspt.diat_cen.Cmic"="Diat_C",
+                 "dmspt.diat_pen.Cmic"="Diat_P",
+                 "dmspt.dino_athec.Cmic"="Dino_A",
+                 "dmspt.dino_thec.Cmic"="Dino_T",
+                 "dmspt.chrys.Cmic"="Chryso",
+                 "dmspt.crypt.Cmic"="Crypto",
+                 "dmspt.Phaeo.Cmic"="Phaeocystis",
+                 "dmspt.flag.Cmic"="Flag_other")
+# dfplot <- 
+
 
 # if (exportimg) {png(filename = paste0(opath,"dms_dmspt_",pg,"_counts.png"), width = 6, height = 7, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
-# 
+
+# Multipanel setup
+# m <- rbind(matrix(data = 1, nrow = 4, ncol = 9), matrix(data = 2, nrow = 4, ncol = 9))
+# layout(m)
+# par(oma = c(1,1,0.5,0.5))
+
+# ---------------------
+# a) DMSPp partition surface
+
+
+# ---------------------
+# b) DMSPp partition SCM
+
+
 # if (exportimg) {dev.off()}
 
-
-# Plot for checking:
-# plot(prof$Phaeo, 1e3*prof$phaeo_n_mL, xlab = "Phaeocystis cells/L, microscopy", ylab = "Phaeocystis cells/L, iFCB")
-# plot(prof$Phaeo, 1e3*prof$phaeo_n_mL / prof$Phaeo, xlab = "Phaeocystis cells/L, microscopy", ylab = "Fraction detected: iFCB / microscopy")
-# plot(prof$Phaeo_mgC_L.microscopy, prof$phaeo_mg_L, xlab = "Phaeocystis mgC/L, microscopy", ylab = "Phaeocystis mgC/L, iFCB")
-plot(prof$diat_mgC_L.microscopy, prof$diat_pelagic_mg_L, xlab = "Diatoms mgC/L, microscopy", ylab = "Diatoms mgC/L, iFCB")
 
 
 # --------------------------
