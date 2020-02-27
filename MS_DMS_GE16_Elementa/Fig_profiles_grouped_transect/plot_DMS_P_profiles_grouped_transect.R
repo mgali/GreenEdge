@@ -40,6 +40,10 @@ pplot <- merge(x = prof.all, y = surf.all, all.x = T, all.y = F, by = 'stn', suf
 # Remove duplicated variables
 pplot <- pplot[,grep("NA",names(pplot), invert = T)]
 
+# Remove duplicated rows
+dd <- duplicated(pplot[,c("dmspt","dms","cast","depth")]) & (!is.na(pplot$tchla) & !is.na(pplot$cpsmooth1))
+pplot <- pplot[!dd,]
+
 # Hide data from transect 400
 pplot[pplot$stn<=400,] <- NA
 

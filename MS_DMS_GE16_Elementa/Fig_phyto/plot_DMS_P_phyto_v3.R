@@ -33,9 +33,13 @@ pplot <- merge(x = prof.all, y = surf.all, all.x = T, all.y = F, by = 'stn', suf
 pplot <- pplot[!is.na(pplot$dmspt) & !is.na(pplot$dms),]
 pplot <- pplot[pplot$stn >= 418,]
 
-# If phyto counts duplicated, remove duplicates
-# NOTE: meging DMS(P) and taxonomy by station led to duplicate Phaeo values in stations with DMS in >1 cast
-pplot <- pplot[!duplicated(pplot[[pg]]),]
+# # If phyto counts duplicated, remove duplicates
+# # NOTE: meging DMS(P) and taxonomy by station led to duplicate Phaeo values in stations with DMS in >1 cast
+# pplot <- pplot[!duplicated(pplot[[pg]]),]
+
+# Remove duplicated rows
+dd <- duplicated(pplot[,c("dmspt","dms","cast","depth")]) & (!is.na(pplot$tchla) & !is.na(pplot$cpsmooth1))
+pplot <- pplot[!dd,]
 
 # Add surface and SCM categories
 pplot$scm <- 'SCM'

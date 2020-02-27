@@ -6,6 +6,7 @@ library(dplyr)
 # Load data
 genpath <- '~/Desktop/GreenEdge/GCMS/'
 pdir <- 'plots_pigments_vs_DMS_zColorScale/'
+# prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header = T)
 prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header = T)
 surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
@@ -50,13 +51,17 @@ surf.all$sic_class[icemax>=icecrit1 & icemin<=icecrit2] <- "MIZ"
 # Merge with profiles to get clustering coefficient and SIC classification
 pplot <- merge(x = prof.all, y = surf.all, all.x = T, all.y = F, by = 'stn', suffixes = "")
 
-# Remove duplicated variables
+# Remove duplicated columns with NA in their names
 pplot <- pplot[,grep("NA",names(pplot), invert = T)]
+
+# Remove duplicated rows
+dd <- duplicated(pplot[,c("dmspt","dms","cast","depth")]) & (!is.na(pplot$tchla) & !is.na(pplot$cpsmooth1))
+pplot <- pplot[!dd,]
 
 # Hide data from stn 400
 pplot[pplot$stn<=400,] <- NA
 
-# Change units of N2 to from s-2 to h-1
+# Change units of N2 from s-2 to h-1
 pplot$N2 <- sqrt(pplot$N2) * 3600
 
 # Calculate photosynthetic and photoprotective carotenoids (Bricaud 2004)
@@ -85,13 +90,14 @@ pplot$fuco_2_tchla <- pplot$fuco/pplot$tchla                            # Fucoxa
 pplot$peri_2_tchla <- pplot$peri/pplot$tchla                            # Peridinin to tchla (peri in dinos)
 pplot$chlc3_2_psc <- pplot$chlc3/pplot$psc                              # chlc3 to PSC (Phaeocystis proxy?)
 pplot$phaeo2chl <- pplot$phaeo_Tu_ugL/pplot$chla_Tu_ugL                 # Phaeopigments to Chl (Turner)
-pplot$phbda2tchla <- pplot$phbda/pplot$tchla                            # Phaeophorbide a to TChl (HPLC)
+# pplot$phdaSUM2tchla <- pplot$phbda/pplot$tchla                            # Phaeophorbide a to TChl (HPLC)
+pplot$phdaSUM2tchla <- pplot$phdaSUM/pplot$tchla                          # Phaeophorbide a to TChl (HPLC)
 
 # Remove phaeopigments outlier
 pplot[pplot$phaeo2chl > 3 & !is.na(pplot$phaeo2chl),c("phaeo_Tu_ugL","chla_Tu_ugL","phaeo2chl")] <- NA
 
-# Fill NA with zeros in pigments frequently below LOD
-pplot[,c("chlc3","but19_like","peri")][is.na(pplot[,c("chlc3","but19_like","peri")])] <- 0
+# Fill NA with zeros in pigments frequently below LOD and only if CHl is not NA
+pplot[!is.na(pplot$tchla),c("chlc3","but19_like","peri")][is.na(pplot[!is.na(pplot$tchla),c("chlc3","but19_like","peri")])] <- 0
 
 # # Testing some relationships
 # plot(pplot$chlc3_2_tchla, pplot$dms2dmspt)
@@ -118,6 +124,7 @@ xvarS <- list(dms = "DMS (nM)",
               but = "19-But (µg/L)",
               fuco = "Fucoxanthin (µg/L)",
               peri = "Peridinin (µg/L)",
+              phbdaSUM = "Phaeophorb_a (µg/L)",
               cpsmooth1 = "Cp (1/m)",
               cp2tchla = "Cp/TChla (m2/mg)",
               dms2dmspt = "DMS/DMSPt",
@@ -143,7 +150,7 @@ xvarS <- list(dms = "DMS (nM)",
               fuco_2_tchla = "Fucoxanthin/TChla",
               peri_2_tchla = "Peridinin/TChla",
               phaeo2chl = "Phaeopigments/Chla (Turner)",
-              phbda2tchla = "Phaeophorb_a/TChla (Turner)",
+              phdaSUM2tchla = "Phaeophorb_a/TChla (HPLC)",
               dd = "(Dd+Dt)/TChla",
               vaz = "(Vi+Anth+Zea)/TChla")
 # xvarS <- list(diat_pelagic_mg_L = "Diatoms (mg C/L)",
@@ -165,7 +172,7 @@ yvar <- "depth"
 # ---------------------
 # Loop on different station classifications. EXPLORATORY PLOTS
 
-for (sc in names(st_class)) {
+for (sc in "owd_class") { #names(st_class)
   
   rm(pplot.bin)
   pplot.bin <- list(mean = aggregate.data.frame(df2bin,
@@ -285,6 +292,11 @@ cl_summary <- cbind(pplot[sel,c("stn","SICm2d","SICm1d","SICday","sic_class","OW
 # print(table(cl_summary$`st_class$owd_class[sel]`))
 
 # --------------------------------------------------
+# Filter out statistics with less than 3 meas.
+pplot.bin$mean[pplot.bin$count<2] <- NA
+pplot.bin$median[pplot.bin$count<2] <- NA
+
+# --------------------------------------------------
 # FINAL PLOTTING FOR PAPER
 
 # ---------------------
@@ -297,8 +309,8 @@ xvarS <- list(tchla = expression('TChla (µg L'^-1*')'),
               chlc3 = expression('Chlc3 (µg L'^-1*')'),
               but19_like = expression('19-But-like (µg L'^-1*')'),
               peri = expression('Peridinin (µg L'^-1*')'),
-              psc = expression('PSC (µg L'^-1*')'), # Choose either photosynthetic carotenoids or phaeophorbide a (below)
-              # phbda = expression('Phaeophorbide a (µg L'^-1*')'),
+              # psc = expression('PSC (µg L'^-1*')'), # Choose either photosynthetic carotenoids or phaeophorbide a (below)
+              phdaSUM = expression('Phaeophorbide a (µg L'^-1*')'),
               temp = expression('Temperature ('*degree*'C)'),
               N2 = expression('Brunt-Väisälä freq. (h'^-1*')'),
               anp = "ANP (-)",
@@ -377,12 +389,12 @@ for (sc in "owd_class") {
 
 xvarS <- list(dmspt2cp = expression('DMSPt/Cp (µmol m'^-2*')'),
               dmspt2tchla = expression('DMSPt/TChla (nmol µg'^-1*')'),
-              cp2tchla = expression('Cp/TChla (m'^2*' µg'^-1*')'),
+              cp2tchla = expression('Cp/TChla (m'^2*' mg'^-1*')'),
               dms2dmspt = expression('DMS/DMSPt (mol mol'^-1*')'),
               chlc3_2_tchla = expression('Chlc3/TChla (g g'^-1*')'),
               but19like_2_tchla = expression('19-But-like/TChla (g g'^-1*')'),
               peri_2_tchla = expression('Peridinin/TChla (g g'^-1*')'),
-              phbda2tchla = expression('Phaeophorb_a/TChla (g g'^-1*')'),
+              phdaSUM2tchla = expression('Phaeophorb_a/TChla (g g'^-1*')'),
               psc2tchla = expression('Photosynthetic car./TChla (g g'^-1*')'),
               ppc2tchla = expression('Photoprotective car./TChla (g g'^-1*')'),
               dd = expression('(Dd+Dt)/TChla (g g'^-1*')')
@@ -418,7 +430,7 @@ for (sc in "owd_class") {
     box()
     axis(side = 1, cex.axis = 1.1)
     mtext(side = 1, xvarS[[xvar]], cex = 0.9, line = 3)
-    if (xvar %in% c("tchla","chlc3","temp")) {
+    if (xvar %in% c("dmspt2cp","chlc3_2_tchla","psc2tchla")) {
       axis(side = 2, cex.axis = 1.1)
       mtext(side = 2, "Depth", cex = 0.9, line = 2.5)
     } else {
@@ -449,6 +461,15 @@ for (sc in "owd_class") {
           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
           col = col[3], lwd = 1.5, lty = 3)
     
+    # if () {
+    #   legend()
+    # }
+    
   }
+  
   if (exportimg) {dev.off()}
 }
+
+
+# Checks
+View(pplot.bin$count[,c("tchla","chlc3","but19_like","peri","phdaSUM","chlc3_2_tchla","but19like_2_tchla","peri_2_tchla","phdaSUM2tchla")])
