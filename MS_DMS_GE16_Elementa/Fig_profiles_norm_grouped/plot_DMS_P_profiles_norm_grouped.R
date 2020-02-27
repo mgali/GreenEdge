@@ -11,7 +11,7 @@ surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header =
 
 # Exporting image?
 exportimg <- T
-doplot <- T
+doexploreplot <- F
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_profiles_norm_grouped/"
 
 showtable <- "" # either empty, owd_class or sic_class
@@ -90,6 +90,9 @@ pplot$phbda2tchla <- pplot$phbda/pplot$tchla                            # Phaeop
 # Remove phaeopigments outlier
 pplot[pplot$phaeo2chl > 3 & !is.na(pplot$phaeo2chl),c("phaeo_Tu_ugL","chla_Tu_ugL","phaeo2chl")] <- NA
 
+# Fill NA with zeros in pigments frequently below LOD
+pplot[,c("chlc3","but19_like","peri")][is.na(pplot[,c("chlc3","but19_like","peri")])] <- 0
+
 # # Testing some relationships
 # plot(pplot$chlc3_2_tchla, pplot$dms2dmspt)
 # plot(pplot$chlc3_2_tchla, pplot$dmspt2cp)
@@ -127,22 +130,8 @@ xvarS <- list(dms = "DMS (nM)",
               N2 = "Brunt-Väisälä freq. (1/h)",
               zN2max03 = "N2_max depth (below MLd0.03) (m)",
               zN2max125 = "N2_max depth (below MLd0.125) (m)",
-              par_d_p24h_ein_m_2_day_1 = "PAR (µE/m2/d)")
-# xvarS <- list(diat_pelagic_mg_L = "Diatoms (mg C/L)",
-#               melo_mg_L = "Melosira (mg C/L)",
-#               phaeo_mg_L = "Phaeocystis (mg C/L)",
-#               prym_clumped_mg_L = "Prym (mg C/L)",
-#               detritus_mg_L = "Detritus (mg C/L)",
-#               dino_mg_L = "Dinoflagellates (mg C/L)",
-#               dino_athec = "Dinoflagellates, athecate (cells/mL)",
-#               dino_thec = "Dinoflagellates, thecate (cells/mL)",
-#               Phaeo = "Phaeocystis (cells/mL)",
-#               flag = "Flagellates (cells/mL)",
-#               crypt = "Cryptophytes (cells/mL)",
-#               hetero = "HNF (cells/mL)",
-#               choano = "Choanoflagellates (cells/mL)",
-#               cilli = "Cilliates (cells/mL)")
-xvarS <- list(ppc2psc = "PPC/PSC",
+              par_d_p24h_ein_m_2_day_1 = "PAR (µE/m2/d)",
+              ppc2psc = "PPC/PSC",
               npp = "PPC/TPig",
               ppc2tchla = "PPC/TChla",
               psc2tchla = "PSC/TChla",
@@ -157,6 +146,20 @@ xvarS <- list(ppc2psc = "PPC/PSC",
               phbda2tchla = "Phaeophorb_a/TChla (Turner)",
               dd = "(Dd+Dt)/TChla",
               vaz = "(Vi+Anth+Zea)/TChla")
+# xvarS <- list(diat_pelagic_mg_L = "Diatoms (mg C/L)",
+#               melo_mg_L = "Melosira (mg C/L)",
+#               phaeo_mg_L = "Phaeocystis (mg C/L)",
+#               prym_clumped_mg_L = "Prym (mg C/L)",
+#               detritus_mg_L = "Detritus (mg C/L)",
+#               dino_mg_L = "Dinoflagellates (mg C/L)",
+#               dino_athec = "Dinoflagellates, athecate (cells/mL)",
+#               dino_thec = "Dinoflagellates, thecate (cells/mL)",
+#               Phaeo = "Phaeocystis (cells/mL)",
+#               flag = "Flagellates (cells/mL)",
+#               crypt = "Cryptophytes (cells/mL)",
+#               hetero = "HNF (cells/mL)",
+#               choano = "Choanoflagellates (cells/mL)",
+#               cilli = "Cilliates (cells/mL)")
 yvar <- "depth"
 
 # ---------------------
@@ -198,7 +201,7 @@ for (sc in names(st_class)) {
   
   for (xvar in names(xvarS)) {
     
-    if (doplot) {
+    if (doexploreplot) {
       if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = 600, type = 'cairo')}
       # if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,"m2to3owd",sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = 600, type = 'cairo')}
       
@@ -287,27 +290,39 @@ cl_summary <- cbind(pplot[sel,c("stn","SICm2d","SICm1d","SICday","sic_class","OW
 # ---------------------
 # Figure with concentrations
 
-xvarS <- list(tchla = "TChla (µg/L)",
-              cpsmooth1 = "Cp (1/m)",
+xvarS <- list(tchla = expression('TChla (µg L'^-1*')'),
+              cpsmooth1 = expression('Cp (m'^-1*')'),
               dmspt = "DMSPt (nM)",
               dms = "DMS (nM)",
-              chlc3 = "Chlc3 (µg/L)",
-              but19_like = "19-But-like (µg/L)",
-              peri = "Peridinin (µg/L)",
-              phbda = "Phaeophorbide a (µg/L)",
-              temp = "Temperature (C)",
-              N2 = "Brunt-Väisälä freq. (1/h)",
-              anp = "ANP",
-              par_d_p24h_ein_m_2_day_1 = "PAR (µE/m2/d)")
+              chlc3 = expression('Chlc3 (µg L'^-1*')'),
+              but19_like = expression('19-But-like (µg L'^-1*')'),
+              peri = expression('Peridinin (µg L'^-1*')'),
+              psc = expression('PSC (µg L'^-1*')'), # Choose either photosynthetic carotenoids or phaeophorbide a (below)
+              # phbda = expression('Phaeophorbide a (µg L'^-1*')'),
+              temp = expression('Temperature ('*degree*'C)'),
+              N2 = expression('Brunt-Väisälä freq. (h'^-1*')'),
+              anp = "ANP (-)",
+              par_d_p24h_ein_m_2_day_1 = expression('PAR (µE m'^-2*' d'^-1*')')
+)
 yvar <- "depth"
+
 
 for (sc in "owd_class") {
   
-  if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = 600, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
+  
+  # Multipanel setup
+  m0 <- matrix(data = 0, nrow = 4, ncol = 4)
+  mr1 <-  cbind(m0+1,m0+2,m0+3,m0+4)
+  m <- rbind(mr1,mr1+4,mr1+8)
+  layout(m)
+  par(oma = c(1,1,0.5,0.5))
   
   for (xvar in names(xvarS)) {
     
     print(xvar)
+    par(mar = c(4,3,2,0.5))
+    
     xl <- c(min(c(0,1.1*min(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T))),
             1.1*max(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T))
     if (xvar  %in% c("sal","sigt")) {xl[1] <- 0.9*min(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T)}
@@ -316,9 +331,16 @@ for (sc in "owd_class") {
     
     plot(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
-         ylim = c(70,0), xlim = xl,
-         pch = 19, col = col[1], cex = 1.9,
-         xlab = xvarS[[xvar]], ylab = "Depth", cex.lab = 1.2)
+         ylim = c(70,0), xlim = xl, pch = 19, col = col[1], cex = 1.9, axes = F, xlab = "", ylab = "")
+    box()
+    axis(side = 1, cex.axis = 1.1)
+    mtext(side = 1, xvarS[[xvar]], cex = 0.9, line = 3)
+    if (xvar %in% c("tchla","chlc3","temp")) {
+      axis(side = 2, cex.axis = 1.1)
+      mtext(side = 2, "Depth", cex = 0.9, line = 2.5)
+    } else {
+      axis(side = 2, cex.axis = 1.1, at = seq(0,70,10), labels = rep("",8))
+    }
     points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
            y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
            pch = 19,  col = col[2], cex = 1.9)
@@ -348,30 +370,85 @@ for (sc in "owd_class") {
   if (exportimg) {dev.off()}
 }
 
-if (showtable == sc) {
-  # --------------------------------------------------
-  # View some tables, compute some summary stats
-  
-  # View(pplot[,c("stn","OWD","dms","dmspt")])
-  # View(pplot.bin$count[,c("stn","OWD","dms","dmspt")])
-  # View(pplot.bin$mean[,grep("SIC",names(pplot.bin$mean))]) # equivalent to: View(pplot.bin$mean[,c("SIC_CLASS","SICm2d","SICm1d","SICday")])
-  
-  # a <- as.matrix(pplot.bin$mean[,c("SICm2d","SICm1d","SICday")])
-  # print(mean(a[c(1,2),1]))
-  # print(mean(a[c(5,6),1]))
-  # b <- as.matrix(pplot.bin$mean[,"OWD"])
-  # print(mean(b[c(1,2),1]))
-  # print(mean(b[c(5,6),1]))
-  
-  dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
-  dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
-  dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
-  
-  # dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
-  # dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
-  # dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
-  
-  View(cbind(dmean,dmin,dmax))
-}
-}
 
+
+# ---------------------
+# Figure with ratios
+
+xvarS <- list(dmspt2cp = expression('DMSPt/Cp (µmol m'^-2*')'),
+              dmspt2tchla = expression('DMSPt/TChla (nmol µg'^-1*')'),
+              cp2tchla = expression('Cp/TChla (m'^2*' µg'^-1*')'),
+              dms2dmspt = expression('DMS/DMSPt (mol mol'^-1*')'),
+              chlc3_2_tchla = expression('Chlc3/TChla (g g'^-1*')'),
+              but19like_2_tchla = expression('19-But-like/TChla (g g'^-1*')'),
+              peri_2_tchla = expression('Peridinin/TChla (g g'^-1*')'),
+              phbda2tchla = expression('Phaeophorb_a/TChla (g g'^-1*')'),
+              psc2tchla = expression('Photosynthetic car./TChla (g g'^-1*')'),
+              ppc2tchla = expression('Photoprotective car./TChla (g g'^-1*')'),
+              dd = expression('(Dd+Dt)/TChla (g g'^-1*')')
+)
+yvar <- "depth"
+
+
+for (sc in "owd_class") {
+  
+  if (exportimg) {png(filename = paste0(opath,"Fig5_",sc,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
+  
+  # Multipanel setup
+  m0 <- matrix(data = 0, nrow = 4, ncol = 4)
+  mr1 <-  cbind(m0+1,m0+2,m0+3,m0+4)
+  m <- rbind(mr1,mr1+4,mr1+8)
+  layout(m)
+  par(oma = c(1,1,0.5,0.5))
+  
+  for (xvar in names(xvarS)) {
+    
+    print(xvar)
+    par(mar = c(4,3,2,0.5))
+    
+    xl <- c(min(c(0,1.1*min(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T))),
+            1.1*max(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T))
+    if (xvar  %in% c("sal","sigt")) {xl[1] <- 0.9*min(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T)}
+    if (xvar  == "anp") {xl <- rev(xl)}
+    print(xl)
+    
+    plot(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
+         y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
+         ylim = c(70,0), xlim = xl, pch = 19, col = col[1], cex = 1.9, axes = F, xlab = "", ylab = "")
+    box()
+    axis(side = 1, cex.axis = 1.1)
+    mtext(side = 1, xvarS[[xvar]], cex = 0.9, line = 3)
+    if (xvar %in% c("tchla","chlc3","temp")) {
+      axis(side = 2, cex.axis = 1.1)
+      mtext(side = 2, "Depth", cex = 0.9, line = 2.5)
+    } else {
+      axis(side = 2, cex.axis = 1.1, at = seq(0,70,10), labels = rep("",8))
+    }
+    points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
+           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
+           pch = 19,  col = col[2], cex = 1.9)
+    points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="OW",xvar],
+           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
+           pch = 19, col = col[3], cex = 1.9)
+    lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
+          col = col[1], lwd = 2)
+    lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
+          col = col[2], lwd = 2)
+    lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="OW",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
+          col = col[3], lwd = 2)
+    lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
+          col = col[1], lwd = 1.5, lty = 3)
+    lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
+          col = col[2], lwd = 1.5, lty = 3)
+    lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
+          col = col[3], lwd = 1.5, lty = 3)
+    
+  }
+  if (exportimg) {dev.off()}
+}
