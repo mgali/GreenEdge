@@ -14,7 +14,7 @@ exportimg <- T
 doplot <- T
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_profiles_norm_grouped/"
 
-showtable <- "owd_class"
+showtable <- "" # either empty, owd_class or sic_class
 
 # ---------------------
 
@@ -56,6 +56,9 @@ pplot <- pplot[,grep("NA",names(pplot), invert = T)]
 # Hide data from stn 400
 pplot[pplot$stn<=400,] <- NA
 
+# Change units of N2 to from s-2 to h-1
+pplot$N2 <- sqrt(pplot$N2) * 3600
+
 # Calculate photosynthetic and photoprotective carotenoids (Bricaud 2004)
 pplot$psc <- rowSums(pplot[,c("fuco","peri","but19_like","hex","hex19_likeSUM")], na.rm = T)
 pplot$ppc <- rowSums(pplot[,c("zea","anthera","viola","diadino","diato","allo","tcar")], na.rm = T)
@@ -75,12 +78,24 @@ pplot$npp <- pplot$ppc/pplot$tpig                                       # PPC to
 pplot$dd2tchla <- pplot$dd/pplot$tchla                                  # D+D xantophyll cycle pigments to tchla
 pplot$vaz2tchla <- pplot$vaz/pplot$tchla                                # VAZ xantophyll cycle pigments to tchla
 pplot$chlc3_2_tchla <- pplot$chlc3/pplot$tchla                          # chlc3 to tchla (Phaeocystis proxy?)
-pplot$chlc3_2_psc <- pplot$chlc3/pplot$psc                              # chlc3 to tchla (Phaeocystis proxy?)
+pplot$but19like_2_tchla <- pplot$but19_like/pplot$tchla                 # chlc3 to tchla (Phaeocystis proxy?)
+pplot$chlc2_2_tchla <- pplot$chlc2group/pplot$tchla                     # chlc2 to tchla (chlc2 widespread pigment)
+pplot$but_2_tchla <- pplot$but/pplot$tchla                              # 19-but to tchla (proxy of what?)
+pplot$fuco_2_tchla <- pplot$fuco/pplot$tchla                            # Fucoxanthin to tchla (fuco widespread pigment)
+pplot$peri_2_tchla <- pplot$peri/pplot$tchla                            # Peridinin to tchla (peri in dinos)
+pplot$chlc3_2_psc <- pplot$chlc3/pplot$psc                              # chlc3 to PSC (Phaeocystis proxy?)
 pplot$phaeo2chl <- pplot$phaeo_Tu_ugL/pplot$chla_Tu_ugL                 # Phaeopigments to Chl (Turner)
+pplot$phbda2tchla <- pplot$phbda/pplot$tchla                            # Phaeophorbide a to TChl (HPLC)
 
 # Remove phaeopigments outlier
 pplot[pplot$phaeo2chl > 3 & !is.na(pplot$phaeo2chl),c("phaeo_Tu_ugL","chla_Tu_ugL","phaeo2chl")] <- NA
 
+# # Testing some relationships
+# plot(pplot$chlc3_2_tchla, pplot$dms2dmspt)
+# plot(pplot$chlc3_2_tchla, pplot$dmspt2cp)
+# plot(pplot$chlc2_2_tchla, pplot$dmspt2cp)
+
+# ---------------------
 # Bin profiles by station categories
 df2bin <- pplot
 z_class <- cut(df2bin$depth, breaks = c(0,9,21,41,81), labels = c(0,1,2,3))
@@ -91,10 +106,15 @@ st_class <- list(sic_class = pplot$sic_class,
                  owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MIZ","OW")))
 
 # ---------------------
-# Plot settings
+# Plot settings. EXPLORATORY
 xvarS <- list(dms = "DMS (nM)",
               dmspt = "DMSPt (nM)",
               tchla = "TChla (µg/L)",
+              chlc3 = "Chlc3 (µg/L)",
+              but19_like = "19-But-like (µg/L)",
+              but = "19-But (µg/L)",
+              fuco = "Fucoxanthin (µg/L)",
+              peri = "Peridinin (µg/L)",
               cpsmooth1 = "Cp (1/m)",
               cp2tchla = "Cp/TChla (m2/mg)",
               dms2dmspt = "DMS/DMSPt",
@@ -104,6 +124,9 @@ xvarS <- list(dms = "DMS (nM)",
               sal = "Salinity",
               sigt = "sigma-t (kg/m3)",
               anp = "ANP",
+              N2 = "Brunt-Väisälä freq. (1/h)",
+              zN2max03 = "N2_max depth (below MLd0.03) (m)",
+              zN2max125 = "N2_max depth (below MLd0.125) (m)",
               par_d_p24h_ein_m_2_day_1 = "PAR (µE/m2/d)")
 # xvarS <- list(diat_pelagic_mg_L = "Diatoms (mg C/L)",
 #               melo_mg_L = "Melosira (mg C/L)",
@@ -119,19 +142,25 @@ xvarS <- list(dms = "DMS (nM)",
 #               hetero = "HNF (cells/mL)",
 #               choano = "Choanoflagellates (cells/mL)",
 #               cilli = "Cilliates (cells/mL)")
-# xvarS <- list(ppc2psc = "PPC/PSC",
-#               npp = "PPC/TPig",
-#               ppc2tchla = "PPC/TChla",
-#               psc2tchla = "PSC/TChla",
-#               chlc3_2_tchla = "Chlc3/TChla",
-#               chlc3_2_psc = "Chlc3/PSC",
-#               phaeo2chl = "Phaeopigments/Chla (Turner)",
-#               dd = "(Dd+Dt)/TChla",
-#               vaz = "(Vi+Anth+Zea)/TChla")
+xvarS <- list(ppc2psc = "PPC/PSC",
+              npp = "PPC/TPig",
+              ppc2tchla = "PPC/TChla",
+              psc2tchla = "PSC/TChla",
+              chlc3_2_tchla = "Chlc3/TChla",
+              chlc2_2_tchla = "Chlc2/TChla",
+              but19like_2_tchla = "19-But-like/TChla",
+              chlc3_2_psc = "Chlc3/PSC",
+              but_2_tchla = "19-But/TChla",
+              fuco_2_tchla = "Fucoxanthin/TChla",
+              peri_2_tchla = "Peridinin/TChla",
+              phaeo2chl = "Phaeopigments/Chla (Turner)",
+              phbda2tchla = "Phaeophorb_a/TChla (Turner)",
+              dd = "(Dd+Dt)/TChla",
+              vaz = "(Vi+Anth+Zea)/TChla")
 yvar <- "depth"
 
 # ---------------------
-# Loop on different station classifications
+# Loop on different station classifications. EXPLORATORY PLOTS
 
 for (sc in names(st_class)) {
   
@@ -228,7 +257,7 @@ for (sc in names(st_class)) {
     # b <- as.matrix(pplot.bin$mean[,"OWD"])
     # print(mean(b[c(1,2),1]))
     # print(mean(b[c(5,6),1]))
-
+    
     dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
     dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
     dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
@@ -247,9 +276,102 @@ for (sc in names(st_class)) {
 sel <- c(diff(pplot$station),1)
 sel <- !is.na(sel) & sel!=0
 cl_summary <- cbind(pplot[sel,c("stn","SICm2d","SICm1d","SICday","sic_class","OWD")],st_class$owd_class[sel])
-View(cl_summary)
 
-print(table(cl_summary$sic_class))
-print(table(cl_summary$`st_class$owd_class[sel]`))
+# View(cl_summary)
+# print(table(cl_summary$sic_class))
+# print(table(cl_summary$`st_class$owd_class[sel]`))
 
+# --------------------------------------------------
+# FINAL PLOTTING FOR PAPER
+
+# ---------------------
+# Figure with concentrations
+
+xvarS <- list(tchla = "TChla (µg/L)",
+              cpsmooth1 = "Cp (1/m)",
+              dmspt = "DMSPt (nM)",
+              dms = "DMS (nM)",
+              chlc3 = "Chlc3 (µg/L)",
+              but19_like = "19-But-like (µg/L)",
+              peri = "Peridinin (µg/L)",
+              phbda = "Phaeophorbide a (µg/L)",
+              temp = "Temperature (C)",
+              N2 = "Brunt-Väisälä freq. (1/h)",
+              anp = "ANP",
+              par_d_p24h_ein_m_2_day_1 = "PAR (µE/m2/d)")
+yvar <- "depth"
+
+for (sc in "owd_class") {
+  
+  if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = 600, type = 'cairo')}
+  
+  for (xvar in names(xvarS)) {
+    
+    print(xvar)
+    xl <- c(min(c(0,1.1*min(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T))),
+            1.1*max(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T))
+    if (xvar  %in% c("sal","sigt")) {xl[1] <- 0.9*min(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T)}
+    if (xvar  == "anp") {xl <- rev(xl)}
+    print(xl)
+    
+    plot(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
+         y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
+         ylim = c(70,0), xlim = xl,
+         pch = 19, col = col[1], cex = 1.9,
+         xlab = xvarS[[xvar]], ylab = "Depth", cex.lab = 1.2)
+    points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
+           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
+           pch = 19,  col = col[2], cex = 1.9)
+    points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="OW",xvar],
+           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
+           pch = 19, col = col[3], cex = 1.9)
+    lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="ICE",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
+          col = col[1], lwd = 2)
+    lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
+          col = col[2], lwd = 2)
+    lines(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="OW",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
+          col = col[3], lwd = 2)
+    lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
+          col = col[1], lwd = 1.5, lty = 3)
+    lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
+          col = col[2], lwd = 1.5, lty = 3)
+    lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",xvar],
+          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
+          col = col[3], lwd = 1.5, lty = 3)
+    
+  }
+  if (exportimg) {dev.off()}
+}
+
+if (showtable == sc) {
+  # --------------------------------------------------
+  # View some tables, compute some summary stats
+  
+  # View(pplot[,c("stn","OWD","dms","dmspt")])
+  # View(pplot.bin$count[,c("stn","OWD","dms","dmspt")])
+  # View(pplot.bin$mean[,grep("SIC",names(pplot.bin$mean))]) # equivalent to: View(pplot.bin$mean[,c("SIC_CLASS","SICm2d","SICm1d","SICday")])
+  
+  # a <- as.matrix(pplot.bin$mean[,c("SICm2d","SICm1d","SICday")])
+  # print(mean(a[c(1,2),1]))
+  # print(mean(a[c(5,6),1]))
+  # b <- as.matrix(pplot.bin$mean[,"OWD"])
+  # print(mean(b[c(1,2),1]))
+  # print(mean(b[c(5,6),1]))
+  
+  dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
+  dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
+  dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
+  
+  # dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
+  # dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
+  # dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
+  
+  View(cbind(dmean,dmin,dmax))
+}
+}
 

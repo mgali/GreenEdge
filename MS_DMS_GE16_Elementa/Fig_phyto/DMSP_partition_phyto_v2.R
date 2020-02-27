@@ -5,6 +5,7 @@ library(tidyr)
 library(RColorBrewer)
 library(classInt) # for function classIntervals
 # Check http://geog.uoregon.edu/GeogR/topics/multiplots01.html
+# detach("package:MASS", unload = T) # Interference with select function in dplyr
 
 # Load data
 genpath <- '~/Desktop/GreenEdge/GCMS/'
@@ -23,7 +24,7 @@ cmethod <- "ratio" # choose ratio or intraconc
 addcd <- "" # default. Detritus and Phaeo colonies only allowed if using ratios
 if (cmethod == "ratio"){
   # Add Phaeo colonies and detritus?
-  addcd <- "" # leave empty or put _PhaeoCol_detr
+  addcd <- "_PhaeoCol_detr" # leave empty or put _PhaeoCol_detr
 }
 
 # Stefels2007 ratios? Does not apply if using quotas
@@ -46,9 +47,10 @@ MendenDeuer_Lessard <- function(vol_microm3, is_diatom) {
 # Merge Lafond diatoms data
 prof <- merge(prof, diatL, by = c("stn","depth"))
 
-# Correct units of detritus from ifcb
+# Correct units of biomass from ifcb
 prof$detritus_mg_L <- prof$detritus_mg_L / 1000
-
+prof$prym_clumped_mg_L <- prof$prym_clumped_mg_L / 1000
+  
 # Remove stations where microscopy counts not done
 prof <- prof[,grep("NA",names(prof), invert = T)]
 prof <- prof[prof$stn >= 418,]
@@ -187,7 +189,7 @@ if (addcd == "_PhaeoCol_detr"){
 # OUTPUT
 OUT <- prof
 # View(OUT)
-write.csv(x = OUT, file = paste0(opath,"Fraction_DMSPt_phyto.csv"), row.names = F)
+write.csv(x = OUT, file = paste0(opath,"Fraction_DMSPt_phyto",addcd,".csv"), row.names = F)
 
 
 # ---------------------------------------------------------------
@@ -287,3 +289,12 @@ axis(2, labels = T, cex.axis = 1.2)
 
 if (exportimg) {dev.off()}
 
+
+# ---------------------------------------------------------------
+# Checks
+
+# Check relationship between Phaeocystis solitary and colonies, by SCM vs. surface
+plot(prof$Phaeo.mgC_L.mic, prof$prym_clumped_mg_L)
+points(prof$Phaeo.mgC_L.mic[prof$scm=='SCM'], prof$prym_clumped_mg_L[prof$scm=='SCM'], pch = 19)
+
+plot(prof$Phaeo.mgC_L.mic, prof$prym_clumped_mg_L/prof$Phaeo.mgC_L.mic)
