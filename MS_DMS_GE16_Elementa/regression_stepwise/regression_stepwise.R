@@ -43,11 +43,11 @@ xvarS <- list(physics = c("temp","sal","N2","cpsmooth1","anp","par_d_p24h_ein_m_
                            "dd","allo","lut","chlb","tchla","phytnaSUM","tcar","but19_like"),
               # pigments_reduced = c("chlc3","chlc2group","peri","neo","hex","dd","allo","chlb","tchla","tcar","but19_like"),
               # pigments_reduced = c("chlc3","tchla","but19_like"), # Sample size is 56 due to missing values
-              pigments_reduced = c("chlc3","chlc2group","hex","dd","allo","chlb","tchla","tcar"))
+              pigments_reduced = c("chlc3","chlc2group","hex","dd","chlb","tchla","tcar","fuco"))
 
 for (mm in c("spearman","pearson")) {
-  for (yvar in yvarS) { #[1]
-    for (xi in names(xvarS)) { #[2]
+  for (yvar in yvarS[1]) { #[1]
+    for (xi in names(xvarS)[3]) { #[2]
       
       profOK <- prof
       if (xi == "pigments") { profOK <- prof[prof$stn != 413, ] }
@@ -58,26 +58,26 @@ for (mm in c("spearman","pearson")) {
         XY[,2:dim(XY)[2]] <- TMP
       }
       
-      # Correlation matrix: save plot and data
-      oname <- paste(yvar,xi,mm, sep = "_")
-      res <- round(cor(XY, method = mm, use = "pairwise"), 2)
-      rdf <- data.frame(yvar = res[ , colnames(res) == yvar])
-      # View(rdf)
-      if (exportimg) {
-        png(filename = paste0(opath,oname,".png"), width = 17, height = 17, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')
-      }
-      corrplot(res, type = "upper", order = "hclust",
-               tl.col = "black", tl.srt = 45)
-      if (exportimg) {dev.off()}
-      write.csv(rdf, file = paste0(opath,oname,".csv"), row.names = T)
+      # # Correlation matrix: save plot and data
+      # oname <- paste(yvar,xi,mm, sep = "_")
+      # res <- round(cor(XY, method = mm, use = "pairwise"), 2)
+      # rdf <- data.frame(yvar = res[ , colnames(res) == yvar])
+      # # View(rdf)
+      # if (exportimg) {
+      #   png(filename = paste0(opath,oname,".png"), width = 17, height = 17, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')
+      # }
+      # corrplot(res, type = "upper", order = "hclust",
+      #          tl.col = "black", tl.srt = 45)
+      # if (exportimg) {dev.off()}
+      # write.csv(rdf, file = paste0(opath,oname,".csv"), row.names = T)
       
-      # # Stepwise regression
-      # XY <- XY[complete.cases(XY), ]
-      # y <- XY[[ yvar ]]
-      # X <- XY[,xvarS[[xi]]]
-      # full.model <- lm(y ~., data = X)
-      # step.model <- stepAIC(full.model, direction = "both", trace = FALSE)
-      # print(summary(step.model))
+      # Stepwise regression
+      XY <- XY[complete.cases(XY), ]
+      y <- XY[[ yvar ]]
+      X <- XY[,xvarS[[xi]]]
+      full.model <- lm(y ~., data = X)
+      step.model <- stepAIC(full.model, direction = "both", trace = FALSE)
+      print(summary(step.model))
       
     }
   }
