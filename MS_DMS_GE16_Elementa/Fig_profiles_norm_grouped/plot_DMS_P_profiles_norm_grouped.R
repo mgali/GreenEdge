@@ -11,11 +11,11 @@ prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header
 surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
 # Exporting image?
-exportimg <- T
+exportimg <- F
 doexploreplot <- F
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_profiles_norm_grouped/"
 
-showtable <- "" # either empty, owd_class or sic_class
+showtable <- "owd_class" # either empty, owd_class or sic_class
 
 # ---------------------
 pal <- colorRampPalette(brewer.pal(9, "Spectral"))              # Color palette (Consistent with Matlab plots)
@@ -55,12 +55,22 @@ pplot <- merge(x = prof.all, y = surf.all, all.x = T, all.y = F, by = 'stn', suf
 # Remove duplicated columns with NA in their names
 pplot <- pplot[,grep("NA",names(pplot), invert = T)]
 
-# Remove duplicated rows
-dd <- duplicated(pplot[,c("dmspt","dms","cast","depth")]) & (!is.na(pplot$tchla) & !is.na(pplot$cpsmooth1))
+# Remove duplicated rows 
+# dd <- (duplicated(pplot[,c("dmspt","cast","depth")]) | duplicated(pplot[,c("dms","cast","depth")])) & (!is.na(pplot$tchla) | !is.na(pplot$cpsmooth1)) # Does not work well, too many repeated DMSPt get in
+# dd <- (duplicated(pplot[,c("dmspt","cast","depth")]) | duplicated(pplot[,c("dms","cast","depth")])) # Does not work well, too many repeated DMSPt get in
+dd <- duplicated(pplot[,c("dmspt","dms","cast","depth")]) | is.na(pplot$dmspt)
 pplot <- pplot[!dd,]
+View(pplot[,c("stn","cast","depth","dms","dmspt","cpsmooth1","tchla")])
 
-# Hide data from stn 400
-pplot[pplot$stn<=400,] <- NA
+# f_mydiff <- function(x) {y <- as.logical(c(1,diff(x))); y[is.na(y)] <- T; return(y)}
+# ddms <- f_mydiff(pplot$dms)
+# ddepth <- f_mydiff(pplot$depth)
+# dcast <- f_mydiff(pplot$cast)
+# pplot <- pplot[ddms&!is.na(pplot$dmspt)&!is.na(pplot$tchla),]
+
+# Hide data from stn 400 (either entire or just surface)
+# pplot[pplot$stn<=400,] <- NA
+pplot[pplot$stn<=400 & pplot$depth < 5,] <- NA
 
 # Change units of N2 from s-2 to h-1
 pplot$N2 <- sqrt(pplot$N2) * 3600
@@ -259,7 +269,7 @@ for (sc in "owd_class") { #names(st_class)
     # View some tables, compute some summary stats
     
     # View(pplot[,c("stn","OWD","dms","dmspt")])
-    # View(pplot.bin$count[,c("stn","OWD","dms","dmspt")])
+    View(pplot.bin$count[,c("stn","OWD","dms","dmspt","cpsmooth1","tchla","N2","anp")])
     # View(pplot.bin$mean[,grep("SIC",names(pplot.bin$mean))]) # equivalent to: View(pplot.bin$mean[,c("SIC_CLASS","SICm2d","SICm1d","SICday")])
     
     # a <- as.matrix(pplot.bin$mean[,c("SICm2d","SICm1d","SICday")])
