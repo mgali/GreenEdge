@@ -204,6 +204,14 @@ for (sc in names(st_class)) {
           y = pplot.bin$mean[pplot.bin$median$T_CLASS=="T7",yvar],
           col = col[4], lwd = 1.5, lty = 3)
     
+    legend(x = xl[1]+0.85*(xl[2]-xl[1]),
+           y = 50,
+           pch = 19,
+           legend = c("T4","T5","T6","T7"),
+           cex = 1,
+           col = col,
+           bg= "white", box.lwd = 0)
+    
     if (exportimg) {dev.off()}
   }
   

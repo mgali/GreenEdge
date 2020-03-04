@@ -43,8 +43,13 @@ xvarS <- list(physics = c("temp","sal","N2","cpsmooth1","anp","par_d_p24h_ein_m_
                            "dd","allo","lut","chlb","tchla","phytnaSUM","tcar","but19_like"),
               # pigments_reduced = c("chlc3","chlc2group","peri","neo","hex","dd","allo","chlb","tchla","tcar","but19_like"),
               # pigments_reduced = c("chlc3","tchla","but19_like"), # Sample size is 56 due to missing values
-              pigments_reduced = c("chlc3","chlc2group","hex","dd","allo","chlb","tchla","tcar"))
+              pigments_reduced = c("chlc3","chlc2group","hex","dd","chlb","tchla","tcar"))
 
+R <- list()
+R.r1 <- list()
+R.r2 <- list()
+R.r3 <- list()
+selStats <- c("p.value","estimate","n")
 for (mm in c("spearman","pearson")) {
   for (yvar in yvarS) { #[1]
     for (xi in names(xvarS)) { #[2]
@@ -58,27 +63,23 @@ for (mm in c("spearman","pearson")) {
         XY[,2:dim(XY)[2]] <- TMP
       }
       
-      # Correlation matrix: save plot and data
-      oname <- paste(yvar,xi,mm, sep = "_")
-      res <- round(cor(XY, method = mm, use = "pairwise"), 2)
-      rdf <- data.frame(yvar = res[ , colnames(res) == yvar])
-      # View(rdf)
-      if (exportimg) {
-        png(filename = paste0(opath,oname,".png"), width = 17, height = 17, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')
+      # Correlation matrix: save
+      y <- XY[[ yvar ]]
+      tmp <- lapply(XY[,xvarS[[xi]]], function(x) {
+        c <- cor.test(x, y, use = "pairwise", method = mm)
+        c$n <- sum(!is.na(x)  & !is.na(y))
+        return(c)
       }
-      corrplot(res, type = "upper", order = "hclust",
-               tl.col = "black", tl.srt = 45)
-      if (exportimg) {dev.off()}
-      write.csv(rdf, file = paste0(opath,oname,".csv"), row.names = T)
-      
-      # # Stepwise regression
-      # XY <- XY[complete.cases(XY), ]
-      # y <- XY[[ yvar ]]
-      # X <- XY[,xvarS[[xi]]]
-      # full.model <- lm(y ~., data = X)
-      # step.model <- stepAIC(full.model, direction = "both", trace = FALSE)
-      # print(summary(step.model))
+      )
+      tmp <- lapply(tmp, function(x) x <- x[selStats]) # Select desired stats, otherwise different stats in spearman and pearson (latter has confidence interval with length 2 which complicates formatting)
+      TMP <- data.table::rbindlist(tmp, use.names = T, fill = F, idcol = "xvar")
+      # TMP <- do.call("rbind", tmp)
+      R[[mm]][[yvar]][[xi]] <- TMP
       
     }
+    R.r1[[mm]][[yvar]] <- data.table::rbindlist(R[[mm]][[yvar]], use.names = T, fill = F, idcol = "subset")
   }
+  R.r2[[mm]] <- data.table::rbindlist(R.r1[[mm]], use.names = T, fill = F, idcol = "compound")
 }
+R.r3 <- data.table::rbindlist(R.r2, use.names = T, fill = F, idcol = "method")
+write.csv(x = R.r3, file = paste0(opath,"CorrMat_DMS_P.csv"))
