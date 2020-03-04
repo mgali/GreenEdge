@@ -18,11 +18,12 @@ opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_profiles_norm_grouped/"
 showtable <- "" # either empty, owd_class or sic_class
 
 # ---------------------
-
-# Color palette (Consistent with profile and surface plots made with Matlab)
-pal <- colorRampPalette(brewer.pal(9, "Spectral"))
+pal <- colorRampPalette(brewer.pal(9, "Spectral"))              # Color palette (Consistent with Matlab plots)
 col <- pal(n = 21)[c(21,18,5)]
+plotres <- 600                                                  # resolution dpi
+plet <- sapply(letters, paste0, ")")                            # plot letters
 
+# ---------------------
 # Rename DMS variable and remove unnecessary DMS variables
 prof.all$dms <- prof.all$dms_consens_cf68
 toinclude <- names(prof.all)[grep("dms",names(prof.all), invert = T)]
@@ -72,7 +73,7 @@ pplot$vaz <- rowSums(pplot[,c("zea","anthera","viola")], na.rm = T)
 pplot$tpig <- rowSums(pplot[,seq(59,88,1)], na.rm = T)
 
 # Add ratios
-pplot$cp2tchla <- pplot$cpsmooth1/pplot$tchla                           # dms/dmspt ratio
+pplot$cp2tchla <- pplot$cpsmooth1/pplot$tchla                           # Cp/tchla ratio
 pplot$dms2dmspt <- pplot$dms/pplot$dmspt                                # dms/dmspt ratio
 pplot$dmspt2tchla <- pplot$dmspt/pplot$tchla                            # dmspt/tchla ratio
 pplot$dmspt2cp <- pplot$dmspt/pplot$cpsmooth1                           # dmspt/cp ratio
@@ -85,13 +86,13 @@ pplot$vaz2tchla <- pplot$vaz/pplot$tchla                                # VAZ xa
 pplot$chlc3_2_tchla <- pplot$chlc3/pplot$tchla                          # chlc3 to tchla (Phaeocystis proxy?)
 pplot$but19like_2_tchla <- pplot$but19_like/pplot$tchla                 # chlc3 to tchla (Phaeocystis proxy?)
 pplot$chlc2_2_tchla <- pplot$chlc2group/pplot$tchla                     # chlc2 to tchla (chlc2 widespread pigment)
-pplot$but_2_tchla <- pplot$but/pplot$tchla                              # 19-but to tchla (proxy of what?)
+pplot$but_2_tchla <- pplot$but/pplot$tchla                              # 19-but to tchla (proxy of what? Phaeocystis? other hapto?)
 pplot$fuco_2_tchla <- pplot$fuco/pplot$tchla                            # Fucoxanthin to tchla (fuco widespread pigment)
 pplot$peri_2_tchla <- pplot$peri/pplot$tchla                            # Peridinin to tchla (peri in dinos)
 pplot$chlc3_2_psc <- pplot$chlc3/pplot$psc                              # chlc3 to PSC (Phaeocystis proxy?)
 pplot$phaeo2chl <- pplot$phaeo_Tu_ugL/pplot$chla_Tu_ugL                 # Phaeopigments to Chl (Turner)
 # pplot$phdaSUM2tchla <- pplot$phbda/pplot$tchla                            # Phaeophorbide a to TChl (HPLC)
-pplot$phdaSUM2tchla <- pplot$phdaSUM/pplot$tchla                          # Phaeophorbide a to TChl (HPLC)
+pplot$phdaSUM2tchla <- pplot$phdaSUM/pplot$tchla                        # Phaeophorbide a to TChl (HPLC)
 
 # Remove phaeopigments outlier
 pplot[pplot$phaeo2chl > 3 & !is.na(pplot$phaeo2chl),c("phaeo_Tu_ugL","chla_Tu_ugL","phaeo2chl")] <- NA
@@ -209,8 +210,8 @@ for (sc in "owd_class") { #names(st_class)
   for (xvar in names(xvarS)) {
     
     if (doexploreplot) {
-      if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = 600, type = 'cairo')}
-      # if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,"m2to3owd",sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = 600, type = 'cairo')}
+      if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = plotres, type = 'cairo')}
+      # if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,"m2to3owd",sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = plotres, type = 'cairo')}
       
       print(xvar)
       xl <- c(min(c(0,1.1*min(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T))),
@@ -317,11 +318,12 @@ xvarS <- list(tchla = expression('TChla (µg L'^-1*')'),
               par_d_p24h_ein_m_2_day_1 = expression('PAR (µE m'^-2*' d'^-1*')')
 )
 yvar <- "depth"
-
+lett <- plet
+names(lett) <- names(xvarS)
 
 for (sc in "owd_class") {
   
-  if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)
@@ -377,8 +379,26 @@ for (sc in "owd_class") {
     lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",xvar],
           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
           col = col[3], lwd = 1.5, lty = 3)
+    text(x = xl[1]+0.95*(xl[2]-xl[1]), y = 6, labels = lett[xvar], cex = 1.3)
+    if (xvar  == "temp") {
+    legend(x = xl[1]+0.4*(xl[2]-xl[1]),
+           y = 25,
+           pch = 19,
+           legend = c("ICE","MIZ","OW"),
+           cex = 1.3,
+           col = col,
+           bg= "white", box.lwd = 0)
+      legend(x = xl[1]+0.4*(xl[2]-xl[1]),
+             y = 50,
+             lty = c(1,3),
+             legend = c("medians","means"),
+             cex = 1.3,
+             col = "black",
+             bg= "white", box.lwd = 0)
+    }
     
-  }
+  } # end loop on variables
+  
   if (exportimg) {dev.off()}
 }
 
@@ -400,11 +420,12 @@ xvarS <- list(dmspt2cp = expression('DMSPt/Cp (µmol m'^-2*')'),
               dd = expression('(Dd+Dt)/TChla (g g'^-1*')')
 )
 yvar <- "depth"
-
+lett <- plet
+names(lett) <- names(xvarS)
 
 for (sc in "owd_class") {
   
-  if (exportimg) {png(filename = paste0(opath,"Fig5_",sc,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig5_",sc,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)
@@ -460,10 +481,23 @@ for (sc in "owd_class") {
     lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",xvar],
           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
           col = col[3], lwd = 1.5, lty = 3)
-    
-    # if () {
-    #   legend()
-    # }
+    text(x = xl[1]+0.95*(xl[2]-xl[1]), y = 6, labels = lett[xvar], cex = 1.3)
+    if (xvar  == "psc2tchla") {
+      legend(x = xl[1]+0.05*(xl[2]-xl[1]),
+             y = 25,
+             pch = 19,
+             legend = c("ICE","MIZ","OW"),
+             cex = 1.3,
+             col = col,
+             bg= "white", box.lwd = 0)
+      legend(x = xl[1]+0.05*(xl[2]-xl[1]),
+             y = 50,
+             lty = c(1,3),
+             legend = c("medians","means"),
+             cex = 1.3,
+             col = "black",
+             bg= "white", box.lwd = 0)
+    }
     
   }
   
@@ -471,5 +505,6 @@ for (sc in "owd_class") {
 }
 
 
-# Checks
-View(pplot.bin$count[,c("tchla","chlc3","but19_like","peri","phdaSUM","chlc3_2_tchla","but19like_2_tchla","peri_2_tchla","phdaSUM2tchla")])
+# ------------------------------------------
+# # Checks
+# View(pplot.bin$count[,c("tchla","chlc3","but19_like","peri","phdaSUM","chlc3_2_tchla","but19like_2_tchla","peri_2_tchla","phdaSUM2tchla")])
