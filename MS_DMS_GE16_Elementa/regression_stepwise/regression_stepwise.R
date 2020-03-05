@@ -46,7 +46,7 @@ xvarS <- list(physics = c("temp","sal","N2","cpsmooth1","anp","par_d_p24h_ein_m_
               pigments_reduced = c("chlc3","chlc2group","hex","dd","chlb","tchla","tcar","fuco"))
 
 for (mm in c("spearman","pearson")) {
-  for (yvar in yvarS[1]) { #[1]
+  for (yvar in yvarS[2]) { #[1]
     for (xi in names(xvarS)[3]) { #[2]
       
       profOK <- prof
