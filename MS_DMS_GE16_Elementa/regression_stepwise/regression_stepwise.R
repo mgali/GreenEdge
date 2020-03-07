@@ -46,10 +46,9 @@ xvarS <- list(physics = c("temp","sal","N2","cpsmooth1","anp","par_d_p24h_ein_m_
               # pigments_reduced = c("chlc3","chlc2group","peri","neo","hex","dd","allo","chlb","tchla","tcar","but19_like"),
               # pigments_reduced = c("chlc3","tchla","but19_like"), # Sample size is 56 due to missing values
               # pigments_reduced = c("chlc3","chlc2group","psc","ppc"),
-              # pigments4dmsp = c("chlc2group","hex","tchla","tcar","fuco")) # Best subset for DMSPt
-              pigments4dmspBIS = c("but19_like","chlc2group","hex","tchla","fuco")) # Best subset for DMSPt BIS: idem adding 19'but-like. and removing tcar
-              # pigments4dms = c("but19_like","chlc2group","hex","chlb","tcar","fuco")) # Best subset for DMS. Replacing tchla by chlb makes a difference. Adding peri: marginally significant and improves R2 to 0.82
-              # pigments4dmsBIS = c("but19_like","chlc2group","hex","chlb","tcar","fuco")) # Best subset for DMS BIS: idem adding 19'but-like. Very high R2 but N drops by 1/3
+              # pigments4dmsp = c("chlc2group","hex","tchla","tcar","fuco")) # Best subset for DMSPt. No improvement adding chlc3, 19'but-like, but or peri (although the last enters with marginally significant)
+              # pigments4dms = c("chlc2group","hex","chlb","tcar","fuco")) # Best subset for DMS. Replacing tchla by chlb makes a difference. Adding peri: marginally significant and improves R2 to 0.82
+              pigments4dmsBIS = c("chlc2group","hex","chlb","tcar","fuco","but19_like")) # Best subset for DMS BIS: idem adding 19'but-like. Very high R2 but N drops by 1/3
 
 for (mm in c("spearman","pearson")) {
   for (yvar in yvarS[2]) { #[1]
