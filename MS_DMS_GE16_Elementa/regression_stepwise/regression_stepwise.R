@@ -29,9 +29,11 @@ prof[prof$stn==519 & prof$depth==0.7,c("dms","dmspt")] <- c(11.42,79.9)
 # Count proportion of empty cells in each column (mostly used to exclude some pigments or group them into functional units as DD or VAZ xanthophylls)
 noNAcount <- sapply(prof, function(x) round( sum(!is.na(x) & (!is.na(prof$dms) | !is.na(prof$dmspt))), digits = 2) )
 
-# Group DD and VAZ cycles
+# Group DD and VAZ cycles, PSC and PPC
 prof$dd <- rowSums(prof[,c("diadino","diato")], na.rm = T)
 prof$vaz <- rowSums(prof[,c("zea","anthera","viola")], na.rm = T)
+prof$psc <- rowSums(prof[,c("fuco","peri","but19_like","hex","hex19_likeSUM")], na.rm = T)
+prof$ppc <- rowSums(prof[,c("zea","anthera","viola","diadino","diato","allo","tcar")], na.rm = T)
 
 # ------------------------------------------------------------------------
 # Prepare regression and run in loop
@@ -43,7 +45,11 @@ xvarS <- list(physics = c("temp","sal","N2","cpsmooth1","anp","par_d_p24h_ein_m_
                            "dd","allo","lut","chlb","tchla","phytnaSUM","tcar","but19_like"),
               # pigments_reduced = c("chlc3","chlc2group","peri","neo","hex","dd","allo","chlb","tchla","tcar","but19_like"),
               # pigments_reduced = c("chlc3","tchla","but19_like"), # Sample size is 56 due to missing values
-              pigments_reduced = c("chlc3","chlc2group","hex","dd","chlb","tchla","tcar","fuco"))
+              # pigments_reduced = c("chlc3","chlc2group","psc","ppc"),
+              # pigments4dmsp = c("chlc2group","hex","tchla","tcar","fuco")) # Best subset for DMSPt
+              pigments4dmspBIS = c("but19_like","chlc2group","hex","tchla","fuco")) # Best subset for DMSPt BIS: idem adding 19'but-like. and removing tcar
+              # pigments4dms = c("but19_like","chlc2group","hex","chlb","tcar","fuco")) # Best subset for DMS. Replacing tchla by chlb makes a difference. Adding peri: marginally significant and improves R2 to 0.82
+              # pigments4dmsBIS = c("but19_like","chlc2group","hex","chlb","tcar","fuco")) # Best subset for DMS BIS: idem adding 19'but-like. Very high R2 but N drops by 1/3
 
 for (mm in c("spearman","pearson")) {
   for (yvar in yvarS[2]) { #[1]
