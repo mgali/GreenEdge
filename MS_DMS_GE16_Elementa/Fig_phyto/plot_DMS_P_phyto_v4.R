@@ -80,10 +80,10 @@ R.r3 <- data.table::rbindlist(R.r2, use.names = T, fill = F, idcol = "method")
 # Plot
 
 # Function to plot significance levels as symbols
-f_asterisks <- function(xpos, y.pval){
-  points(xpos[y.pval < 0.01], rep(1.05,length(xpos))[y.pval < 0.01], pch = 8, col = "orange", cex = 0.8)
-  points(xpos[y.pval >= 0.01 & y.pval < 0.05], rep(1.05,length(xpos))[y.pval >= 0.01 & y.pval < 0.05], pch = 4, col = "orange", cex = 0.8)
-  points(xpos[y.pval >= 0.05 & y.pval < 0.10], rep(1.05,length(xpos))[y.pval >= 0.05 & y.pval < 0.10], pch = 3, col = "orange", cex = 0.8)
+f_asterisks <- function(xpos, ypos, y.pval, tcol){
+  points(xpos[y.pval < 0.01], rep(ypos,length(xpos))[y.pval < 0.01], pch = 8, col = tcol, cex = 0.8, lwd = 0.5)
+  points(xpos[y.pval >= 0.01 & y.pval < 0.05], rep(ypos,length(xpos))[y.pval >= 0.01 & y.pval < 0.05], pch = 4, col = tcol, cex = 0.8, lwd = 0.5)
+  points(xpos[y.pval >= 0.05 & y.pval < 0.10], rep(ypos,length(xpos))[y.pval >= 0.05 & y.pval < 0.10], pch = 3, col = tcol, cex = 0.8, lwd = 0.5)
 }
 
 
@@ -129,33 +129,33 @@ barplot(height = Ybars,
         beside = T,
         space = c(0.2,4.58),
         width = 0.9,
-        legend.text = c("rs surface","rs SCM"),
+        legend.text = c("surface","SCM"),
         args.legend = list(x = "topleft", bty = "n"),
-        col = parpal[c(7,1)],
-        border = parpal[c(7,1)],
+        col = parpal[c(6,1)],
+        border = parpal[c(6,1)],
         ylab = "Correlation coefficient, DMSPt",
-        ylim = c(min(0,min(Ybars, na.mm = T)-0.1),1.1),
+        ylim = c(min(0,min(Ybars, na.mm = T)-0.1),1.13),
         cex.axis = 0.9,
         cex.names = 0.8,
         las = 1)
-abline(h = seq(0,1,.2), lwd = 0.5, lty = 3, col = "gray")
-barplot(height = Ybars,
-        names.arg = xlbars[xbars],
-        beside = T,
-        add = T,
-        space = c(0.2,4.58),
-        width = 0.9,
-        legend.text = c("rs surface","rs SCM"),
-        args.legend = list(x = "topleft", bty = "n"),
-        col = parpal[c(7,1)],
-        border = parpal[c(7,1)],
-        ylab = "Correlation coefficient, DMSPt",
-        ylim = c(min(0,min(Ybars, na.mm = T)-0.1),1.1),
-        cex.axis = 0.9,
-        cex.names = 0.8,
-        las = 1)
-f_asterisks(xpos, t(R[[mm]][["dmspt"]][["surface"]][["p.value"]]))
-f_asterisks(xpos+1, t(R[[mm]][["dmspt"]][["SCM"]][["p.value"]]))
+# abline(h = seq(0,1,.2), lwd = 0.5, lty = 3, col = "gray")
+# barplot(height = Ybars,
+#         names.arg = xlbars[xbars],
+#         beside = T,
+#         add = T,
+#         space = c(0.2,4.58),
+#         width = 0.9,
+#         legend.text = c("surface","SCM"),
+#         args.legend = list(x = "topleft", bty = "n"),
+#         col = parpal[c(6,1)],
+#         border = parpal[c(6,1)],
+#         ylab = "Correlation coefficient, DMSPt",
+#         ylim = c(min(0,min(Ybars, na.mm = T)-0.1),1.13),
+#         cex.axis = 0.9,
+#         cex.names = 0.8,
+#         las = 1)
+f_asterisks(xpos, 1.05, t(R[[mm]][["dmspt"]][["surface"]][["p.value"]]), "black")
+f_asterisks(xpos+1, 1.05, t(R[[mm]][["dmspt"]][["SCM"]][["p.value"]]), "black")
 # Add pearson corr
 Ybars <- t(cbind(R[[mb]][["dmspt"]][["surface"]][["estimate"]], R[[mb]][["dmspt"]][["SCM"]][["estimate"]]))
 barplot(height = Ybars,
@@ -165,11 +165,14 @@ barplot(height = Ybars,
         space = c(1.1,9.1),
         width = 0.5,
         col = "white",
-        border = parpal[c(7,1)],
-        ylim = c(min(0,min(Ybars, na.mm = T)-0.1),1.1),
+        border = parpal[c(6,1)],
+        ylim = c(min(0,min(Ybars, na.mm = T)-0.1),1.13),
         cex.axis = 0.9,
         cex.names = 0.8,
         las = 1)
+f_asterisks(xpos+0.5, 1.1, t(R[[mb]][["dmspt"]][["surface"]][["p.value"]]), "darkgray")
+f_asterisks(xpos+1.5, 1.1, t(R[[mb]][["dmspt"]][["SCM"]][["p.value"]]), "darkgray")
+abline(h = 0, lwd = 1, lty = 1, col = "black")
 
 # ---------------------
 # b) DMS vs. Phyto counts correlations
@@ -180,29 +183,29 @@ barplot(height = Ybars,
         beside = T,
         space = c(0.2,4.58),
         width = 0.9,
-        col = parpal[c(7,1)],
-        border = parpal[c(7,1)],
+        col = parpal[c(6,1)],
+        border = parpal[c(6,1)],
         ylab = "Correlation coefficient, DMS",
-        ylim = c(min(0,min(Ybars, na.rm = T)-0.2),1.1),
+        ylim = c(min(0,min(Ybars, na.rm = T)),1.13),
         cex.axis = 0.9,
         cex.names = 0.8,
         las = 1)
-abline(h = seq(-0.5,1,.25), lwd = 0.5, lty = 3, col = "gray")
-barplot(height = Ybars,
-        names.arg = xlbars[xbars],
-        beside = T,
-        add = T,
-        space = c(0.2,4.58),
-        width = 0.9,
-        col = parpal[c(7,1)],
-        border = parpal[c(7,1)],
-        ylab = "Correlation coefficient, DMS",
-        ylim = c(min(0,min(Ybars, na.rm = T)-0.2),1.1),
-        cex.axis = 0.9,
-        cex.names = 0.8,
-        las = 1)
-f_asterisks(xpos, t(R[[mm]][["dms"]][["surface"]][["p.value"]]))
-f_asterisks(xpos+1, t(R[[mm]][["dms"]][["SCM"]][["p.value"]]))
+# abline(h = seq(-0.5,1,.25), lwd = 0.5, lty = 3, col = "gray")
+# barplot(height = Ybars,
+#         names.arg = xlbars[xbars],
+#         beside = T,
+#         add = T,
+#         space = c(0.2,4.58),
+#         width = 0.9,
+#         col = parpal[c(6,1)],
+#         border = parpal[c(6,1)],
+#         ylab = "Correlation coefficient, DMS",
+#         ylim = c(min(0,min(Ybars, na.rm = T)),1.13),
+#         cex.axis = 0.9,
+#         cex.names = 0.8,
+#         las = 1)
+f_asterisks(xpos, 1.05, t(R[[mm]][["dms"]][["surface"]][["p.value"]]), "black")
+f_asterisks(xpos+1, 1.05, t(R[[mm]][["dms"]][["SCM"]][["p.value"]]), "black")
 # Add pearson corr
 Ybars <- t(cbind(R[[mb]][["dms"]][["surface"]][["estimate"]], R[[mb]][["dms"]][["SCM"]][["estimate"]]))
 barplot(height = Ybars,
@@ -212,11 +215,14 @@ barplot(height = Ybars,
         space = c(1.1,9.1),
         width = 0.5,
         col = "white",
-        border = parpal[c(7,1)],
-        ylim = c(min(0,min(Ybars, na.mm = T)-0.2),1.1),
+        border = parpal[c(6,1)],
+        ylim = c(min(0,min(Ybars, na.mm = T)-0.2),1.13),
         cex.axis = 0.9,
         cex.names = 0.8,
         las = 1)
+f_asterisks(xpos+0.5, 1.1, t(R[[mb]][["dms"]][["surface"]][["p.value"]]), "darkgray")
+f_asterisks(xpos+1.5, 1.1, t(R[[mb]][["dms"]][["SCM"]][["p.value"]]), "darkgray")
+abline(h = 0, lwd = 1, lty = 1, col = "black")
 
 # ---------------------
 # c) DMSPt vs. Phaeocystis
@@ -307,12 +313,12 @@ if (exportimg) {dev.off()}
 #         names.arg = xlbars[xbars],
 #         beside = T,
 #         space = c(0.1,3),
-#         legend.text = c("rs surface","rp","rs SCM","rp"),
+#         legend.text = c("surface","rp","SCM","rp"),
 #         args.legend = list(x = "topleft", bty = "n"),
 #         col = parpal[c(7,NA,1,NA)],
 #         border = parpal[c(7,7,1,1)],
 #         ylab = "Correlation coefficient, DMSPt",
-#         ylim = c(min(0,min(Ybars, na.mm = T)-0.1),1.1),
+#         ylim = c(min(0,min(Ybars, na.mm = T)-0.1),1.13),
 #         cex.axis = 0.9,
 #         cex.names = 0.8,
 #         las = 1)
