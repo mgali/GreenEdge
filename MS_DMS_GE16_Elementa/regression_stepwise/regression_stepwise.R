@@ -40,9 +40,10 @@ prof$ppc <- rowSums(prof[,c("zea","anthera","viola","diadino","diato","allo","tc
 # Pigments with less than 50% available data
 
 yvarS <- c("dmspt","dms")
-xvarS <- list(physics = c("temp","sal","N2","cpsmooth1","anp","par_d_p24h_ein_m_2_day_1","dmspt"),
-              pigments = c("chlc3","chlc2group","chldaSUM","peri","phdaSUM","but","fuco","neo","pras.1","hex",
+xvarS <- list(pigments = c("chlc3","chlc2group","chldaSUM","peri","phdaSUM","but","fuco","neo","pras.1","hex",
                            "dd","allo","lut","chlb","tchla","phytnaSUM","tcar","but19_like"),
+              # physics = c("temp","sal","N2","cpsmooth1","anp","par_d_p24h_ein_m_2_day_1"), # ,"dmspt"
+              physics = c("temp","sal","N2","cpsmooth1","anp","par_d_p24h_ein_m_2_day_1","dmspt"),
               # pigments_reduced = c("chlc3","chlc2group","peri","neo","hex","dd","allo","chlb","tchla","tcar","but19_like"),
               # pigments_reduced = c("chlc3","tchla","but19_like"), # Sample size is 56 due to missing values
               # pigments_reduced = c("chlc3","chlc2group","psc","ppc"),
@@ -52,7 +53,7 @@ xvarS <- list(physics = c("temp","sal","N2","cpsmooth1","anp","par_d_p24h_ein_m_
 
 for (mm in c("spearman","pearson")) {
   for (yvar in yvarS[2]) { #[1]
-    for (xi in names(xvarS)[3]) { #[2]
+    for (xi in names(xvarS)[2]) { #[2]
       
       profOK <- prof
       if (xi == "pigments") { profOK <- prof[prof$stn != 413, ] }
