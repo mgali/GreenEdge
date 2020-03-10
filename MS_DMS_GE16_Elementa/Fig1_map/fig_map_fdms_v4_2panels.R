@@ -95,9 +95,10 @@ span = 565 # 400 to 600 works fine
 col.land <- 'gray95' # 'tan'
 # col.fdms <- rgb(.6, .6, .6, alpha = .7)
 # col.dms <- rgb(0, 0, 0, alpha = 1)
-col.fdms <- rgb(red = 1, green = 255/255, blue = 153/255, alpha = .5)
+col.fdms <- rgb(red = 1, green = 193/255, blue = 7/255, alpha = .4)
 # col.dms <- rgb(red = .8, green = .6, blue = .7, alpha = .5)
-col.dms <- rgb(red = 127/255, green = 0/255, blue = 255/255, alpha = .5)
+# col.dms <- rgb(red = 216/255, green = 27/255, blue = 96/255, alpha = .5)
+col.dms <- rgb(red = 255/255, green = 128/255, blue = 0/255, alpha = .7)
 col.ice1 <- 'skyblue'
 col.ice2 <- 'skyblue2'
 col.ice3 <- 'skyblue3'
@@ -231,28 +232,29 @@ legend(x = xpos, y = 70.10, pch = 1, lty = 0, lwd = 1,
        bg= "gray97", box.lwd = 0, box.col = "gray95")
 
 # Labels for transects and dates (removed end dates)
-text(x = -62.8, y = 68.40, labels = 'T4', offset = 0.5, cex = 1, srt = 0, col = 'black')
-text(x = -62.7, y = 68.27, labels = 'd176 ->', offset = 0.5, cex = 1, srt = 0, col = 'black')
-# text(x = -56.4, y = 68.13, labels = '-> d181', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -62.8, y = 68.40, labels = 'T4', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
+text(x = -62.7, y = 68.27, labels = 'd176 ->', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
+# text(x = -56.4, y = 68.13, labels = '-> d181', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
 
-text(x = -57, y = 70.23, labels = 'T5', offset = 0.5, cex = 1, srt = 0, col = 'black')
-text(x = -57, y = 70.1, labels = '<- d181', offset = 0.5, cex = 1, srt = 0, col = 'black')
-# text(x = -63.7, y = 70.0, labels = 'd184 <-', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -57, y = 70.23, labels = 'T5', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
+text(x = -57, y = 70.1, labels = '<- d181', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
+# text(x = -63.7, y = 70.0, labels = 'd184 <-', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
 
-text(x = -65, y = 70.63, labels = 'T6', offset = 0.5, cex = 1, srt = 0, col = 'black')
-text(x = -64.9, y = 70.5, labels = 'd185 ->', offset = 0.5, cex = 1, srt = 0, col = 'black')
-# text(x = -58.2, y = 70.5, labels = '-> d188', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -65, y = 70.63, labels = 'T6', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
+text(x = -64.9, y = 70.5, labels = 'd185 ->', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
+# text(x = -58.2, y = 70.5, labels = '-> d188', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
 
-text(x = -57, y = 69.63, labels = 'T7', offset = 0.5, cex = 1, srt = 0, col = 'black')
-text(x = -57, y = 69.5, labels = '<- d189', offset = 0.5, cex = 1, srt = 0, col = 'black')
-# text(x = -64.1, y = 69.5, labels = 'd191 <-', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -57, y = 69.63, labels = 'T7', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
+text(x = -57, y = 69.5, labels = '<- d189', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
+# text(x = -64.1, y = 69.5, labels = 'd191 <-', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
 
 # Plots station points
-points(x=ge_stn_all$lon, y=ge_stn_all$lat, col='black', cex=0.4, pch=4, lwd = 0.5) # unsampled
-# ss <- which(ge_stn_all$stn %in% ge_fdms$stn) # Uncomment if plotting only unsampled stations
-# ge_stn_uu <- ge_stn_all
-# ge_stn_uu[ss,] <- NA
-# points(x=ge_stn_uu$lon, y=ge_stn_uu$lat, col='black', cex=0.4, pch=4, lwd = 0.5) # unsampled
+# points(x=ge_stn_all$lon, y=ge_stn_all$lat, col='black', cex=0.4, pch=4, lwd = 0.5) # all stations
+ss <- which(ge_stn_all$stn %in% ge_fdms$stn) # Uncomment if plotting only unsampled stations
+ge_stn_uu <- ge_stn_all
+ge_stn_uu[ss,] <- NA
+points(x=ge_stn_uu$lon, y=ge_stn_uu$lat, col='gray', cex=0.4, pch=4, lwd = 0.5) # unsampled
+points(x=ge_fdms$lon, y=ge_fdms$lat, col='black', cex=0.4, pch=16) # sampled
 
 # # Plot station names
 # text(x=ge_fdms$lon, y=ge_fdms$lat, labels = ge_fdms$stn, col='black', cex=0.6, pos = 1, offset = 0.5, srt = 45) # sampled
