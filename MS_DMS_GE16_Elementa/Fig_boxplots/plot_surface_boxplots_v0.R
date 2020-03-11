@@ -51,8 +51,16 @@ surf$owd_class = cut(surf$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MI
 surf$wsp <- surf$wsp24
 surf$SIC <- surf$SICday
 
+# Print FDMS prior to correction
+fvar <- "fdmsW97c24"
+toprint <- list(ICE = surf[surf$owd_class=="ICE",fvar],
+               MIZ = surf[surf$owd_class=="MIZ",fvar],
+               OW = surf[surf$owd_class=="OW",fvar])
+print(lapply(toprint, summary))
+print(lapply(toprint, function(x) {return(sum(!is.na(x)))}))
+
 # CORRECT FDMS FOR SIC
-surf$fdms <- surf$fdmsW97c24 * (1 - surf$SIC)
+surf$fdms <- surf[,fvar] * (1 - surf$SIC)
 
 # Compute additional variables
 surf$dms2dmspt <- surf$dms / surf$dmspt
@@ -96,7 +104,7 @@ for (xv in names(xvarS)) {
           las = 1)
   points(c(1,2,3), unlist(lapply(toplot, mean, na.rm = T)), col = "white", pch = 15, cex = 0.9)
   points(c(1,2,3), unlist(lapply(toplot, mean, na.rm = T)), col = "black", pch = 0, cex = 1)
-  if (xv == "fdms") {print(unlist(lapply(toplot, mean, na.rm = T)))}
+  # if (xv == "fdms") {print(lapply(toplot, summary))}
   
 } # end loop on variables
 

@@ -16,7 +16,7 @@ mizedms <- list(A = read.csv(paste0(datapath,'MIZ_INTMIZ_caseB_5_x_years_65N85N_
                 B = read.csv(paste0(datapath,'MIZ_INTMIZ_caseA_5_x_years_65N85N_20032014.csv'), header = F))
 
 # Scaling factors to convert MIZ area to fluxes
-fixedflux <- 1 # µmol m-2 s-1 = mol km-2 d-1
+fixedflux <- 5 # µmol m-2 d-1 = mol km-2 d-1
 ndays <- 8 # days
 cf <- 32e-9 # Gg S / mol S
 
@@ -51,15 +51,16 @@ names(pletS) <- rownames(mizedms$A)
 xp <- colnames(mizedms$A)       # x axis of bar plot
 xl <- seq(1,length(xp)) - 0.5   # x axis of lines plot
 colA <- "cadetblue3"
-colB <- "cadetblue2"
+# colB <- "cadetblue2"
+colB <- "azure1"
+m0 <- matrix(data = 0, nrow = 4, ncol = 5)
+m <- rbind(m0+1,m0+2,m0+3,m0+4)
 
 for (iseason in names(ooedms)) {
   
   if (exportimg) {png(filename = paste0(opath,"Fig8_MIZ_EDMS_v0_",iseason,".png"), width = 8, height = 12, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
 
   # Multipanel setup
-  m0 <- matrix(data = 0, nrow = 4, ncol = 5)
-  m <- rbind(m0+1,m0+2,m0+3,m0+4)
   layout(m)
   par(oma = c(1,1,0.5,0.5))
   
@@ -67,18 +68,16 @@ for (iseason in names(ooedms)) {
     
     yA <- mizedms$A[ilat,]
     yB <- mizedms$B[ilat,]
-    yBmax <- max(yB, na.rm = T)
+    yBmax <- max(yB, na.rm = T) * 1.4
     ybarA <- t(yA * 100 / ooedms[[iseason]][ilat,])
     ybarB <- t(yB * 100 / ooedms[[iseason]][ilat,])    
-    ybarBmax <- max(ybarB, na.rm = T)
+    ybarBmax <- max(ybarB, na.rm = T) * 2.2
     sfactor <- ybarBmax / yBmax
-    
-    plet <- pletS[[ilat]]
     
     par(mar = c(3,5,2,5))
     barplot(height = ybarB,
             names.arg = xp,
-            ylim = c(0, ybarBmax * 1.1),
+            ylim = c(0, ybarBmax),
             col = colB, border = "black", lwd = 0.5,
             width = 1, space = 0, beside = T,
             legend.text = NULL,
@@ -90,22 +89,37 @@ for (iseason in names(ooedms)) {
             width = 1, space = 0, beside = T,
             legend.text = NULL,
             axes = F)
-    ytickmax <- round(ybarlim[2], -1)
     lines(xl, yA * sfactor, col = "black", lwd = 1, lty = 1)
     lines(xl, yB * sfactor, col = "black", lwd = 1, lty = 2)
-    points(xl, yA * sfactor, pch = 19, col = colA, cex = 1.5)
-    points(xl, yB * sfactor, pch = 19, col = colB, cex = 1.5)
-    points(xl, yA * sfactor, pch = 1, col = "black", lwd = 1, cex = 1.5)
-    points(xl, yB * sfactor, pch = 1, col = "black", lwd = 1, cex = 1.5)
+    points(xl, yA * sfactor, pch = 19, col = colA, cex = 1.2)
+    points(xl, yB * sfactor, pch = 19, col = colB, cex = 1.2)
+    points(xl, yA * sfactor, pch = 1, col = "black", lwd = 1, cex = 1.2)
+    points(xl, yB * sfactor, pch = 1, col = "black", lwd = 1, cex = 1.2)
+    
     # Axes
-    ybarticks <- seq(0, ytickmax, length.out = 5)
+    nticks <- 4
+    yint <- round(ybarBmax / nticks, -round(log10(ybarBmax) - 1))
+    ybarticks <- seq(0, ybarBmax, yint)
+    yintB <- round(yBmax / nticks, -round(log10(yBmax) - 1))
+    ybarBticks <- seq(0, yBmax, yintB)
+    # print(ybarticks)
+    # print(ybarBticks)
     axis(side = 2, at = ybarticks, las = 1)
     yscale <- max(ybarticks / sfactor, na.rm = T)
-    axis(side = 4, at = ybarticks, labels = round(ybarticks / sfactor, -round(log10(yscale) - 1)), las = 1)
+    # axis(side = 4, at = ybarticks, labels = round(ybarticks / sfactor, -round(log10(yscale) - 1)), las = 1)
+    axis(side = 4, at = ybarBticks * sfactor, labels = ybarBticks, las = 1)
     
+    # Axis and panel labels
+    plet <- pletS[[ilat]]
+    t1 <- paste0(plet, ") ") 
+    t2 <- paste0(ilat, "-", as.character(as.numeric(ilat)+5))
+    t3 <- expression('             '*degree*'N')
+    text(0.1, max(ybarticks) * 0.96, t1, cex = 1.2)
+    mtext(side = 3, t2, line = -1.5, cex = 0.7)
+    mtext(side = 3, t3, line = -1.5, cex = 0.7)
     if (plet == "c") {
-      mtext(side = 2, "                           100 * EDMS_MIZ / EDMS_OW", line = 3)
-      mtext(side = 4, "                          MIZ DMS emission, Gg S / year", line = 3)
+      mtext(side = 2, expression("                           100 x EDMS"[MIZ]*" / EDMS"[OW]), line = 3)
+      mtext(side = 4, expression("                          EDMS"[MIZ]*", Gg S yr"^-1), line = 3)
     }
   } # end loop on latitude bands
   
@@ -113,3 +127,11 @@ for (iseason in names(ooedms)) {
   
 } # end loop on periods (annual, MJJA, JJ)
 
+
+# ------------------------------------------
+# # Old plot settings
+# ybarBmaxS <- c(10, 10, 50, 100)
+# names(ybarBmaxS) <- rownames(mizedms$A)
+# yBmaxS <- c(1.25, 1.25, 1.25, 0.5)
+# names(yBmaxS) <- rownames(mizedms$A)
+# maxmax <- max(unlist(mizedms), na.rm = T)
