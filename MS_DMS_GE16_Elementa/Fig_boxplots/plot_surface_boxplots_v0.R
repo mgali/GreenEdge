@@ -9,7 +9,7 @@ pdir <- 'plots_pigments_vs_DMS_zColorScale/'
 surf <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
 # Exporting image?
-exportimg <- T
+exportimg <- F
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_boxplots/"
 
 # ---------------------
@@ -44,8 +44,8 @@ surf$sic_class[icemax>=icecrit1 & icemin<=icecrit2] <- "MIZ"
 # Add MIZ classification by OWD
 surf$owd_class = cut(surf$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MIZ","OW"))
 
-# Hide data from stn 400
-surf[surf$stn<=400,] <- NA
+# # Hide data from stn 400
+# surf[surf$stn<=400,] <- NA
 
 # Decide if using 3-day or day SIC and wind speed (NOW USING DAILY MEAN DATA)
 surf$wsp <- surf$wsp24
@@ -90,14 +90,24 @@ for (xv in names(xvarS)) {
   boxplot(surf[,xv] ~ surf$owd_class, # Equivalent to using "toplot" list created above
           col = col, # color-filled
           # border = col, # colored lines
-          notch = T,
+          notch = F,
           lwd = 0.5, # 0.5 for filled, 1 for lines
           ylab = xvarS[[xv]],
           las = 1)
   points(c(1,2,3), unlist(lapply(toplot, mean, na.rm = T)), col = "white", pch = 15, cex = 0.9)
   points(c(1,2,3), unlist(lapply(toplot, mean, na.rm = T)), col = "black", pch = 0, cex = 1)
+  if (xv == "fdms") {print(unlist(lapply(toplot, mean, na.rm = T)))}
   
 } # end loop on variables
 
 if (exportimg) {dev.off()}
+
+# ----------------------------------------------------------------
+# # Linear regression model between FDMS and its controlling factors
+# surf$IF <- 1 - surf$SIC
+# yreg <- surf$fdms 
+# Xreg <- surf[,c("dms","wsp","sst","IF")]
+# Xreg <- as.data.frame(scale(Xreg, center = T, scale = T))
+# full.model <- lm(yreg ~., data = Xreg)
+# print(summary(full.model))
 
