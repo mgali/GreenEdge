@@ -10,10 +10,8 @@ prof.all <- read.csv(file = "~/Desktop/GreenEdge/Achim_Randelhoff/data/Randelhof
 surf.all <- read.csv(file = "~/Desktop/GreenEdge/Achim_Randelhoff/data/Randelhoff-et-al_Ice-edge-paper_per-station_v0.1.csv", header = T)
 pre.qpcr <- read_excel(path = "~/Desktop/GreenEdge/Results_methylotrophy story_ODV2-1_mg.xlsx", sheet = "Results_methylotrophy story_ODV")
 
-# prof.dms <- read.csv(file = "~/Desktop/GreenEdge/GCMS/GE2016.profiles.ALL.OK.csv", header = T)
-
 # Exporting image?
-exportimg <- T # Figure with binned profiles by OWD categories
+exportimg <- F # Figure with binned profiles by OWD categories
 exportfig <- T # Figure with profiles in T5 where all data available
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_qPCR_norm_grouped/"
 
@@ -25,42 +23,43 @@ plet <- sapply(letters, paste0, ")")                            # plot letters
 
 # ---------------------
 # Merge with profiles to get clustering coefficient and SIC classification
-surf.all$Depth_m < 5
 pplot <- merge(x = prof.all, y = surf.all, all.x = T, all.y = F, by = 'Station', suffixes = "")
 
 # Preprocess qpcr data
 qpcr <- data.frame(Station = pre.qpcr$Station,
                    cast = pre.qpcr$CTD,
                    Depth_m = pre.qpcr$Depth,
+                   dms = pre.qpcr$dms,
+                   dmspt = pre.qpcr$dmspt,
                    dddP = pre.qpcr$`Average of dddP copies/mL`,
                    dmdA = pre.qpcr$`Average of dmdA copies /mL`,
-                   Rhodobacteraceae = pre.qpcr$Rhodobacteraceae,
-                   SAR11  = pre.qpcr$SAR11,
-                   SAR116 = pre.qpcr$SAR116,
-                   Polaribacter  = pre.qpcr$Polaribacter,
-                   Thiotrichales  = pre.qpcr$Thiotrichales,
-                   Methylophylales = pre.qpcr$Methylophylales,
-                   Oceanospirillales = pre.qpcr$Oceanospirillales,
-                   Pseudoalteromonas = pre.qpcr$Pseudoalteromonas,
+                   Rhodobacteraceae = pre.qpcr$Rhodobacteraceae*100,
+                   SAR11  = pre.qpcr$SAR11*100,
+                   SAR116 = pre.qpcr$SAR116*100,
+                   Polaribacter  = pre.qpcr$Polaribacter*100,
+                   Thiotrichales  = pre.qpcr$Thiotrichales*100,
+                   Methylophylales = pre.qpcr$Methylophylales*100,
+                   Oceanospirillales = pre.qpcr$Oceanospirillales*100,
+                   Pseudoalteromonas = pre.qpcr$Pseudoalteromonas*100,
                    BA = pre.qpcr$`BA cells/mL`,
                    BP = pre.qpcr$`Bacterial production µgC/L/d`
 )
 qpcr$Station <- as.numeric(gsub(pattern = "G", replacement = "", qpcr$Station))
 
 # Merge with qpcr
-pplot <- merge(x = pplot, y = qpcr, all.x = T, all.y = F, by = c('Station','Depth_m'), suffixes = "")
+pplot <- merge(x = qpcr, y = pplot, all.x = T, all.y = F, by = c('Station','Depth_m'), suffixes = "")
 
 # Remove duplicated columns with NA in their names
 pplot <- pplot[,grep("NA",names(pplot), invert = T)]
 
 # Remove duplicated rows 
-dd <- duplicated(pplot[,c("dddP","dmdA","cast","Depth_m")]) | is.na(pplot$dddP)  | is.na(pplot$dmdA)
+dd <- duplicated(pplot[,c("cast","Depth_m")])
 pplot <- pplot[!dd,]
-# View(pplot[,c("Station","ANP",names(qpcr))])
+# View(pplot)
 
-# Hide data from stn 400 (either entire or just surface)
-# pplot[pplot$stn<=400,] <- NA
-pplot[pplot$stn<=400 & pplot$depth < 5,] <- NA
+# # Hide data from stn 400 (either entire or just surface)
+# # pplot[pplot$stn<=400,] <- NA
+# pplot[pplot$Station<=400 & pplot$Depth_m < 5,] <- NA
 
 # Add ratios
 pplot$dddP2dmdA <- pplot$dddP/pplot$dmdA                           # dddP/dmdA ratio
@@ -124,7 +123,7 @@ for (sc in "owd_class") { #names(st_class)
 xvarS <- list(ANP = "ANP (-)",
               dddP = "dddp copies/mL",
               dmdA = "dmdA copies/mL",
-              dddP2dmdA = "dddp/dmdA",
+              dddP2dmdA = "dddP/dmdA",
               BA = "Bacterial abundance cells/mL",
               BP = "Bacterial production µgC/L/d",
               Rhodobacteraceae = "Rhodobacteraceae",
@@ -142,7 +141,7 @@ names(lett) <- names(xvarS)
 
 for (sc in "owd_class") {
   
-  if (exportimg) {png(filename = paste0(opath,"Fig_",sc,"_qpcr.png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig_qpcr_",sc,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)
@@ -220,4 +219,74 @@ for (sc in "owd_class") {
   
   if (exportimg) {dev.off()}
 }
+
+
+# ---------------------
+# Figure with T5 profiles
+xvarS <- list(ANP = "ANP (-)",
+              dms = "DMS (nM)",
+              dmspt = "DMSPt (nM)",
+              dddP = "dddp copies/mL",
+              dmdA = "dmdA copies/mL",
+              dddP2dmdA = "dddP/dmdA",
+              BA = "Bact. abundance cells/mL",
+              BP = "Bact. production µgC/L/d",
+              Rhodobacteraceae = "Rhodobacteraceae %",
+              Polaribacter = "Polaribacter %",
+              SAR11 = "SAR11 %",
+              SAR116 = "SAR116 %"
+)
+
+if (exportfig) {png(filename = paste0(opath,"Fig_qpcr_stn_507_519.png"), width = 17, height = 8, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+
+# Multipanel setup
+m0 <- matrix(data = 0, nrow = 4, ncol = 4)
+mr1 <-  cbind(m0+1,m0+2,m0+3,m0+4,m0+5,m0+6)
+m <- rbind(mr1,mr1+6)
+layout(m)
+par(oma = c(1,1,0.5,0.5))
+
+for (xvar in names(xvarS)) {
+  
+  i507 <- which(pplot$Station==507 & !is.na(pplot[,xvar]))
+  i519 <- which(pplot$Station==519 & !is.na(pplot[,xvar]))
+  xl <- range(pplot[c(i507,i519),xvar], na.rm = T)
+  xl <- c(xl[1]*0.9, xl[2]*1.1)
+  if (xvar == "ANP") {xl <- rev(xl)}
+  
+  print(xvar)
+  par(mar = c(4,3,2,0.5))
+  plot(pplot[i507,xvar], pplot[i507,"Depth_m"],
+       ylim = c(50,0),
+       xlim = xl,
+       cex = 0.6,
+       type = "l",
+       col = col[3],
+       xlab = xvarS[[xvar]])
+  lines(pplot[i519,xvar], pplot[i519,"Depth_m"],
+       cex = 0.6,
+       col = col[2],
+       type = "l",
+       xlab = xvarS[[xvar]])
+  points(pplot[i507,xvar], pplot[i507,"Depth_m"],
+         cex = 1,
+         col = col[3],
+         pch = 19)
+  points(pplot[i519,xvar], pplot[i519,"Depth_m"],
+         cex = 1,
+         col = col[2],
+         pch = 15)
+  if (xvar == "dmspt") {
+    legend(x = xl[1]+0.4*(xl[2]-xl[1]),
+           y = 25,
+           pch = c(19,15),
+           legend = c("st. 507","st. 519"),
+           cex = 1.1,
+           col = col[c(3,2)],
+           bg= "gray95", box.lwd = 0)
+  }
+}
+
+if (exportfig) {dev.off()}
+
 
