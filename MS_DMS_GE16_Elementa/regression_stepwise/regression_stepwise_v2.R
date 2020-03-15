@@ -40,7 +40,7 @@ prof$vaz <- rowSums(prof[,c("zea","anthera","viola")], na.rm = T)
 yvarS <- c("dmspt","dms")
 xvarS <- list(physics = c("temp","sal","N2","cpsmooth1","anp","par_d_p24h_ein_m_2_day_1","dmspt"),
               pigments = c("chlc3","chlc2group","chldaSUM","peri","phdaSUM","but","fuco","neo","pras.1","hex",
-                           "dd","allo","lut","chlb","tchla","phytnaSUM","tcar","but19_like"))
+                           "dd","allo","lut","chlb","tchla","phytnaSUM","tcar","but19_like","vaz"))
 
 R <- list()
 R.r1 <- list()
