@@ -12,7 +12,7 @@ pre.qpcr <- read_excel(path = "~/Desktop/GreenEdge/Results_methylotrophy story_O
 
 # Exporting image?
 exportimg <- F # Figure with binned profiles by OWD categories
-exportfig <- T # Figure with profiles in T5 where all data available
+exportfig <- F # Figure with profiles in T5 where all data available
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_qPCR_norm_grouped/"
 
 # ---------------------
@@ -306,3 +306,12 @@ if (exportfig) {
 }
 
 
+# ---------------------------------------
+# Correlation analysis for dddP and dmdA
+xvars1 <- c(ANP,BA,BP)
+xvars2 <- c(Rhodobacteraceae,Polaribacter,SAR11,SAR116,Methylobacterium,Thiotrichales,Methylophylales,Oceanospirillales,Pseudoalteromonas)
+yvarS <- list(dddP = "dddP copies/mL",
+              dmdA = "dmdA copies/mL")
+Xc1 <- 
+Xc2 <- 
+Xc <- cbind(Xc1,Xc2)

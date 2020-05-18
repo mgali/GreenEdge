@@ -163,8 +163,10 @@ box()
 par(mar = c(12,0.2,4,3))
 cbar <- seq(min(ge_stn_all$ANP, na.rm = T), max(ge_stn_all$ANP, na.rm = T), length.out = ncol.anp)
 cbar.tick <- seq(round(min(ge_stn_all$ANP, na.rm = T),2), round(max(ge_stn_all$ANP, na.rm = T),2), 0.1)
-image(t(cbar), cbar, col = col, cex.main=1, xaxt = "n", yaxt = "n", main = 'ANP')
-axis(4, cex.axis=0.8, mgp = c(0, 0.5, 0), at = cbar.tick, labels = cbar.tick)
+image(t(cbar), cbar, col = col, cex.main=1.1, xaxt = "n", yaxt = "n", main = "")
+axis(4, cex.axis=0.9, mgp = c(0, 0.5, 0), at = cbar.tick, labels = cbar.tick)
+mtext(text = "ANP", side = 3, line = 2, cex = 0.7)
+mtext(text = "(20 m)", side = 3, line = 0.5, cex = 0.7)
 
 # Panel 2
 # ===========================================================

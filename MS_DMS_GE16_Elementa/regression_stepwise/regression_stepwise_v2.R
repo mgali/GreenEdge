@@ -26,8 +26,8 @@ prof <- prof[(!is.na(prof$dms) | !is.na(prof$dmspt)) & !is.na(prof$depth),]
 # !!!!!! Correct DMS and DMSPt in stn 519 surface !!!!!
 prof[prof$stn==519 & prof$depth==0.7,c("dms","dmspt")] <- c(11.42,79.9)
 
-# Count proportion of empty cells in each column (mostly used to exclude some pigments or group them into functional units as DD or VAZ xanthophylls)
-noNAcount <- sapply(prof, function(x) round( sum(!is.na(x) & (!is.na(prof$dms) | !is.na(prof$dmspt))), digits = 2) )
+# # Count proportion of empty cells in each column (mostly used to exclude some pigments or group them into functional units as DD or VAZ xanthophylls)
+# noNAcount <- sapply(prof, function(x) round( sum(!is.na(x) & (!is.na(prof$dms) | !is.na(prof$dmspt))), digits = 2) )
 
 # Group DD and VAZ cycles
 prof$dd <- rowSums(prof[,c("diadino","diato")], na.rm = T)
@@ -63,9 +63,18 @@ for (mm in c("spearman","pearson")) {
       # Correlation matrix: save
       y <- XY[[ yvar ]]
       tmp <- lapply(XY[,xvarS[[xi]]], function(x) {
-        c <- cor.test(x, y, use = "pairwise", method = mm)
+        
+        # Remove duplicated values variable by variable
+        dx <- as.logical(c(1,diff(x)))
+        dy <- as.logical(c(1,diff(y)))
+        xc <- x[dx&dy]
+        yc <- y[dx&dy]
+        
+        # Corr
+        c <- cor.test(xc, yc, use = "pairwise", method = mm)
         c$n <- sum(!is.na(x)  & !is.na(y))
         return(c)
+        
       }
       )
       tmp <- lapply(tmp, function(x) x <- x[selStats]) # Select desired stats, otherwise different stats in spearman and pearson (latter has confidence interval with length 2 which complicates formatting)
@@ -80,3 +89,10 @@ for (mm in c("spearman","pearson")) {
 }
 R.r3 <- data.table::rbindlist(R.r2, use.names = T, fill = F, idcol = "method")
 write.csv(x = R.r3, file = paste0(opath,"CorrMat_DMS_P.csv"))
+
+
+
+# Exploring DMS(Pt) vs. 19-but-like pigment
+ii <- prof$but19_like > 0.03 & !is.na(prof$but19_like)
+v <- prof[ii,c("stn","depth","dms","dmspt","but19_like")]
+

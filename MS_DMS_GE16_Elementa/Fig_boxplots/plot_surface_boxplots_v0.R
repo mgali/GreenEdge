@@ -9,7 +9,7 @@ pdir <- 'plots_pigments_vs_DMS_zColorScale/'
 surf <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
 # Exporting image?
-exportimg <- F
+exportimg <- T
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_boxplots/"
 
 # ---------------------
@@ -47,12 +47,12 @@ surf$owd_class = cut(surf$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MI
 # # Hide data from stn 400
 # surf[surf$stn<=400,] <- NA
 
-# Decide if using 3-day or day SIC and wind speed (NOW USING DAILY MEAN DATA)
+# Decide if using 3-day or day SIC and wind speed (NOW USING DAILY MEAN DATA). Select flux variable
 surf$wsp <- surf$wsp24
 surf$SIC <- surf$SICday
+fvar <- "fdmsW97c24"
 
 # Print FDMS prior to correction
-fvar <- "fdmsW97c24"
 toprint <- list(ICE = surf[surf$owd_class=="ICE",fvar],
                MIZ = surf[surf$owd_class=="MIZ",fvar],
                OW = surf[surf$owd_class=="OW",fvar])
@@ -64,7 +64,8 @@ surf$fdms <- surf[,fvar] * (1 - surf$SIC)
 
 # Compute additional variables
 surf$dms2dmspt <- surf$dms / surf$dmspt
-surf$kvent <- surf$fdmsW97c24 / surf$hBD_m / surf$dms
+# surf$kvent <- surf$fdmsW97c24 / surf$hBD_m / surf$dms
+surf$kvent <- surf$fdmsW97c24 / surf$mld03 / surf$dms
 
 # --------------------------------------------------
 # FINAL PLOTTING FOR PAPER
@@ -104,7 +105,7 @@ for (xv in names(xvarS)) {
           las = 1)
   points(c(1,2,3), unlist(lapply(toplot, mean, na.rm = T)), col = "white", pch = 15, cex = 0.9)
   points(c(1,2,3), unlist(lapply(toplot, mean, na.rm = T)), col = "black", pch = 0, cex = 1)
-  # if (xv == "fdms") {print(lapply(toplot, summary))}
+  if (xv == "kvent") {print(lapply(toplot, summary))}
   
 } # end loop on variables
 
@@ -113,8 +114,9 @@ if (exportimg) {dev.off()}
 # ----------------------------------------------------------------
 # # Linear regression model between FDMS and its controlling factors
 # surf$IF <- 1 - surf$SIC
-# yreg <- surf$fdms 
+# yreg <- surf$fdms
 # Xreg <- surf[,c("dms","wsp","sst","IF")]
+# # Xreg <- surf[,c("wsp","dms")]
 # Xreg <- as.data.frame(scale(Xreg, center = T, scale = T))
 # full.model <- lm(yreg ~., data = Xreg)
 # print(summary(full.model))

@@ -11,11 +11,11 @@ prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header
 surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
 # Exporting image?
-exportimg <- F
+exportimg <- T
+clco <- ""            # Either NULL (plot all stations), "Arctic" or "Atlantic"
 doexploreplot <- F
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_profiles_norm_grouped/"
-
-showtable <- "owd_class" # either empty, owd_class or sic_class
+showtable <- "owd_class"    # either empty, owd_class or sic_class
 
 # ---------------------
 pal <- colorRampPalette(brewer.pal(9, "Spectral"))              # Color palette (Consistent with Matlab plots)
@@ -60,7 +60,7 @@ pplot <- pplot[,grep("NA",names(pplot), invert = T)]
 # dd <- (duplicated(pplot[,c("dmspt","cast","depth")]) | duplicated(pplot[,c("dms","cast","depth")])) # Does not work well, too many repeated DMSPt get in
 dd <- duplicated(pplot[,c("dmspt","dms","cast","depth")]) | is.na(pplot$dmspt)
 pplot <- pplot[!dd,]
-View(pplot[,c("stn","cast","depth","dms","dmspt","cpsmooth1","tchla")])
+View(pplot[,c("stn","cast","AW_ArW_clustering_coefficient","depth","dms","dmspt","cpsmooth1","tchla")])
 
 # f_mydiff <- function(x) {y <- as.logical(c(1,diff(x))); y[is.na(y)] <- T; return(y)}
 # ddms <- f_mydiff(pplot$dms)
@@ -71,6 +71,17 @@ View(pplot[,c("stn","cast","depth","dms","dmspt","cpsmooth1","tchla")])
 # Hide data from stn 400 (either entire or just surface)
 # pplot[pplot$stn<=400,] <- NA
 pplot[pplot$stn<=400 & pplot$depth < 5,] <- NA
+
+# Plot only data for either Arctic or Atlantic waters (according to Randelhoff 2019 clustering coefficient)
+# hist(pplot$AW_ArW_clustering_coefficient) indicates 0.4 is a good divide between Atl and Arc waters
+if (!is.null(clco)) {
+  ac <- pplot$AW_ArW_clustering_coefficient
+  if (clco == "Atlantic") {
+    pplot <- pplot[!is.na(ac) & ac > 0.4,]
+  } else if (clco == "Arctic") {
+    pplot <- pplot[!is.na(ac) & ac <= 0.4,]
+  }
+}
 
 # Change units of N2 from s-2 to h-1
 pplot$N2 <- sqrt(pplot$N2) * 3600
@@ -122,7 +133,7 @@ z_class <- cut(df2bin$depth, breaks = c(0,9,21,41,81), labels = c(0,1,2,3))
 st_class <- list(sic_class = pplot$sic_class,
                  # owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,4.5,35), labels = c("ICE","MIZ","OW")))
                  # owd_class = cut(df2bin$OWD, breaks = c(-35,-2.5,5.5,35), labels = c("ICE","MIZ","OW")))
-                 # owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MIZ","OW"))) # STANDARD?
+                 # owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MIZ","OW"))) # STANDARD
                  owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MIZ","OW")))
 
 # ---------------------
@@ -183,7 +194,7 @@ yvar <- "depth"
 # ---------------------
 # Loop on different station classifications. EXPLORATORY PLOTS
 
-for (sc in "owd_class") { #names(st_class)
+for (sc in  "owd_class") { #names(st_class), "owd_class"
   
   rm(pplot.bin)
   pplot.bin <- list(mean = aggregate.data.frame(df2bin,
@@ -269,7 +280,7 @@ for (sc in "owd_class") { #names(st_class)
     # View some tables, compute some summary stats
     
     # View(pplot[,c("stn","OWD","dms","dmspt")])
-    View(pplot.bin$count[,c("stn","OWD","dms","dmspt","cpsmooth1","tchla","N2","anp")])
+    # View(pplot.bin$count[,c("stn","OWD","dms","dmspt","cpsmooth1","tchla","N2","anp")])
     # View(pplot.bin$mean[,grep("SIC",names(pplot.bin$mean))]) # equivalent to: View(pplot.bin$mean[,c("SIC_CLASS","SICm2d","SICm1d","SICday")])
     
     # a <- as.matrix(pplot.bin$mean[,c("SICm2d","SICm1d","SICday")])
@@ -287,7 +298,7 @@ for (sc in "owd_class") { #names(st_class)
     # dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
     # dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
     
-    View(cbind(dmean,dmin,dmax))
+    # View(cbind(dmean,dmin,dmax))
   }
 }
 
@@ -296,9 +307,9 @@ for (sc in "owd_class") { #names(st_class)
 
 sel <- c(diff(pplot$station),1)
 sel <- !is.na(sel) & sel!=0
-cl_summary <- cbind(pplot[sel,c("stn","SICm2d","SICm1d","SICday","sic_class","OWD")],st_class$owd_class[sel])
+cl_summary <- cbind(pplot[sel,c("stn","AW_ArW_clustering_coefficient","SICm2d","SICm1d","SICday","sic_class","OWD")],st_class$owd_class[sel])
 
-# View(cl_summary)
+View(cl_summary)
 # print(table(cl_summary$sic_class))
 # print(table(cl_summary$`st_class$owd_class[sel]`))
 
@@ -331,9 +342,9 @@ yvar <- "depth"
 lett <- plet
 names(lett) <- names(xvarS)
 
-for (sc in "owd_class") {
+for (sc in  "owd_class") { #names(st_class), "owd_class"
   
-  if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,clco,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)
@@ -433,9 +444,9 @@ yvar <- "depth"
 lett <- plet
 names(lett) <- names(xvarS)
 
-for (sc in "owd_class") {
+for (sc in  "owd_class") { #names(st_class), "owd_class"
   
-  if (exportimg) {png(filename = paste0(opath,"Fig5_",sc,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig5_",sc,clco,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)
