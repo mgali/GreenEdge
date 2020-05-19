@@ -3,6 +3,7 @@
 library(RColorBrewer)
 library(dplyr)
 library(tidyverse)
+library(ggplot2)
 
 # Load data
 genpath <- '~/Desktop/GreenEdge/GCMS/'
@@ -62,60 +63,60 @@ fvar <- "fdmsW97c24"
 # CORRECT FDMS FOR SIC
 surf$fdms <- surf[,fvar] * (1 - surf$SIC)
 
-# Compute additional variables
-surf$dms2dmspt <- surf$dms / surf$dmspt
-# surf$kvent <- surf$fdmsW97c24 / surf$hBD_m / surf$dms
-surf$kvent <- surf$fdmsW97c24 / surf$mld03 / surf$dms
+# Change units of vertical integrals
+surf$idms_z60 <- surf$idms_z60 / 1000
+surf$idmspt_z60 <- surf$idmspt_z60 / 1000
 
 # --------------------------------------------------
 # FINAL PLOTTING FOR PAPER
+# NOTE: I tried to put 4 variables into a single column and converting variable names to factors to be able to
+# use facet_wrap to make the 4x4 plot matrix. It didn't work because all variables share the same y axis limits
+# toplot <- list()
+# for (svar in names(svarS)) {
+#   toplot[[svar]] <- data.frame(station=surf$station, OWD_zone=surf$OWD_zone, Domain=surf$Domain, OWD=surf$OWD, yvar=surf[[svar]], groupvar=svar)
+# }
+# toplot <- data.table::rbindlist(toplot, use.names = F, fill = F) # Nearly equivalent: toplot <- do.call("rbind", toplot)
+# ...facet_wrap(vars(groupvar), labeller = labeller(yvariable = svarS))
 
-# Plot settings
-xvarS <- list(idmspt_z60 = expression('DMSPt (µmol m'^-2*')'),
-              idms_z60 = expression('DMS (µmol m'^-2*')'),
-              dms = "DMS (nM)",
+yvarS <- list(idmspt_z60 = expression(paste(sum(DMSPt[0-60]),' (mmol ',m^-2,')')),
+              idms_z60 = expression(paste(sum(DMS[0-60]),' (mmol ',m^-2,')')),
+              dms = expression('<DMS>'[0-5]*' (nM)'),
               fdms = expression('FDMS (µmol m'^-2*' d'^-1*')'))
-pchS <- list(Arctic = 15,
-             Atlantic = 16)
-
-
-# prof.plots <- data.frame(xvar = surf[,"OWD"],
-#                          yvar = surf[,"idmspt_z60"])
-# PUT ALL Y VARIABLES AS FACTOR COLUMN AND SPECIFY VARIABLE UNITS IN LABELLER (NOT SURE AXIS LIMITS CAN DIFFER AMONG PANELS...)
-
+surf$station <- as.character(surf$station)
 xl <- "OWD (d)"
 yl <- expression('DMSPt (µmol m'^-2*')')
 
-p <- ggplot(surf, aes(x = OWD, y = idmspt_z60, shape = Domain, colour = OWD_zone)) + geom_point(size = 3)
-p + scale_color_manual(values = col) + facet_wrap(vars(yvariable), labeller = labellet(yvariable = mylabels)) + theme()
+for (yvar in names(yvarS)) {
+  
+  par(mar = c(3,5,1,1))
+  toplot <- data.frame(station=surf$station, OWD_zone=surf$OWD_zone, Domain=surf$Domain, OWD=surf$OWD, yvar=surf[[yvar]])
+  
+  # Remove labels for selected y variables and conditions
+  if (yvar %in% c("dms","fdms")) {
+    toplot$station <- ifelse(toplot$yvar > quantile(toplot$yvar, 0.4, na.rm = T), as.character(toplot$station), "")
+  } else if (yvar == "idms_z60") { # if (yvar == "idms_z60")
+    toplot$station <- ifelse(toplot$yvar > quantile(toplot$yvar, 0.2, na.rm = T), as.character(toplot$station), "")
+  }
+  
+  p <- ggplot(toplot, aes(x=OWD, y=yvar, shape=Domain, colour=OWD_zone))
+  p + geom_point(size = 3) +
+    geom_text(aes(label=station), hjust=-0.3, vjust=0.2, show.legend = F, size = 11/4, check_overlap = T, color = "gray60") + # Setting size to x/4 is to maintain proportion with default ggplot of 15/4
+    scale_color_manual(values = col) +
+    scale_shape_manual(values = c(16,17)) +
+    ylab(yvarS[[yvar]]) +
+    ylim(c(0, 1.05*max(toplot$yvar, na.rm = T))) + 
+    theme_bw()
 
-# if (exportimg) {png(filename = paste0(opath,"Figowd_ARCvsATL.png"), width = 16, height = 5, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
-# 
-# # Multipanel setup
-# m0 <- matrix(data = 0, nrow = 4, ncol = 5)
-# m <- cbind(m0+1,m0+2,m0+3,m0+4)
-# layout(m)
-# par(oma = c(1,1,0.5,0.5))
-
-# for (xv in names(xvarS)) {
-#   
-#   for (clco in levels(surf$Domain)) {
-#     
-#     xy <- surf[ surf$Domain == clco , ]
-#     
-#     par(mar = c(3,5,1,1))
-#     
-#     xy1 = xy[xy$OWD_zone=="MIZ",c("OWD",xv)]
-#     plot(xy1[,], xy1[,xv],
-#          pch = pchS[[clco]],
-#          col = col[2], # color-filled
-#          ylab = xvarS[[xv]])
-#     xy2 = xy[xy$OWD_zone=="ICE",c("OWD",xv)]
-#     if (sum(!is.na(xy2[,xv])) != 0) {points(xy2[,"OWD"], xy2[,xv], col = col[1], pch = pchS[[clco]])}
-#     xy3 = xy[xy$OWD_zone=="OW",c("OWD",xv)]
-#     if (sum(!is.na(xy3[,xv])) != 0) {points(xy3[,"OWD"], xy3[,xv], col = col[3], pch = pchS[[clco]])}
-#     
-#   } # end loop on horizontal domains
-# } # end loop on variables
-# 
-# if (exportimg) {dev.off()}
+  if (exportimg) {
+    ggsave(
+      filename = paste0(yvar,".png"),
+      plot = last_plot(),
+      device = NULL,
+      path = opath,
+      scale = 2,
+      width = 6,
+      height = 4,
+      units = "cm",
+      dpi = 600)
+  }
+}
