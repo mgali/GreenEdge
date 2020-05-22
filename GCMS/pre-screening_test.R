@@ -15,8 +15,8 @@ for (i in 1:nboot) {
 summary(a)
 hist(a, plot = T)
 
-quantile(a, c(0.025, 0.975))
-quantile(a, c(0.005, 0.995))
+print(quantile(a, c(0.025, 0.975)))
+print(quantile(a, c(0.005, 0.995)))
 
 # Log ratio
 b <- numeric(nboot)
@@ -27,5 +27,5 @@ for (i in 1:nboot) {
 summary(b)
 hist(b, plot = T)
 
-quantile(b, c(0.025, 0.975))
-quantile(b, c(0.005, 0.995))
+print(quantile(b, c(0.025, 0.975)))
+print(quantile(b, c(0.005, 0.995)))

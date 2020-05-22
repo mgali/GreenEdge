@@ -60,7 +60,7 @@ pplot <- pplot[,grep("NA",names(pplot), invert = T)]
 # dd <- (duplicated(pplot[,c("dmspt","cast","depth")]) | duplicated(pplot[,c("dms","cast","depth")])) # Does not work well, too many repeated DMSPt get in
 dd <- duplicated(pplot[,c("dmspt","dms","cast","depth")]) | is.na(pplot$dmspt)
 pplot <- pplot[!dd,]
-View(pplot[,c("stn","cast","AW_ArW_clustering_coefficient","depth","dms","dmspt","cpsmooth1","tchla")])
+# View(pplot[,c("stn","cast","AW_ArW_clustering_coefficient","depth","dms","dmspt","cpsmooth1","tchla")])
 
 # f_mydiff <- function(x) {y <- as.logical(c(1,diff(x))); y[is.na(y)] <- T; return(y)}
 # ddms <- f_mydiff(pplot$dms)
@@ -92,6 +92,11 @@ pplot$ppc <- rowSums(pplot[,c("zea","anthera","viola","diadino","diato","allo","
 pplot$dd <- rowSums(pplot[,c("diadino","diato")], na.rm = T)
 pplot$vaz <- rowSums(pplot[,c("zea","anthera","viola")], na.rm = T)
 pplot$tpig <- rowSums(pplot[,seq(59,88,1)], na.rm = T)
+
+# ========================================================
+# # TWEAK BUT PIGMENTS. ADD _BIS_ to figure 3 and 5 names
+# pplot$but19_like <- pplot$but19_like + pplot$but
+# ========================================================
 
 # Add ratios
 pplot$cp2tchla <- pplot$cpsmooth1/pplot$tchla                           # Cp/tchla ratio
@@ -245,7 +250,7 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
            y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
            ylim = c(70,0), xlim = xl,
            pch = 19, col = col[1], cex = 1.9,
-           xlab = xvarS[[xvar]], ylab = "Depth", cex.lab = 1.2)
+           xlab = xvarS[[xvar]], ylab = "Depth (m)", cex.lab = 1.2)
       points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
              y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
              pch = 19,  col = col[2], cex = 1.9)
@@ -324,15 +329,15 @@ pplot.bin$median[pplot.bin$count<2] <- NA
 # ---------------------
 # Figure with concentrations
 
-xvarS <- list(tchla = expression('TChla (µg L'^-1*')'),
+xvarS <- list(tchla = expression('TChl_a (µg L'^-1*')'),
               cpsmooth1 = expression('Cp (m'^-1*')'),
               dmspt = "DMSPt (nM)",
               dms = "DMS (nM)",
-              chlc3 = expression('Chlc3 (µg L'^-1*')'),
+              chlc3 = expression('Chl_c3 (µg L'^-1*')'),
               but19_like = expression('19-But-like (µg L'^-1*')'),
               peri = expression('Peridinin (µg L'^-1*')'),
               # psc = expression('PSC (µg L'^-1*')'), # Choose either photosynthetic carotenoids or phaeophorbide a (below)
-              phdaSUM = expression('Phaeophorbide a (µg L'^-1*')'),
+              phdaSUM = expression('Phaeophorbide_a (µg L'^-1*')'),
               temp = expression('Temperature ('*degree*'C)'),
               N2 = expression('Brunt-Väisälä freq. (h'^-1*')'),
               anp = "ANP (-)",
@@ -368,13 +373,13 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
          ylim = c(70,0), xlim = xl, pch = 19, col = col[1], cex = 1.9, axes = F, xlab = "", ylab = "")
     box()
-    axis(side = 1, cex.axis = 1.1)
-    mtext(side = 1, xvarS[[xvar]], cex = 0.9, line = 3)
+    axis(side = 1, cex.axis = 1.2)
+    mtext(side = 1, xvarS[[xvar]], cex = 1.0, line = 3)
     if (xvar %in% c("tchla","chlc3","temp")) {
-      axis(side = 2, cex.axis = 1.1)
-      mtext(side = 2, "Depth", cex = 0.9, line = 2.5)
+      axis(side = 2, cex.axis = 1.2)
+      mtext(side = 2, "Depth (m)", cex = 1.0, line = 2.5)
     } else {
-      axis(side = 2, cex.axis = 1.1, at = seq(0,70,10), labels = rep("",8))
+      axis(side = 2, cex.axis = 1.0, at = seq(0,70,10), labels = rep("",8))
     }
     points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
            y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
@@ -429,16 +434,16 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
 # Figure with ratios
 
 xvarS <- list(dmspt2cp = expression('DMSPt/Cp (µmol m'^-2*')'),
-              dmspt2tchla = expression('DMSPt/TChla (nmol µg'^-1*')'),
-              cp2tchla = expression('Cp/TChla (m'^2*' mg'^-1*')'),
+              dmspt2tchla = expression('DMSPt/TChl_a (mmol g'^-1*')'),
+              cp2tchla = expression('Cp/TChl_a (m'^2*' mg'^-1*')'),
               dms2dmspt = expression('DMS/DMSPt (mol mol'^-1*')'),
-              chlc3_2_tchla = expression('Chlc3/TChla (g g'^-1*')'),
+              chlc3_2_tchla = expression('Chlc3/TChl_a (g g'^-1*')'),
               but19like_2_tchla = expression('19-But-like/TChla (g g'^-1*')'),
-              peri_2_tchla = expression('Peridinin/TChla (g g'^-1*')'),
-              phdaSUM2tchla = expression('Phaeophorb_a/TChla (g g'^-1*')'),
-              psc2tchla = expression('Photosynthetic car./TChla (g g'^-1*')'),
-              ppc2tchla = expression('Photoprotective car./TChla (g g'^-1*')'),
-              dd = expression('(Dd+Dt)/TChla (g g'^-1*')')
+              peri_2_tchla = expression('Peridinin/TChl_a (g g'^-1*')'),
+              phdaSUM2tchla = expression('Phaeophorb_a/TChl_a (g g'^-1*')'),
+              psc2tchla = expression('PS carotenoids/TChl_a (g g'^-1*')'),
+              ppc2tchla = expression('PP carotenoids/TChla (g g'^-1*')'),
+              dd = expression('(Dd+Dt)/TChl_a (g g'^-1*')')
 )
 yvar <- "depth"
 lett <- plet
@@ -470,13 +475,13 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
          y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="ICE",yvar],
          ylim = c(70,0), xlim = xl, pch = 19, col = col[1], cex = 1.9, axes = F, xlab = "", ylab = "")
     box()
-    axis(side = 1, cex.axis = 1.1)
-    mtext(side = 1, xvarS[[xvar]], cex = 0.9, line = 3)
+    axis(side = 1, cex.axis = 1.2)
+    mtext(side = 1, xvarS[[xvar]], cex = 1.0, line = 3)
     if (xvar %in% c("dmspt2cp","chlc3_2_tchla","psc2tchla")) {
-      axis(side = 2, cex.axis = 1.1)
-      mtext(side = 2, "Depth", cex = 0.9, line = 2.5)
+      axis(side = 2, cex.axis = 1.2)
+      mtext(side = 2, "Depth (m)", cex = 1.0, line = 2.5)
     } else {
-      axis(side = 2, cex.axis = 1.1, at = seq(0,70,10), labels = rep("",8))
+      axis(side = 2, cex.axis = 1.0, at = seq(0,70,10), labels = rep("",8))
     }
     points(x = pplot.bin$median[pplot.bin$median$SIC_CLASS=="MIZ",xvar],
            y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="MIZ",yvar],
@@ -502,7 +507,7 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
     lines(x = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",xvar],
           y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
           col = col[3], lwd = 1.5, lty = 3)
-    text(x = xl[1]+0.95*(xl[2]-xl[1]), y = 6, labels = lett[xvar], cex = 1.3)
+    text(x = xl[1]+0.95*(xl[2]-xl[1]), y = 6, labels = lett[xvar], cex = 1.5)
     if (xvar  == "psc2tchla") {
       legend(x = xl[1]+0.05*(xl[2]-xl[1]),
              y = 25,
