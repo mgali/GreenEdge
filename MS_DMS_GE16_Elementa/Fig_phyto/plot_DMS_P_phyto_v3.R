@@ -11,7 +11,7 @@ prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header
 surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
 # Exporting image?
-exportimg <- T
+exportimg <- F
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_phyto/"
 
 # Phyto group plotted
@@ -81,9 +81,10 @@ R.r3 <- data.table::rbindlist(R.r2, use.names = T, fill = F, idcol = "method")
 
 # Function to plot significance levels as symbols
 f_asterisks <- function(xpos, y.pval){
-  points(xpos[y.pval < 0.01], rep(0.8,length(xpos))[y.pval < 0.01], pch = 8, col = "orange")
-  points(xpos[y.pval >= 0.01 & y.pval < 0.05], rep(0.8,length(xpos))[y.pval >= 0.01 & y.pval < 0.05], pch = 4, col = "orange")
-  points(xpos[y.pval >= 0.05 & y.pval < 0.10], rep(0.8,length(xpos))[y.pval >= 0.05 & y.pval < 0.10], pch = 3, col = "orange")
+  aheight <- 0.9
+  points(xpos[y.pval < 0.01], rep(aheight,length(xpos))[y.pval < 0.01], pch = 8, col = "darkorange")
+  points(xpos[y.pval >= 0.01 & y.pval < 0.05], rep(aheight,length(xpos))[y.pval >= 0.01 & y.pval < 0.05], pch = 4, col = "darkorange")
+  points(xpos[y.pval >= 0.05 & y.pval < 0.10], rep(aheight,length(xpos))[y.pval >= 0.05 & y.pval < 0.10], pch = 3, col = "darkorange")
 }
 
 
@@ -113,51 +114,55 @@ for (mm in c("spearman","pearson")) {
   
   # ---------------------
   # Multipanel setup
-  m1_2 <- rbind(matrix(data = 1, nrow = 4, ncol = 9), matrix(data = 2, nrow = 4, ncol = 9))
-  m3_4 <- rbind(matrix(data = 3, nrow = 4, ncol = 5), matrix(data = 4, nrow = 4, ncol = 5))
-  m <- cbind(m1_2, m3_4, matrix(data = 5, nrow = 8, ncol = 2))
+  m1_2 <- rbind(matrix(data = 1, nrow = 5, ncol = 9), matrix(data = 2, nrow = 6, ncol = 9))
+  m3_4 <- rbind(matrix(data = 3, nrow = 5, ncol = 5), matrix(data = 4, nrow = 6, ncol = 5))
+  m <- cbind(m1_2, m3_4, matrix(data = 5, nrow = 11, ncol = 2))
   layout(m)
   par(oma = c(1,1,0.5,0.5))
   
   # ---------------------
   # a) DMSPt vs. Phyto counts correlations
-  par(mar = c(4,4,1,1))
+  par(mar = c(3,4,1,1))
   Ybars <- t(cbind(R[[mm]][["dmspt"]][["surface"]][["estimate"]], R[[mm]][["dmspt"]][["SCM"]][["estimate"]]))
   barplot(height = Ybars,
-          names.arg = xlbars[xbars],
+          names.arg = rep("", length(xbars)),
           beside = T,
           legend.text = c("surface","SCM"),
           args.legend = list(x = "topleft", bty = "n"),
           col = parpal[c(7,1)],
           border = F,
-          ylab = "Correlation coefficient, DMSPt",
+          ylab = "Spearman's correlation with DMSPt",
           ylim = c(min(0,min(Ybars, na.mm = T)-0.1),1),
           cex.axis = 0.9,
-          cex.names = 0.8,
+          cex.names = 0.95,
           las = 1)
   f_asterisks(xpos, t(R[[mm]][["dmspt"]][["surface"]][["p.value"]]))
   f_asterisks(xpos+1, t(R[[mm]][["dmspt"]][["SCM"]][["p.value"]]))
+  abline(h = seq(0,1,0.2), col = "gray70", lwd = 0.5, lty = 3)
+  mtext(text = "a)", line = 0, adj = 0.05, cex = 0.9)
   
   # ---------------------
-  # b) DMS vs. Phyto counts correlations
-  par(mar = c(4,4,1,1))
+  # c) DMS vs. Phyto counts correlations
+  par(mar = c(5,4,0,1))
   Ybars <- t(cbind(R[[mm]][["dms"]][["surface"]][["estimate"]], R[[mm]][["dms"]][["SCM"]][["estimate"]]))
   barplot(height = Ybars,
           names.arg = xlbars[xbars],
           beside = T,
           col = parpal[c(7,1)],
           border = F,
-          ylab = "Correlation coefficient, DMS",
+          ylab = "Spearman's correlation with DMS",
           ylim = c(min(0,min(Ybars, na.rm = T)-0.1),1),
           cex.axis = 0.9,
-          cex.names = 0.8,
-          las = 1)
+          cex.names = 0.95,
+          las = 2)
   f_asterisks(xpos, t(R[[mm]][["dms"]][["surface"]][["p.value"]]))
   f_asterisks(xpos+1, t(R[[mm]][["dms"]][["SCM"]][["p.value"]]))
+  abline(h = seq(-0.5,1,0.5), col = "gray70", lwd = 0.5, lty = 3)
+  mtext(text = "c)", line = 0, adj = 0.05, cex = 0.9)
   
   # ---------------------
-  # c) DMSPt vs. Phaeocystis
-  par(mar = c(4,5,1,1))
+  # b) DMSPt vs. Phaeocystis
+  par(mar = c(2,5,1,1))
   plot(x = pplot[[pg]], y = pplot$dmspt, log = "xy",
        type = "p",
        col = parcol,
@@ -184,10 +189,11 @@ for (mm in c("spearman","pearson")) {
   axis(1, labels = F, cex.axis = 0.9)
   axis(2, labels = T, cex.axis = 0.9)
   # box()
+  mtext(text = "b)", line = 0, adj = 0.05, cex = 0.9)
   
   # ---------------------
   # d) DMS vs. Phaeocystis
-  par(mar = c(5,5,0,1))
+  par(mar = c(5,5,1,1))
   plot(x = pplot[[pg]], y = pplot$dms, log = "xy",
        type = "p",
        col = parcol,
@@ -216,6 +222,7 @@ for (mm in c("spearman","pearson")) {
   axis(1, labels = T, cex.axis = 0.9)
   axis(2, labels = T, cex.axis = 0.9)
   # box()
+  mtext(text = "d)", line = 0, adj = 0.05, cex = 0.9)
   
   # ---------------------
   # e) Common color bar showing PAR

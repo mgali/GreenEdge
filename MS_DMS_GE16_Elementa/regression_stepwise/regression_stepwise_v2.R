@@ -37,7 +37,7 @@ prof$vaz <- rowSums(prof[,c("zea","anthera","viola")], na.rm = T)
 # Prepare regression and run in loop
 # Pigments with less than 50% available data
 
-yvarS <- c("dmspt","dms")
+yvarS <- c("cpsmooth1","dmspt","dms")
 xvarS <- list(physics = c("temp","sal","N2","cpsmooth1","anp","par_d_p24h_ein_m_2_day_1","dmspt"),
               pigments = c("chlc3","chlc2group","chldaSUM","peri","phdaSUM","but","fuco","neo","pras.1","hex",
                            "dd","allo","lut","chlb","tchla","phytnaSUM","tcar","but19_like","vaz"))
@@ -92,7 +92,7 @@ write.csv(x = R.r3, file = paste0(opath,"CorrMat_DMS_P.csv"))
 
 
 
-# Exploring DMS(Pt) vs. 19-but-like pigment
-ii <- prof$but19_like > 0.03 & !is.na(prof$but19_like)
-v <- prof[ii,c("stn","depth","dms","dmspt","but19_like")]
+# # Exploring DMS(Pt) vs. 19-but-like pigment
+# ii <- prof$but19_like > 0.03 & !is.na(prof$but19_like)
+# v <- prof[ii,c("stn","depth","dms","dmspt","but19_like")]
 

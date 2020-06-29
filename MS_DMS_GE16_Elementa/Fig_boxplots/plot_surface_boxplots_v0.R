@@ -9,7 +9,7 @@ pdir <- 'plots_pigments_vs_DMS_zColorScale/'
 surf <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
 # Exporting image?
-exportimg <- T
+exportimg <- F
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_boxplots/"
 
 # ---------------------
@@ -23,41 +23,56 @@ plet <- sapply(letters, paste0, ")")                            # plot letters
 
 # Drag coefficients for neutral atmospheric stability (cdn) and 0 degress air temp taken from Smith 1988 JGR Table 1
 # Meteo data (GreenEdge/meteo/GreenEdge_MET_2016_MGT.eps) shows air temperature was typically 0 +/- 2
-cdn <- data.frame(u10 = c(2,5,10,15,20,25),
-                  cdn10 = c(0.98,1.03,1.30,1.56,1.80,2.04))
+# cdn <- data.frame(u10 = c(2,5,10,15,20,25),
+#                   cdn10 = c(0.98,1.03,1.30,1.56,1.80,2.04))
 # Find empirical relationship between cdn and u10
-plot(cdn)
+# plot(cdn)
 # Since we are almost always in the 5-11 m/s wind regime, I use constant cd (Large & Pond 1981 JGR)
-cd <- 0.0012 # neutral drag coefficient for 5-11 m/s wind regime (Large & Pond 1981 JGR)
-k <- 0.41 # von Karman constant
+# cd <- 0.0012 # neutral drag coefficient for 5-11 m/s wind regime (Large & Pond 1981 JGR)
+# k <- 0.41 # von Karman constant
 # So we can calculate u10 from u16 as:
 # u16 = (u_star/k) * ln(z/z0)
 # u_star = sqrt(cd) * u10
 # u16 = ( (sqrt(cd) * u10) / k ) * ln(z/z0)
 # u10 = ( u16 * k / sqrt(cd) ) / ln(z/z0)
-f_u10 <- function(z, uz) {
-  cd <- 0.0012 # neutral drag coefficient for 5-11 m/s wind regime (Large & Pond 1981 JGR)
-  k <- 0.41 # von Karman constant
-  z0 <- 0.0002 # Stull 1988 quoted in Soren Ejling Larsen PhD courses DTU  (document on MBP BSC)
-  u10 <- ( uz * k / sqrt(cd) ) / log(z/z0)
-  return(u10)
-}
-windprofile <- data.frame(z = seq(0,20,0.1))
-windprofile$u10 <- f_u10(windprofile$z, 5)
-plot(windprofile$u10, windprofile$z)
+# f_u10 <- function(z, uz) {
+#   cd <- 0.0012 # neutral drag coefficient for 5-11 m/s wind regime (Large & Pond 1981 JGR)
+#   k <- 0.41 # von Karman constant
+#   z0 <- 0.0002 # Stull 1988 quoted in Soren Ejling Larsen PhD courses DTU  (document on MBP BSC)
+#   u10 <- ( uz * k / sqrt(cd) ) / log(z/z0)
+#   return(u10)
+# }
+# windprofile <- data.frame(z = seq(0,20,0.1))
+# windprofile$u10 <- f_u10(windprofile$z, 5)
+# plot(windprofile$u10, windprofile$z)
 # STILL INCORRECT, but getting there
 # Should we perhaps get rid of proportionality constants k and cd? Then, with simple logarihmic scaling
-d <- 10
-z <- seq(10,30,0.1) - d
-z0 <- 0.0002
+# d <- 10
+# z <- seq(10,30,0.1) - d
+# z0 <- 0.0002
 # cd <- 0.0012 # neutral drag coefficient for 5-11 m/s wind regime (Large & Pond 1981 JGR)
 # k <- 0.41 # von Karman constant
-zz <- log(z/z0)
+# zz <- log(z/z0)
 # zz <- zz*k/sqrt(cd)
-plot(zz, z)
-print(zz[which(z==10)]/zz[which(z==16)])
-cf <- zz[which(z==10)]/zz[which(z==16)]
-# It seems that multiplying u16 by cf, or by cf^2 in quadratic model (???) should be enough to correct fluxes approximately
+# plot(zz, z)
+# print(zz[which(z==10)]/zz[which(z==16)])
+# cf <- zz[which(z==10)]/zz[which(z==16)]
+# It seems that multiplying u16 by cf should be enough to correct fluxes approximately.
+# Only the bubble-mediated gas transfer term, which scales to u10^3.41, won't be corrected.
+# But this term makes a fairly small contribution for DMS.
+
+# Another option is using relationship from Hsu et al. 1994
+# https://journals.ametsoc.org/doi/pdf/10.1175/1520-0450(1994)033%3C0757%3ADTPLWP%3E2.0.CO%3B2
+# u2/u1 = cf = (z2/z1)^p
+p <- 0.11
+cf <- (10/16)^0.11
+
+# Panofsky & Duton 1984 also propose values of z0 for different surfaces. According to that paper:
+# p <- 1 (ln(z/z0)), and z0 for ocean ranges 1e-4 - 1e-3
+# z0 is inversely proportional to wave age. Result is extremely similar that with p + 0.11 used above
+
+surf$fdmsW97c24 <- surf$fdmsW97c24 * cf
+surf$fdmsN00c24 <- surf$fdmsN00c24 * cf
 
 # ===============================================================
 
@@ -148,7 +163,7 @@ for (xv in names(xvarS)) {
           las = 1)
   points(c(1,2,3), unlist(lapply(toplot, mean, na.rm = T)), col = "white", pch = 15, cex = 0.9)
   points(c(1,2,3), unlist(lapply(toplot, mean, na.rm = T)), col = "black", pch = 0, cex = 1)
-  if (xv == "kvent") {print(lapply(toplot, summary))}
+  if (xv %in% c("fdms","kvent")) {print(lapply(toplot, summary))}
   
 } # end loop on variables
 

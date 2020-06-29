@@ -3,7 +3,7 @@
 datapath <- '~/Desktop/Artic_DOSES/Arctic_DOSES_timeseries/time_series_3Dmatrix/'
 
 # Exporting image?
-exportimg <- T
+exportimg <- F
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_MIZ_EDMS/"
 plotres <- 600
 
@@ -135,3 +135,13 @@ for (iseason in names(ooedms)) {
 # yBmaxS <- c(1.25, 1.25, 1.25, 0.5)
 # names(yBmaxS) <- rownames(mizedms$A)
 # maxmax <- max(unlist(mizedms), na.rm = T)
+
+
+# Rate of increase north of 80N
+x <- seq(2003,2014)
+y <- unlist(mizedms$B[4,])
+fit <- lm(y ~ x)
+fit$coefficients[2] * 100 / mean(y)
+
+
+

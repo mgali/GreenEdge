@@ -21,14 +21,13 @@ ymax <- 158
 # Use Cdmspt:Ctot ratio or intracellular concentration?
 cmethod <- "ratio" # choose ratio or intraconc
 
-addcd <- "" # default. Detritus and Phaeo colonies only allowed if using ratios
-if (cmethod == "ratio"){
-  # Add Phaeo colonies and detritus?
-  addcd <- "" # leave empty or put _PhaeoCol_detr
+addcd <- "_PhaeoCol_detr" # leave empty (default) or put _PhaeoCol_detr
+if (cmethod == "intraconc"){
+  addcd <- "" # Detritus and Phaeo colonies only allowed if using ratios
 }
 
 # Stefels2007 ratios? Does not apply if using quotas
-Stefels <- "_Stefels" # leave empty or put _Stefels
+Stefels <- "" # leave empty or put _Stefels
 if(cmethod == "intraconc") {Stefels <- ""}
 
 # Function to compute carbon content of phytoplankton
@@ -48,8 +47,8 @@ MendenDeuer_Lessard <- function(vol_microm3, is_diatom) {
 prof <- merge(prof, diatL, by = c("stn","depth"))
 
 # Correct units of biomass from ifcb
-prof$detritus_mg_L <- prof$detritus_mg_L / 1#1000
-prof$prym_clumped_mg_L <- prof$prym_clumped_mg_L / 1#1000
+prof$detritus_mg_L <- prof$detritus_mg_L / 1000
+prof$prym_clumped_mg_L <- prof$prym_clumped_mg_L / 1 # no correction needed
   
 # Remove stations where microscopy counts not done
 prof <- prof[,grep("NA",names(prof), invert = T)]
@@ -64,6 +63,7 @@ prof$scm <- 'SCM'
 prof$scm[prof$depth < 10] <- 'surface'
 
 # Rename DMS and select variables
+cp <- prof$cpsmooth1
 prof$dms <- prof$dms_consens_cf68
 # prof <- select(prof, c(stn,depth,cast,year,month,day,scm,dmspt,diat_cen,diat_pen,dino_athec,dino_thec,chrys,crypt,Phaeo,flag,diat_Laf.mgC_L.mic,pras,prym_clumped_mg_L,detritus_mg_L))
 prof <- select(prof, c(stn,depth,cast,year,month,day,scm,dmspt,diat_Laf.mgC_L.mic,dino_athec,dino_thec,Phaeo,prym_clumped_mg_L,chrys,crypt,flag,pras,detritus_mg_L,diat_cen,diat_pen))
@@ -103,10 +103,10 @@ rdmsp <- list(dino_athec = 0.11,
               dino_thec = 0.11,
               diat_cen = 0.02,
               diat_pen = 0.02,
-              chrys = 0.094,
+              chrys = 0.10,
               crypt = 0.02,
               Phaeo = 0.1,
-              flag = 0.1,
+              flag = 0.05,
               diat_all = 0.02,
               pras = 0.025,
               detritus = 0.01)
@@ -185,7 +185,7 @@ if (addcd == "_PhaeoCol_detr"){
   prof$dmspt.detritus.ifcb <- prof$detritus_mg_L * rdmsp$detritus * (1/12) * (1/5) * 1e6 # NOTE: units corrected from mg to ugC/L (above)
   prof$dmspt.detritus.ifcb.pc <- 100 * prof$dmspt.detritus.ifcb / (fp * prof$dmspt)
   # Increase maximum y axis DMSP
-  ymax <- 200
+  ymax <- 3000
 }
 
 # OUTPUT
@@ -230,7 +230,7 @@ for (nn in names(phynames)) {print(phynames[[nn]])}
 # gather(prof[ ,grepl("dmspt.", names(prof)) & !grepl(".pc", names(prof))])
 
 
-if (exportimg) {png(filename = paste0(opath,"dmspt_biomass_",cmethod,addcd,Stefels,".png"), width = 17, height = 12, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
+if (exportimg) {png(filename = paste0(opath,"dmspt_biomass_v3_",cmethod,addcd,Stefels,".png"), width = 8, height = 12, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
 
 # Multipanel setup
 m <- rbind(matrix(data = 1, nrow = 4, ncol = 9), matrix(data = 2, nrow = 4, ncol = 9))
@@ -249,6 +249,7 @@ barplot(height = t(as.matrix(dfplot[dfplot$scm=="surface",6:dim(dfplot)[2]])),
         col = phycol,
         border = F,
         ylab = "% of DMSPp",
+        # ylab = "",
         axes = F,
         ylim = c(0,ymax),
         cex = 1.2,
@@ -256,7 +257,8 @@ barplot(height = t(as.matrix(dfplot[dfplot$scm=="surface",6:dim(dfplot)[2]])),
         cex.lab = 1.2,
         las = 1,
         main = "a) Surface")
-abline(h = 100, col = "gray80", lwd = 2)
+        # main = "b) Surface, adjusted")
+abline(h = 100, col = "gray80", lwd = 1)
 mtext(text = as.character(round(fp*dfplot[dfplot$scm=="surface", "dmspt"], digits = 0)),
       side = 3,
       line = -3,
@@ -275,15 +277,17 @@ barplot(height = t(as.matrix(dfplot[dfplot$scm=="SCM",6:dim(dfplot)[2]])),
         col = phycol,
         border = F,
         ylab = "% of DMSPp",
+        # ylab = "",
         axes = F,
         ylim = c(0,ymax),
         cex = 1.2,
         cex.names = 1.2,
         cex.lab = 1.2,
         las = 1,
-        main = "b) Subsurface chlorophyll maximum (SCM)",
+        main = "b) SCM",
+        # main = "d) SCM, adjusted",
         xlab = "Station")
-abline(h = 100, col = "gray80", lwd = 2)
+abline(h = 100, col = "gray80", lwd = 1)
 mtext(text = as.character(round(fp*dfplot[dfplot$scm=="SCM", "dmspt"], digits = 0)),
       side = 3,
       line = -3,
@@ -303,9 +307,12 @@ if (addcd == "_PhaeoCol_detr"){
 } else {
   dmsppSUM <- rowSums(dfplot[ , c("Dino_A","Dino_T","Chryso","Crypto","Phaeocystis","Flag_other","Prasino","Diat_all") ], na.rm = T)  
 }
-print( mean(dmsppSUM[dfplot$scm=="surface"]) )
-print( mean(dmsppSUM[dfplot$scm=="SCM"]) )
 
+print( mean(dmsppSUM[dfplot$scm=="surface"]) )
+print( range(dmsppSUM[dfplot$scm=="surface"]) )
+
+print( mean(dmsppSUM[dfplot$scm=="SCM"]) )
+print( range(dmsppSUM[dfplot$scm=="SCM"]) )
 
 # ---------------------------------------------------------------
 # Checks
@@ -315,3 +322,13 @@ print( mean(dmsppSUM[dfplot$scm=="SCM"]) )
 # points(prof$Phaeo.mgC_L.mic[prof$scm=='SCM'], prof$prym_clumped_mg_L[prof$scm=='SCM'], pch = 19)
 # 
 # plot(prof$Phaeo.mgC_L.mic, prof$prym_clumped_mg_L/prof$Phaeo.mgC_L.mic)
+
+
+# Check relationship between POC estimated from Cp and total carbon biomass from my estimates, Lafond and iFCB
+cf <- 391 # [mg C/m2], Cetinic et al. 2012
+prof$poc <- cp * cf # [mg C/m3] 
+
+# plot(prof$poc, prof$diat_Laf.mgC_L.mic)
+
+
+

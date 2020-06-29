@@ -11,7 +11,7 @@ prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header
 surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
 # Exporting image?
-exportimg <- T
+exportimg <- F
 clco <- ""            # Either NULL (plot all stations), "Arctic" or "Atlantic"
 doexploreplot <- F
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_profiles_norm_grouped/"
@@ -534,3 +534,12 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
 # ------------------------------------------
 # # Checks
 # View(pplot.bin$count[,c("tchla","chlc3","but19_like","peri","phdaSUM","chlc3_2_tchla","but19like_2_tchla","peri_2_tchla","phdaSUM2tchla")])
+
+# Phaeo diag pigment ratios
+a<-pplot.bin$mean$chlc3_2_tchla
+b<-pplot.bin$mean$but19like_2_tchla
+A<-cbind(a[1:4],a[5:8],a[9:12])
+B<-cbind(b[1:4],b[5:8],b[9:12])
+Am <- rowMeans(A, na.rm = T)
+Bm <- rowMeans(B, na.rm = T)
+View(cbind(Am,Bm))
