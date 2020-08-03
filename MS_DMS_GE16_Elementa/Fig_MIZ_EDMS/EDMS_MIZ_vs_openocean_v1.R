@@ -58,7 +58,7 @@ m <- rbind(m0+1,m0+2,m0+3,m0+4)
 
 for (iseason in names(ooedms)[2]) {
   
-  if (exportimg) {png(filename = paste0(opath,"Fig8_MIZ_EDMS_v1_",iseason,".png"), width = 8, height = 10, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig9_MIZ_EDMS_v1_",iseason,".png"), width = 8, height = 10, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
 
   # Multipanel setup
   layout(m)
