@@ -117,8 +117,8 @@ pplot$fuco_2_tchla <- pplot$fuco/pplot$tchla                            # Fucoxa
 pplot$peri_2_tchla <- pplot$peri/pplot$tchla                            # Peridinin to tchla (peri in dinos)
 pplot$chlc3_2_psc <- pplot$chlc3/pplot$psc                              # chlc3 to PSC (Phaeocystis proxy?)
 pplot$phaeo2chl <- pplot$phaeo_Tu_ugL/pplot$chla_Tu_ugL                 # Phaeopigments to Chl (Turner)
-# pplot$phdaSUM2tchla <- pplot$phbda/pplot$tchla                            # Phaeophorbide a to TChl (HPLC)
-pplot$phdaSUM2tchla <- pplot$phdaSUM/pplot$tchla                        # Phaeophorbide a to TChl (HPLC)
+# pplot$phdaSUM2tchla <- pplot$phbda/pplot$tchla                            # Pheophorbide a to TChl (HPLC)
+pplot$phdaSUM2tchla <- pplot$phdaSUM/pplot$tchla                        # Pheophorbide a to TChl (HPLC)
 
 # Remove phaeopigments outlier
 pplot[pplot$phaeo2chl > 3 & !is.na(pplot$phaeo2chl),c("phaeo_Tu_ugL","chla_Tu_ugL","phaeo2chl")] <- NA
@@ -145,18 +145,18 @@ st_class <- list(sic_class = pplot$sic_class,
 # Plot settings. EXPLORATORY
 xvarS <- list(dms = "DMS (nM)",
               dmspt = "DMSPt (nM)",
-              tchla = "TChla (µg/L)",
-              chlc3 = "Chlc3 (µg/L)",
-              but19_like = "19-But-like (µg/L)",
-              but = "19-But (µg/L)",
-              fuco = "Fucoxanthin (µg/L)",
-              peri = "Peridinin (µg/L)",
-              phbdaSUM = "Phaeophorb_a (µg/L)",
+              tchla = "TChl a (µg/L)",
+              chlc3 = "Chl c3 (µg/L)",
+              but19_like = "But-fuco-like (µg/L)",
+              but = "But-fuco (µg/L)",
+              fuco = "Fuco (µg/L)",
+              peri = "Peri (µg/L)",
+              phbdaSUM = "Pheophorb a (µg/L)",
               cpsmooth1 = "Cp (1/m)",
-              cp2tchla = "Cp/TChla (m2/mg)",
-              dms2dmspt = "DMS/DMSPt",
-              dmspt2tchla = "DMSPt/TChla",
-              dmspt2cp = "DMSPt/Cp",
+              cp2tchla = "Cp:TChl a (m2/mg)",
+              dms2dmspt = "DMS:DMSPt",
+              dmspt2tchla = "DMSPt:TChl a",
+              dmspt2cp = "DMSPt:Cp",
               temp = "Temperature (C)",
               sal = "Salinity",
               sigt = "sigma-t (kg/m3)",
@@ -164,22 +164,22 @@ xvarS <- list(dms = "DMS (nM)",
               N2 = "Brunt-Väisälä freq. (1/h)",
               zN2max03 = "N2_max depth (below MLd0.03) (m)",
               zN2max125 = "N2_max depth (below MLd0.125) (m)",
-              par_d_p24h_ein_m_2_day_1 = "PAR (µE/m2/d)",
-              ppc2psc = "PPC/PSC",
-              npp = "PPC/TPig",
-              ppc2tchla = "PPC/TChla",
-              psc2tchla = "PSC/TChla",
-              chlc3_2_tchla = "Chlc3/TChla",
-              chlc2_2_tchla = "Chlc2/TChla",
-              but19like_2_tchla = "19-But-like/TChla",
-              chlc3_2_psc = "Chlc3/PSC",
-              but_2_tchla = "19-But/TChla",
-              fuco_2_tchla = "Fucoxanthin/TChla",
-              peri_2_tchla = "Peridinin/TChla",
-              phaeo2chl = "Phaeopigments/Chla (Turner)",
-              phdaSUM2tchla = "Phaeophorb_a/TChla (HPLC)",
-              dd = "(Dd+Dt)/TChla",
-              vaz = "(Vi+Anth+Zea)/TChla")
+              par_d_p24h_ein_m_2_day_1 = "PAR (E/m2/d)",
+              ppc2psc = "PPC:PSC",
+              npp = "PPC:TPig",
+              ppc2tchla = "PPC:TChl a",
+              psc2tchla = "PSC:TChl a",
+              chlc3_2_tchla = "Chl c3:TChl a",
+              chlc2_2_tchla = "Chl c2:TChl a",
+              but19like_2_tchla = "19-But-like:TChl a",
+              chlc3_2_psc = "Chl c3:PSC",
+              but_2_tchla = "But-fuco:TChl a",
+              fuco_2_tchla = "Fuco:TChl a",
+              peri_2_tchla = "Peri:TChl a",
+              phaeo2chl = "Phaeopigments:Chl a (Turner)",
+              phdaSUM2tchla = "Pheophorb a:TChl a (HPLC)",
+              dd2tchla = "DD:TChl a",
+              vaz2tchla = "VAZ:TChl a")
 # xvarS <- list(diat_pelagic_mg_L = "Diatoms (mg C/L)",
 #               melo_mg_L = "Melosira (mg C/L)",
 #               phaeo_mg_L = "Phaeocystis (mg C/L)",
@@ -287,6 +287,8 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
     # View(pplot[,c("stn","OWD","dms","dmspt")])
     # View(pplot.bin$count[,c("stn","OWD","dms","dmspt","cpsmooth1","tchla","N2","anp")])
     # View(pplot.bin$mean[,grep("SIC",names(pplot.bin$mean))]) # equivalent to: View(pplot.bin$mean[,c("SIC_CLASS","SICm2d","SICm1d","SICday")])
+    View(pplot.bin$median[,c("OWD","dms","dmspt","dms2dmspt")])
+    View(pplot.bin$mean[,c("OWD","dms","dmspt","dms2dmspt")])
     
     # a <- as.matrix(pplot.bin$mean[,c("SICm2d","SICm1d","SICday")])
     # print(mean(a[c(1,2),1]))
@@ -329,19 +331,19 @@ pplot.bin$median[pplot.bin$count<2] <- NA
 # ---------------------
 # Figure with concentrations
 
-xvarS <- list(tchla = expression('TChl_a (µg L'^-1*')'),
+xvarS <- list(tchla = expression('TChl a (µg L'^-1*')'),
               cpsmooth1 = expression('Cp (m'^-1*')'),
               dmspt = "DMSPt (nM)",
               dms = "DMS (nM)",
-              chlc3 = expression('Chl_c3 (µg L'^-1*')'),
-              but19_like = expression('19-But-like (µg L'^-1*')'),
+              chlc3 = expression('Chl c3 (µg L'^-1*')'),
+              but19_like = expression('But-fuco-like (µg L'^-1*')'),
               peri = expression('Peridinin (µg L'^-1*')'),
-              # psc = expression('PSC (µg L'^-1*')'), # Choose either photosynthetic carotenoids or phaeophorbide a (below)
-              phdaSUM = expression('Phaeophorbide_a (µg L'^-1*')'),
+              # psc = expression('PSC (µg L'^-1*')'), # Choose either photosynthetic carotenoids or Pheophorbide a (below)
+              phdaSUM = expression('Pheophorbide a (µg L'^-1*')'),
               temp = expression('Temperature ('*degree*'C)'),
               N2 = expression('Brunt-Väisälä freq. (h'^-1*')'),
               anp = "ANP (-)",
-              par_d_p24h_ein_m_2_day_1 = expression('PAR (µE m'^-2*' d'^-1*')')
+              par_d_p24h_ein_m_2_day_1 = expression('PAR (mol phot. m'^-2*' d'^-1*')')
 )
 yvar <- "depth"
 lett <- plet
@@ -433,17 +435,18 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
 # ---------------------
 # Figure with ratios
 
-xvarS <- list(dmspt2cp = expression('DMSPt/Cp (µmol m'^-2*')'),
-              dmspt2tchla = expression('DMSPt/TChl_a (mmol g'^-1*')'),
-              cp2tchla = expression('Cp/TChl_a (m'^2*' mg'^-1*')'),
-              dms2dmspt = expression('DMS/DMSPt (mol mol'^-1*')'),
-              chlc3_2_tchla = expression('Chlc3/TChl_a (g g'^-1*')'),
-              but19like_2_tchla = expression('19-But-like/TChla (g g'^-1*')'),
-              peri_2_tchla = expression('Peridinin/TChl_a (g g'^-1*')'),
-              phdaSUM2tchla = expression('Phaeophorb_a/TChl_a (g g'^-1*')'),
-              psc2tchla = expression('PS carotenoids/TChl_a (g g'^-1*')'),
-              ppc2tchla = expression('PP carotenoids/TChla (g g'^-1*')'),
-              dd = expression('(Dd+Dt)/TChl_a (g g'^-1*')')
+xvarS <- list(dmspt2cp = expression('DMSPt:Cp (µmol m'^-2*')'),
+              dmspt2tchla = expression('DMSPt:TChl a (mmol g'^-1*')'),
+              cp2tchla = expression('Cp:TChl a (m'^2*' mg'^-1*')'),
+              dms2dmspt = expression('DMS:DMSPt (mol mol'^-1*')'),
+              chlc3_2_tchla = expression('Chl c3:TChl a (g g'^-1*')'),
+              but19like_2_tchla = expression('But-fuco-like/TChl a (g g'^-1*')'),
+              peri_2_tchla = expression('Peridinin:TChl a (g g'^-1*')'),
+              phdaSUM2tchla = expression('Pheophorb a:TChl a (g g'^-1*')'),
+              psc2tchla = expression('PS carotenoids:TChl a (g g'^-1*')'),
+              ppc2tchla = expression('PP carotenoids:TChl a (g g'^-1*')'),
+              dd2tchla = expression('DD:TChl a (g g'^-1*')'),
+              vaz2tchla = expression('VAZ:TChl a (g g'^-1*')')
 )
 yvar <- "depth"
 lett <- plet
@@ -451,7 +454,7 @@ names(lett) <- names(xvarS)
 
 for (sc in  "owd_class") { #names(st_class), "owd_class"
   
-  if (exportimg) {png(filename = paste0(opath,"Fig5_",sc,clco,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig6_",sc,clco,".png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)
@@ -542,4 +545,14 @@ A<-cbind(a[1:4],a[5:8],a[9:12])
 B<-cbind(b[1:4],b[5:8],b[9:12])
 Am <- rowMeans(A, na.rm = T)
 Bm <- rowMeans(B, na.rm = T)
-View(cbind(Am,Bm))
+# View(cbind(Am,Bm))
+
+# ---- Kruskal-Wallis test followed by
+# Wilcoxon (=Mann-Whitney) multiple comparisons test with Bonferroni adjustment
+zi <- 0
+kruskal.test(df2bin$dms2dmspt[z_class==zi] ~ st_class$owd_class[z_class==zi])
+# boxplot(df2bin$dms2dmspt[z_class==zi] ~ st_class$owd_class[z_class==zi])
+pairwise.wilcox.test(df2bin$dms2dmspt[z_class==zi], st_class$owd_class[z_class==zi], p.adjust.method = "bon")
+
+kruskal.test(df2bin$dd2tchla[z_class==zi] ~ st_class$owd_class[z_class==zi])
+pairwise.wilcox.test(df2bin$dd2tchla[z_class==zi], st_class$owd_class[z_class==zi], p.adjust.method = "bon")

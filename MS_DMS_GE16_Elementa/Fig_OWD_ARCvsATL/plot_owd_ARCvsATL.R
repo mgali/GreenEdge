@@ -111,19 +111,19 @@ for (vv in diapigs) {
 # toplot <- data.table::rbindlist(toplot, use.names = F, fill = F) # Nearly equivalent: toplot <- do.call("rbind", toplot)
 # ...facet_wrap(vars(groupvar), labeller = labeller(yvariable = svarS))
 
-yvarS <- list(#icp_z60 = expression(paste(sum(Cp[0-60]),' (-)')),
+yvarS <- list(icp_z60 = expression(paste(sum(Cp[0-60]),' (-)')),
               iTchla_z60 = expression(paste(sum(TChl_a[0-60]),' (mg ',m^-2,')')),
-              #idmspt_z60 = expression(paste(sum(DMSPt[0-60]),' (mmol ',m^-2,')')),
-              #idms_z60 = expression(paste(sum(DMS[0-60]),' (mmol ',m^-2,')')),
-              #dms = expression('<DMS>'[0-5]*' (nM)'),
-              #fdms = expression('FDMS (µmol m'^-2*' d'^-1*')'),
-              ichlc3_z60 = expression(paste(sum(Chlc3[0-60]),' (mg ',m^-2,')')),
-              ibut_z60 = expression(paste(sum(But[0-60]),' (mg ',m^-2,')')),
-              ihex_z60 = expression(paste(sum(Hex[0-60]),' (mg ',m^-2,')')),
-              ibut19_like_z60 = expression(paste(sum(But-like[0-60]),' (mg ',m^-2,')')),
-              ichlc3_2_tchla_z60 = expression(paste(sum(Chl_c3/TChl_a[0-60]),' (-)')),
-              ibut_2_tchla_z60 = expression(paste(sum(But/TChl_a[0-60]),' (-)')),
-              ihex_2_tchla_z60 = expression(paste(sum(Hex/TChl_a[0-60]),' (-)')),
+              idmspt_z60 = expression(paste(sum(DMSPt[0-60]),' (mmol ',m^-2,')')),
+              idms_z60 = expression(paste(sum(DMS[0-60]),' (mmol ',m^-2,')')),
+              dms = expression('<DMS>'[0-5]*' (nM)'),
+              fdms = expression('FDMS (µmol m'^-2*' d'^-1*')'),
+              # ichlc3_z60 = expression(paste(sum(Chlc3[0-60]),' (mg ',m^-2,')')),
+              # ibut_z60 = expression(paste(sum(But[0-60]),' (mg ',m^-2,')')),
+              # ihex_z60 = expression(paste(sum(Hex[0-60]),' (mg ',m^-2,')')),
+              # ibut19_like_z60 = expression(paste(sum(But-like[0-60]),' (mg ',m^-2,')')),
+              # ichlc3_2_tchla_z60 = expression(paste(sum(Chl_c3/TChl_a[0-60]),' (-)')),
+              # ibut_2_tchla_z60 = expression(paste(sum(But/TChl_a[0-60]),' (-)')),
+              # ihex_2_tchla_z60 = expression(paste(sum(Hex/TChl_a[0-60]),' (-)')),
               ibut19_like_2_tchla_z60 = expression(paste(sum(But-like/TChl_a[0-60]),' (-)')))
 surf$station <- as.character(surf$station)
 
@@ -136,8 +136,8 @@ for (yvar in names(yvarS)) {
   toplot <- toplot[!duplicated(toplot$station) & !duplicated(toplot$yvar)  & !is.na(toplot$yvar),]
   
   # Remove labels for selected y variables and conditions
-  if (yvar %in% c("fdms")) {
-    toplot$station <- ifelse(toplot$yvar > quantile(toplot$yvar, 0.2, na.rm = T),
+  if (yvar %in% c("icp_z60","iTchla_z60","idmspt_z60","idms_z60","dms","fdms")) {
+    toplot$station <- ifelse(toplot$yvar > quantile(toplot$yvar, 0.35, na.rm = T), # Max labels is quantile 0.2 just for FDMS
                              as.character(toplot$station), "")
   }
   
@@ -158,8 +158,8 @@ for (yvar in names(yvarS)) {
       plot = last_plot(),
       device = NULL,
       path = opath,
-      scale = 2,
-      width = 6,
+      scale = 1.6,
+      width = 6.5,
       height = 4,
       units = "cm",
       dpi = plotres

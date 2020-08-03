@@ -11,14 +11,15 @@ prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header
 surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
 # Exporting image?
-exportimg <- F
+exportimg <- T
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_phyto/"
 
 # Phyto group plotted
 pg <- "Phaeo" # Phaeo, diat_cen, diat_pen
-xl <- list(diat_pen = "Pennate diatoms (cells/L)",
-           diat_cen = "Centric diatoms (cells/L)",
-           Phaeo = 'Phaeocystis (cells/L)')
+xl <- list(diat_pen = expression(paste('Pennate diatoms (cells ',L^-1,')')),
+           diat_cen = expression(paste('Centric diatoms (cells ',L^-1,')')),
+           Phaeo = expression(paste('Phaeocystis (cells ',L^-1,')'))
+)
 
 # Rename DMS variable and remove unnecessary DMS variables
 prof.all$dms <- prof.all$dms_consens_cf68
@@ -110,7 +111,7 @@ xlbars <- list("diat_cen"="Diat_C",
 xpos <- seq(1, length(xbars))*3-1.5
 
 for (mm in c("spearman","pearson")) {
-  if (exportimg) {png(filename = paste0(opath,"Fig6_phytoCounts_dms_dmspt_corr_",mm,".png"), width = 16, height = 8, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig7_phytoCounts_dms_dmspt_corr_",mm,".png"), width = 16, height = 8, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
   
   # ---------------------
   # Multipanel setup
@@ -168,7 +169,7 @@ for (mm in c("spearman","pearson")) {
        col = parcol,
        pch = 19,
        cex = 1.1,
-       cex.lab = 0.9,
+       cex.lab = 1.1,
        cex.axis = 0.9,
        xlab = "",
        ylab = "DMSPt (nM)",
@@ -199,7 +200,7 @@ for (mm in c("spearman","pearson")) {
        col = parcol,
        pch = 19,
        cex = 1.1,
-       cex.lab = 0.9,
+       cex.lab = 1.1,
        cex.axis = 0.9,
        xaxp = c(10^4, 10^7, 1), # Uncomment only if (pg=="Phaeo") 
        # yaxp = c(1, 100, 2),

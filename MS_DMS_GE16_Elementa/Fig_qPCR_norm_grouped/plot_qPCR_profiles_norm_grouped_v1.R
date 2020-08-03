@@ -33,6 +33,7 @@ qpcr <- data.frame(Station = pre.qpcr$Station,
                    dmspt = pre.qpcr$dmspt,
                    dddP = pre.qpcr$`Average of dddP copies/mL`,
                    dmdA = pre.qpcr$`Average of dmdA copies /mL`,
+                   mxaF = pre.qpcr$`Average of mxaF copies/mL`,
                    Methylobacterium = pre.qpcr$Methylobacterium*100,
                    Rhodobacteraceae = pre.qpcr$Rhodobacteraceae*100,
                    SAR11  = pre.qpcr$SAR11*100,
@@ -57,11 +58,12 @@ pplot <- pplot[,grep("NA",names(pplot), invert = T)]
 dd <- duplicated(pplot[,c("cast","Depth_m")])
 pplot <- pplot[!dd,]
 
-# # Hide data from stn 400 (either entire or just surface)
+# # Hide data from leg 1b
 # pplot[pplot$Station>=400,] <- NA
 
 # Add ratios
 pplot$dddP2dmdA <- pplot$dddP/pplot$dmdA                           # dddP/dmdA ratio
+pplot$mxaF2dddP <- pplot$mxaF/pplot$dddP                           # mxaF/dddP ratio (methylotrophy)
 
 # ---------------------
 # Bin profiles by station categories
@@ -125,20 +127,13 @@ for (sc in "owd_class") { #names(st_class)
 # Figure with concentrations at all stations
 
 xvarS <- list(ANP = "ANP (-)",
-              dddP = expression('dddP (copies mL'^-1*')'),
-              dmdA = expression('dmdA (copies mL'^-1*')'),
-              dddP2dmdA = "dddP:dmdA",
               BA = expression('Bact. abund. (cells mL'^-1*')'),
               BP = expression('Bact. prod. (µg C L'^-1*' d'^-1*')'),
-              Rhodobacteraceae = "Rhodobacteraceae (%)",
-              Polaribacter = "Polaribacter (%)",
-              SAR11 = "SAR11 (%)",
-              SAR116 = "SAR116 (%)",
-              Methylobacterium = "Methylobacterium (%)",
-              Thiotrichales = "Thiotrichales (%)",
-              Methylophylales = "Methylophylales (%)",
-              Oceanospirillales = "Oceanospirillales (%)",
-              Pseudoalteromonas = "Pseudoalteromonas (%)"
+              dddP = expression('dddP (copies mL'^-1*')'),
+              dmdA = expression('dmdA (copies mL'^-1*')'),
+              dddP2dmdA = "dddP:dmdA"
+              # mxaF = expression('mxaF (copies mL'^-1*')'),
+              # mxaF2dddP = "mxaF:dddP"
 )
 yvar <- "Depth_m"
 lett <- plet
@@ -148,12 +143,12 @@ for (sc in "owd_class") {
   
   if (exportimg) {
     
-    png(filename = paste0(opath,"Fig_qpcr_",sc,".png"), width = 17, height = 13, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')
+    png(filename = paste0(opath,"FigS5_qpcr_v1_",sc,".png"), width = 12, height = 9, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')
     
     # Multipanel setup
     m0 <- matrix(data = 0, nrow = 4, ncol = 4)
-    mr1 <-  cbind(m0+1,m0+2,m0+3,m0+4,m0+5)
-    m <- rbind(mr1,mr1+5,mr1+10)
+    mr1 <-  cbind(m0+1,m0+2,m0+3)
+    m <- rbind(mr1,mr1+3)
     layout(m)
     par(oma = c(1,1,0.5,0.5))
     
@@ -174,7 +169,7 @@ for (sc in "owd_class") {
       box()
       axis(side = 1, cex.axis = 1.1)
       mtext(side = 1, xvarS[[xvar]], cex = 0.9, line = 3)
-      if (xvar %in% c("ANP","BP","Methylobacterium")) {
+      if (xvar %in% c("ANP","dddP")) {
         axis(side = 2, cex.axis = 1.1)
         mtext(side = 2, "Depth (m)", cex = 0.9, line = 2.5)
       } else {
@@ -205,7 +200,7 @@ for (sc in "owd_class") {
             y = pplot.bin$mean[pplot.bin$median$SIC_CLASS=="OW",yvar],
             col = col[3], lwd = 1.5, lty = 3)
       text(x = xl[1]+0.95*(xl[2]-xl[1]), y = 6, labels = lett[xvar], cex = 1.3)
-      if (xvar  == "temp") {
+      if (xvar  == "dddP") {
         legend(x = xl[1]+0.4*(xl[2]-xl[1]),
                y = 25,
                pch = 19,
@@ -232,34 +227,27 @@ for (sc in "owd_class") {
 # Figure with T5 profiles
 
 xvarS <- list(ANP = "ANP (-)",
-              dms = "DMS (nM)",
+              BA = expression('Bact. abund. (cells mL'^-1*')'),
               dmspt = "DMSPt (nM)",
+              dms = "DMS (nM)",
+              BP = expression('Bact. prod. (µg C L'^-1*' d'^-1*')'),
               dddP = expression('dddP (copies mL'^-1*')'),
               dmdA = expression('dmdA (copies mL'^-1*')'),
-              dddP2dmdA = "dddP:dmdA",
-              BA = expression('Bact. abund. (cells mL'^-1*')'),
-              BP = expression('Bact. prod. (µg C L'^-1*' d'^-1*')'),
-              Rhodobacteraceae = "Rhodobacteraceae (%)",
-              Polaribacter = "Polaribacter (%)",
-              SAR11 = "SAR11 (%)",
-              SAR116 = "SAR116 (%)",
-              Methylobacterium = "Methylobacterium (%)",
-              Thiotrichales = "Thiotrichales (%)",
-              Methylophylales = "Methylophylales (%)",
-              Oceanospirillales = "Oceanospirillales (%)",
-              Pseudoalteromonas = "Pseudoalteromonas (%)"
+              dddP2dmdA = "dddP:dmdA"
+              # mxaF = expression('mxaF (copies mL'^-1*')'),
+              # mxaF2dddP = "mxaF:dddP"
 )
 lett <- plet
 names(lett) <- names(xvarS)
 
 if (exportfig) {
   
-  png(filename = paste0(opath,"Fig_qpcr_stn_507_519.png"), width = 17, height = 13, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')
+  png(filename = paste0(opath,"FigS6_qpcr_v1_stn_507_519.png"), width = 14, height = 9, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)
-  mr1 <-  cbind(m0+1,m0+2,m0+3,m0+4,m0+5,m0+6)
-  m <- rbind(mr1,mr1+6,mr1+12)
+  mr1 <-  cbind(m0+1,m0+2,m0+3,m0+4)
+  m <- rbind(mr1,mr1+4)
   layout(m)
   par(oma = c(1,1,0.5,0.5))
   
@@ -289,7 +277,7 @@ if (exportfig) {
     axis(side = 1, cex.axis = 1.1)
     mtext(side = 1, xvarS[[xvar]], cex = 0.9, line = 3)
     text(x = xl[1]+0.95*(xl[2]-xl[1]), y = 2, labels = lett[xvar], cex = 1.3)
-    if (xvar %in% c("ANP","BA","Methylobacterium")) {
+    if (xvar %in% c("ANP","BP")) {
       axis(side = 2, cex.axis = 1.1)
       mtext(side = 2, "Depth (m)", cex = 0.9, line = 2.5)
     } else {
@@ -309,12 +297,26 @@ if (exportfig) {
 }
 
 
-# # ---------------------------------------
-# # Correlation analysis for dddP and dmdA
-# xvars1 <- c(ANP,BA,BP)
-# xvars2 <- c(Rhodobacteraceae,Polaribacter,SAR11,SAR116,Methylobacterium,Thiotrichales,Methylophylales,Oceanospirillales,Pseudoalteromonas)
-# yvarS <- list(dddP = "dddP copies/mL",
-#               dmdA = "dmdA copies/mL")
-# Xc1 <- 
-# Xc2 <- 
+# ---------------------------------------
+# Correlation analysis for dddP and dmdA
+xvars1 <- c("ANP","BA","BP")
+yvarS <- list(dddP = "dddP copies/mL",
+              dmdA = "dmdA copies/mL")
+ra <- cor.test(pplot$dmdA, pplot$dmspt, use = "pairwise", method = "sp")
+print(ra)
+rb <- cor.test(pplot$dddP, pplot$dmspt, use = "pairwise", method = "sp")
+print(rb)
+rc <- cor.test(pplot$dmdA, pplot$dms, use = "pairwise", method = "sp")
+print(rc)
+rd <- cor.test(pplot$dddP, pplot$dms, use = "pairwise", method = "sp")
+print(rd)
+
+
+# Xc1 <-
+# Xc2 <-
 # Xc <- cbind(Xc1,Xc2)
+
+# # ---------------------------------------
+# # Correlation analysis for mxaF and DMS
+# rr <- cor.test(pplot$mxaF, pplot$dms, use = "pairwise", method = "sp")
+# print(rr)

@@ -178,14 +178,14 @@ prof$dmspt.diat_Laf.Cmic <- prof$diat_Laf.mgC_L.mic * rdmsp$diat_all * (1/12) * 
 prof$dmspt.diat_Laf.Cmic.pc <- 100 * prof$dmspt.diat_Laf.Cmic / (fp * prof$dmspt)
 
 if (addcd == "_PhaeoCol_detr"){
-  # Add DMSP for colonies "clumped prym". Assume 10% of colonies contains DMSP? Doesn't make a difference
-  prof$dmspt.Phaeo_col.ifcb <- (prof$prym_clumped_mg_L / 1) * rdmsp$Phaeo * (1/12) * (1/5) * 1e6
+  # Add DMSP for colonies "clumped prym". Assume 1% of colonies contain DMSP and rdmsp = 0.10 (equivalent: 2% and 0.05)
+  prof$dmspt.Phaeo_col.ifcb <- (prof$prym_clumped_mg_L / 100) * rdmsp$Phaeo * (1/12) * (1/5) * 1e6
   prof$dmspt.Phaeo_col.ifcb.pc <- 100 * prof$dmspt.Phaeo_col.ifcb / (fp * prof$dmspt)
   # Add DMSP for detritus
   prof$dmspt.detritus.ifcb <- prof$detritus_mg_L * rdmsp$detritus * (1/12) * (1/5) * 1e6 # NOTE: units corrected from mg to ugC/L (above)
   prof$dmspt.detritus.ifcb.pc <- 100 * prof$dmspt.detritus.ifcb / (fp * prof$dmspt)
   # Increase maximum y axis DMSP
-  ymax <- 3000
+  ymax <- 200
 }
 
 # OUTPUT
@@ -298,6 +298,11 @@ axis(2, labels = T, cex.axis = 1.2)
 
 if (exportimg) {dev.off()}
 
+
+# ---------------------------------------------------------------
+# Dino and diatom DMSPp % contribution
+print(sapply(dfplot[,c("Dino_A","Diat_all")], mean, na.rm=T))
+print(sapply(dfplot[,c("Dino_A","Diat_all")], sd, na.rm=T))
 
 # ---------------------------------------------------------------
 # Agreement between indirect estimates and measurements

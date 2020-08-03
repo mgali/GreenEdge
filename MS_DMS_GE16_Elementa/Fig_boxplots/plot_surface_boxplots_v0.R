@@ -9,7 +9,7 @@ pdir <- 'plots_pigments_vs_DMS_zColorScale/'
 surf <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
 # Exporting image?
-exportimg <- F
+exportimg <- T
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_boxplots/"
 
 # ---------------------
@@ -17,6 +17,7 @@ pal <- colorRampPalette(brewer.pal(9, "Spectral"))              # Color palette 
 col <- pal(n = 21)[c(21,18,5)]
 plotres <- 600                                                  # resolution dpi
 plet <- sapply(letters, paste0, ")")                            # plot letters
+names(plet) <- names(xvarS)
 
 # ===============================================================
 # Correction of wind speed height, from 16 m measurement to 10 m standard
@@ -138,7 +139,7 @@ xvarS <- list(fdms = expression('FDMS (µmol m'^-2*' d'^-1*')'),
               dms2dmspt = "DMS:DMSPt",
               dmspt = "DMSPt (nM)")
 
-if (exportimg) {png(filename = paste0(opath,"Fig7_boxplots_v0.png"), width = 16, height = 7, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+if (exportimg) {png(filename = paste0(opath,"Fig8_boxplots_v0.png"), width = 14, height = 7, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
 
 # Multipanel setup
 m0 <- matrix(data = 0, nrow = 4, ncol = 5)
@@ -149,7 +150,7 @@ par(oma = c(1,1,0.5,0.5))
 
 for (xv in names(xvarS)) {
   
-  par(mar = c(3,5,1,1))
+  par(mar = c(3,5,0.5,0.5))
   toplot <- list(ICE = surf[surf$owd_class=="ICE",xv],
                  MIZ = surf[surf$owd_class=="MIZ",xv],
                  OW = surf[surf$owd_class=="OW",xv])
@@ -163,7 +164,14 @@ for (xv in names(xvarS)) {
           las = 1)
   points(c(1,2,3), unlist(lapply(toplot, mean, na.rm = T)), col = "white", pch = 15, cex = 0.9)
   points(c(1,2,3), unlist(lapply(toplot, mean, na.rm = T)), col = "black", pch = 0, cex = 1)
-  if (xv %in% c("fdms","kvent")) {print(lapply(toplot, summary))}
+  
+  # Plot panel letters. Query axis limits using par("usr")
+  xyl <- par("usr")
+  xl <- xyl[2] - 0.1*(xyl[2]-xyl[1])
+  yl <- xyl[4] - 0.1*(xyl[4]-xyl[3])
+  text(xl, yl, labels = plet[xv], cex = 1.2)
+  
+  # if (xv %in% c("fdms","kvent")) {print(lapply(toplot, summary))}
   
 } # end loop on variables
 
