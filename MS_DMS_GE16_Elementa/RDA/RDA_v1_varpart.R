@@ -17,12 +17,12 @@ library(ellipse)
 library(FactoMineR)
   
 # Load data
-genpath <- '~/Desktop/GreenEdge/MS_DMS_GreenEdge/RDA/'
+genpath <- '~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/RDA/'
 prof <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header = T)
 
 # Output settings
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/RDA/"
-exportimg <- T
+exportimg <- F
 
 # Rename DMS variable and remove unnecessary DMS variables
 prof$dms <- prof$dms_consens_cf68
@@ -83,7 +83,8 @@ ww <- "pigments"
 # Select complete cases (rows)
 coca <- complete.cases(prof[,c(yvarS,xvarS[[xx]],xvarS[[ww]])])
 PRE <- prof[coca,c(yvarS,xvarS[[xx]],xvarS[[ww]])]
-rownames(PRE) <- 1:dim(PRE)[1] # Create unique names for each sample
+# rownames(PRE) <- 1:dim(PRE)[1] # Create unique names for each sample
+rownames(PRE) <- NULL
 
 # ==== Check normality ====
 # Shapiro-Wilk method?

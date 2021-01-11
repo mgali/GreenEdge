@@ -12,17 +12,17 @@ library(dplyr)
 library(ade4)
 library(vegan)
 # library(packfor)
-library(MASS)
-library(ellipse)
-library(FactoMineR)
+# library(MASS)
+# library(ellipse)
+# library(FactoMineR)
 
 # Load data
-genpath <- '~/Desktop/GreenEdge/MS_DMS_GreenEdge/RDA/'
+genpath <- '~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/RDA/'
 prof <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header = T)
 
 # Output settings
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/RDA/"
-exportimg <- T
+exportimg <- F
 
 # Rename DMS variable and remove unnecessary DMS variables
 prof$dms <- prof$dms_consens_cf68
@@ -94,8 +94,9 @@ PRE <- prof[coca,c(yvarS,xvarS[[xx]])]
 # prof = prof %>% 
 #   tidyr::unite(rn, stn, cast, depth, sep = "_", remove = FALSE)
 # rownames(PRE) <- prof[coca,"stn"] # Not unique!
-rownames(PRE) <- 1:dim(PRE)[1]
-
+# rownames(PRE) <- 1:dim(PRE)[1]
+rownames(PRE) <- NULL
+  
 # ==== Test for normality ====
 # for (vv in names(prof)) {
 #   if (sum(diff(prof[[vv]]), na.rm = T) != 0) {
