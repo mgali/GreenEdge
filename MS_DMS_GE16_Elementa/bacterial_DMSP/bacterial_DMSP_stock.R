@@ -60,7 +60,7 @@ pplot <- pplot[!dd,]
 
 # ------------------------------------------------------------------------------------
 # Estimate bacterial biovolume --> protein --> DMSP
-bp <- 4.8 * 1e-9                                # bact protein (µg == fg 1e-9) for a bacterium of 0.51 µm diameter (Simon & Azam, 1989)
+bp <- 21.6 * 1e-9                               # bact protein (µg == fg 1e-9) for a bacterium of 0.51 µm diameter (Simon & Azam, 1989) and 0.07 µm3 vell volume
 dmsp2bp <- 40                                   # pmol DMSP/µg protein, N starved bacterium (upper bound; Curson et al., 2017)
 pplot$Bdmsp <- pplot$BA * bp * dmsp2bp          # pmol_DMSP/mL == nM; cells/mL * µg_prot/cell * dmsp/µg_prot
 

@@ -166,7 +166,7 @@ testbyax1 <- anova.cca(rda1, by="axis", step=1000)
 # ------------------------------------------------------------------------
 ###################### RDA1: Sulfur versus pigments ######################
 # ------------------------------------------------------------------------
-rda2 <- rda(Y ~ TChl_a+Chl_b+Chl_c2+Chl_c3+Fuco+Hex_fuco+But_fuco+TCar+Pheo_a+Peri+But_fuco_like+Allo+Pras, # +VAZ+DD
+rda2 <- rda(Y ~ TChl_a+Chl_b+Chl_c2+Chl_c3+Fuco+Hex_fuco+But_fuco+TCar+Pheo_a+Peri+But_fuco_like+Allo+Pras+VAZ+DD, # +VAZ+DD
             data = W) # formula call: once exploration has been done
 # print(rda2)
 # print(coef(rda2))
@@ -203,8 +203,8 @@ col <- list(ICE = pal(n = 21)[21],
 
 if (exportimg) {
   png(filename = ifelse(cp_norm,
-                        "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/RDA/final_plots_SI/Fig_RDA_cpnorm.png",
-                        "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/RDA/final_plots_SI/Fig_RDA.png"),
+                        "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/RDA/plots_last/Fig_RDA_cpnorm.png",
+                        "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/RDA/plots_last/Fig_RDA.png"),
       width = 16, height = 12, units = 'cm', pointsize = 9,
       bg = 'white', res = 600, type = 'cairo')
 }
