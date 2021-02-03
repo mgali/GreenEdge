@@ -1,7 +1,8 @@
 # MAKE PLOTS OF DMS AND DMSP VS. PHYTO COUNTS AND ADDITIONAL Z VARIABLES
 
 library(dplyr)
-library(RColorBrewer)
+library(ggplot2)
+library(reshape2) # to convert wide to long using melt
 
 # Load data
 genpath <- '~/Desktop/GreenEdge/GCMS/'
@@ -27,48 +28,54 @@ prof.all <- prof.all[,toinclude]
 # Add clustering coefficient as per station by merging with profiles
 pplot <- merge(x = prof.all, y = surf.all, all.x = T, all.y = F, by = 'stn', suffixes = "")
 
-# Remove DMS data points where DMSPt or Phaeocystis are missing, and stations where microscopy counts not done
-pplot <- pplot[!is.na(pplot$dmspt) & !is.na(pplot$dms),]
-pplot <- pplot[pplot$stn >= 418,]
+# Remove rows where phyto counts are missing
+pplot <- pplot[!is.na(pplot$Phaeo) & !is.na(pplot$diat_cen),]
 
 # Remove duplicated rows
-dd <- duplicated(pplot[,c("dmspt","dms","cast","depth")]) & (!is.na(pplot$tchla) & !is.na(pplot$cpsmooth1))
+dd <- duplicated(pplot[,c("cast","depth")]) | (pplot$station==418 & pplot$depth==0.1)
 pplot <- pplot[!dd,]
 
 # Add surface and SCM categories
 pplot$scm <- 'SCM'
-pplot$scm[pplot$depth < 10] <- 'surface'
+pplot$scm[pplot$depth < 10] <- '1m'
+# pplot$scm <- 'Subsurface Chl max'
+# pplot$scm[pplot$depth < 10] <- 'Surface'
 
-xl <- list("diat_cen"="Diat_C",
-               "diat_pen"="Diat_P",
-               "dino_athec"="Dino_A",
-               "dino_thec"="Dino_T",
-               "chrys"="Chryso",
-               "crypt"="Crypto",
-               "Phaeo"="Phaeocystis",
-               "flag"="Flag_other")
-xpos <- (seq(1, length(xbars)))*6.1 - 1.7
+xl <- list("diat_cen"="Diatoms_C",
+           "diat_pen"="Diatoms_P",
+           "dino_athec"="Dino_A",
+           "dino_thec"="Dino_T",
+           "chrys"="Chrysophytes",
+           "crypt"="Cryptophytes",
+           "Phaeo"="Phaeocystis",
+           "flag"="Flag_other")
+pplot[,names(xl)] <- pplot[,names(xl)]+1
 
+pplot <- melt(data = pplot[,c("station","scm",names(xl))],
+              measure.vars = names(xl),
+              value.name = "counts") # Abundance (cells/mL)
+pplot$group <- factor(pplot$variable)
+pplot$Depth <- factor(pplot$scm)
+# pplot$Depth <- factor(pplot$Depth, levels = rev(levels(pplot$Depth)))
 
 if (exportimg) {png(filename = paste0(opath,"FigS1_phytoCounts.png"), width = 16, height = 8, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
 
-# ---------------------
-# Multipanel setup
-m1_2 <- rbind(matrix(data = 1, nrow = 4, ncol = 9), matrix(data = 2, nrow = 4, ncol = 9))
-m3_4 <- rbind(matrix(data = 3, nrow = 4, ncol = 5), matrix(data = 4, nrow = 4, ncol = 5))
-m <- cbind(m1_2, m3_4, matrix(data = 5, nrow = 8, ncol = 2))
-layout(m)
-par(oma = c(1,1,0.5,0.5))
-
-# ---------------------
-# a) DMSPt vs. Phyto counts correlations
-par(mar = c(4,4,1,1))
-
-
-# ---------------------
-# b) DMS vs. Phyto counts correlations
-
-
+# Phyto counts NEED TO ADD PEUK
+p <- ggplot(pplot, aes(x=group, y=counts, fill=Depth)) +
+  scale_y_continuous(trans='log10', limits = c(2e2,2e7)) +
+  # scale_x_discrete(limits = rev(levels(pplot$Depth))) +
+  scale_x_discrete(labels = xl) +
+  coord_flip() +
+  geom_boxplot(notch = F,
+               outlier.shape = 19,
+               outlier.size = 0.4,
+               outlier.stroke = 0.5) + 
+  scale_fill_brewer(palette="BuPu") +
+  # geom_jitter(aes(colour = Depth), width = 0.1, size = 0.1) +
+  xlab("") +
+  ylab("Abundance (cells/mL)")
+theme_bw()
+print(p)
 
 if (exportimg) {dev.off()}
 
