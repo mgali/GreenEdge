@@ -14,7 +14,7 @@
 
 # Skip loading data and pre-processing after the first time
 # ===========================================================
-init <- T
+init <- F
 if (init) {
   
   # Load packages
@@ -129,23 +129,24 @@ ge_fdms$col3 <- ge_fdms$col2
 exportimg <- T
 
 if (exportimg) {
-  png(filename = '~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig1_map/Fig1_2panels_v5.png',
+  png(filename = '~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig1_map/Fig1_2panels_v6.png',
       width = 16, height = 7, units = 'cm', pointsize = 8, # height 10 for 3 panels, 13 for 4 panels
       bg = 'white', res = 600, type = 'cairo')
 }
 
 # Layout
-m <- cbind(matrix(data = 1, nrow = 7, ncol = 6), matrix(data = 2, nrow = 7, ncol = 1), matrix(data = 3, nrow = 7, ncol = 9))
+m <- cbind(matrix(data = 1, nrow = 7, ncol = 6),
+           matrix(data = 2, nrow = 7, ncol = 1),
+           matrix(data = 3, nrow = 7, ncol = 10))
 layout(m)
 
 ## ---- Plot ----
 
 # Panel 1
 # ===========================================================
-plot(coastlineWorldFine, clon = mlon-1, clat = mlat, span = c(2950,1850), #c(2000,2000)
+plot(coastlineWorldFine, clon = mlon-1, clat = mlat, span = c(2950,1850), #c(2950,1850)
      col = col.land, bg = rgb(red = 1, green = 1, blue = 1, alpha = 0), lwd = 0.5,
      axes = F) # xlab="Longitude", ylab="Latitude")
-# image(x = sat1$lon, y = sat1$lat, z = sstmean, add = T, col = rev(heat.colors(100)))
 
 # Bathy
 image(gebco$lon,gebco$lat,gebco$elevation, add = T, col = oce.colorsGebco(11))
@@ -155,9 +156,8 @@ contour(gebco$lon,gebco$lat,gebco$elevation,
         drawlabels = T, add = TRUE, col = "#1E8EB3")
 
 # Stations and close-up rectangle
-points(x=ge_stn_all$lon, y=ge_stn_all$lat, col='black', cex=0.8, pch=19) # unsampled and sampled
-points(x=ge_stn_all$lon, y=ge_stn_all$lat, col=ge_stn_all$col, cex=0.8, pch=19) # unsampled and sampled with ANP when available
-points(x=ge_fdms$lon, y=ge_fdms$lat, col='black', cex=0.5, pch=16) # sampled
+points(x=ge_stn_all$lon, y=ge_stn_all$lat, col='black', cex=1.2, pch=19) # unsampled and sampled
+points(x=ge_stn_all$lon, y=ge_stn_all$lat, col=ge_stn_all$col, cex=1, pch=19) # unsampled and sampled with ANP when available
 rect(-66.6, 67.4, -53.5, 71.1, col = NULL, border = 'black', lty = 1, lwd = 1)
 
 # Annotations
@@ -165,8 +165,13 @@ text(x = -77, y = 74.5, labels = 'a)', offset = 0.5, cex = 1.3, srt = 0, col = '
 text(x = -74, y = 70, labels = 'Baffin Island', offset = 0.5, cex = 1, srt = -45, col = 'black')
 text(x = -50, y = 73, labels = 'Greenland', offset = 0.5, cex = 1, srt = 0, col = 'black')
 text(x = -56.7, y = 61, labels = 'Labrador Sea', offset = 0.5, cex = 1, srt = 0, col = 'white')
-text(x = -57.5, y = 66, labels = 'Davis Strait', offset = 0.5, cex = 1, srt = 0, col = 'black')
+text(x = -57.5, y = 65, labels = 'Davis Strait', offset = 0.5, cex = 1, srt = 0, col = 'black')
 text(x = -67, y = 74, labels = 'Baffin Bay', offset = 0.5, cex = 1, srt = 0, col = 'black')
+
+arrows(-56,66.5,-57,67.5, col="red", lwd=2, length = 0.05, angle = 20)
+arrows(-58,71,-59,72, col="red", lwd=2, length = 0.05, angle = 20)
+arrows(-61,67.5,-59,66.5, col="blue", lwd=2, length = 0.05, angle = 20)
+arrows(-68,72,-66,71, col="blue", lwd=2, length = 0.05, angle = 20)
 
 axis(side = 1, at = c(-80,-40))
 axis(side = 1, at = c(-70,-60,-50), labels = c(expression(paste('',70*degree,'W')),expression(paste('',60*degree,'W')),expression(paste('',50*degree,'W'))))
@@ -189,14 +194,15 @@ mtext(text = "(20 m)", side = 3, line = 0.5, cex = 0.7)
 plot(coastlineWorldFine, clon = mlon, clat = mlat, span = 565,
      col = col.land, bg = rgb(red = 1, green = 1, blue = 1, alpha = 0), lwd = 0.5,
      axes = F) # xlab="Longitude", ylab="Latitude")
-# image(x = sat3$lon, y = sat3$lat, z = sat3$`sea-ice`, add = T, col = oce.colors(10))
 
 axis(side = 1, at = c(-67,-53))
-axis(side = 1, at = c(-65,-60,-55), labels = c(expression(paste('',65*degree,'W')),expression(paste('',60*degree,'W')),expression(paste('',55*degree,'W'))))
+axis(side = 1, at = c(-65,-60,-55),
+     labels = c(expression(paste('',65*degree,'W')),expression(paste('',60*degree,'W')),expression(paste('',55*degree,'W'))))
 axis(side = 2, at = c(67,72))
-axis(side = 2, at = seq(68,71,1), labels = c(expression(paste('',68*degree,'N')),expression(paste('',69*degree,'N')),expression(paste('',70*degree,'N')),expression(paste('',71*degree,'N'))))
+axis(side = 2, at = seq(68,71,1),
+     labels = c(expression(paste('',68*degree,'N')),expression(paste('',69*degree,'N')),expression(paste('',70*degree,'N')),expression(paste('',71*degree,'N'))))
 box()
-# arrows(x0 = -63, y0 = 71, x1 = -65, y1 = 70.8, col = col.ice2, lwd = 1)
+
 text(x = -66.2, y = 70.9, labels = 'b)', offset = 0.5, cex = 1.3, srt = 0, col = 'black')
 
 contour(sat1$lon,sat1$lat,sat1$`sea-ice`,
@@ -230,57 +236,68 @@ legend("bottomleft", seg.len = 2, cex = 1,
        legend = c("d176, 0.10","d181, 0.10","d186, 0.10", "          0.50", "          0.80", "          0.85"),
        col = c(col.ice1,col.ice2,rep(col.ice3,4)),
        title = "Sea ice concentration",
-       bg= "gray97", box.col = "gray95")
+       bg= "gray90", box.col = "gray90")
 
 # FDMS and DMS, separate
-xpos <- -56.25
-legend(x = xpos, y = 71.05, pch = 19,
-       pt.cex = ff*sqrt(c(0.2,2,NA,20,NA)),
-       legend = c("    0.2","    2","","    20","      "),
-       col = rep(col.fdms,5),
-       title = expression(paste('FDMS (µmol ',m^-2,' ',d^-1,')')),
-       ncol = 1,
-       bg= "gray97", box.lwd = 0, box.col = "gray95")
-legend(x = xpos, y = 70.15, pch = 1, lty = 0, lwd = 1,
+xpos <- -56.20
+legend(x = xpos, y = 71.1, pch = 1, lty = 0, lwd = 1,
        pt.cex = ff*sqrt(c(0.2,2,NA,20,NA)),
        legend = c("    0.2","    2","","    20","      "),
        col = rep(col.dms,5),
        title = "DMS (nM)                   ",
        ncol = 1,
-       bg= "gray97", box.lwd = 0, box.col = "gray95")
+       bg= "gray90", box.lwd = 0, box.col = "gray90")
+legend(x = xpos, y = 70.2,
+       pch = 19,
+       pt.cex = ff*sqrt(c(0.2,2,NA,20,NA)),
+       legend = c("          0.2","          2","","          20",""),
+       col = rep(col.fdms,5),
+       title = expression(paste('F'[DMS]*' (µmol ',m^-2,' ',d^-1,')   ')),
+       ncol = 1,
+       bg= "gray90", box.lwd = 0, box.col = "gray90")
 legend("bottomright",
        pch = 19,
-       legend = c("","ICE","MIZ","OW",""),
+       title = "Zone",
+       legend = c("ICE","MIZ","OW"),
        cex = 1.2,
-       col = c("gray97","#3288BD","#73C7A4","#F99455","gray97"),
-       bg= "gray97", box.lwd = 0, box.col = "gray95")
+       col = c("#3288BD","#73C7A4","#F99455"),
+       bg= "gray90", box.lwd = 0, box.col = "gray90")
 
 # Labels for transects and dates (removed end dates)
-text(x = -62.8, y = 68.40, labels = 'T4', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
 text(x = -62.7, y = 68.27, labels = 'd176 ->', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
-# text(x = -56.4, y = 68.13, labels = '-> d181', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
-
-text(x = -57, y = 70.23, labels = 'T5', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
 text(x = -57, y = 70.1, labels = '<- d181', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
-# text(x = -63.7, y = 70.0, labels = 'd184 <-', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
-
-text(x = -65, y = 70.63, labels = 'T6', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
 text(x = -64.9, y = 70.5, labels = 'd185 ->', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
-# text(x = -58.2, y = 70.5, labels = '-> d188', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
-
-text(x = -57, y = 69.63, labels = 'T7', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
 text(x = -57, y = 69.5, labels = '<- d189', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
-# text(x = -64.1, y = 69.5, labels = 'd191 <-', offset = 0.5, cex = 0.8, srt = 0, col = 'black')
 
-# Plots station points
-# points(x=ge_stn_all$lon, y=ge_stn_all$lat, col='black', cex=0.4, pch=4, lwd = 0.5) # all stations
+text(x = -62.8, y = 68.42, labels = 'T4', offset = 0.5, cex = 1.2, srt = 0, col = 'black')
+text(x = -57, y = 70.25, labels = 'T5', offset = 0.5, cex = 1.2, srt = 0, col = 'black')
+text(x = -65, y = 70.65, labels = 'T6', offset = 0.5, cex = 1.2, srt = 0, col = 'black')
+text(x = -57, y = 69.65, labels = 'T7', offset = 0.5, cex = 1.2, srt = 0, col = 'black')
+
+# Plots station locations
 ss <- which(ge_stn_all$stn %in% ge_fdms$stn) # Uncomment if plotting only unsampled stations
 ge_stn_uu <- ge_stn_all
 ge_stn_uu[ss,] <- NA
-points(x=ge_stn_uu$lon, y=ge_stn_uu$lat, col='gray', cex=0.6, pch=4, lwd = 0.5) # unsampled
-# points(x=ge_fdms$lon, y=ge_fdms$lat, col=ge_fdms$col2, cex=0.5, pch=16) # sampled: not needed
+points(x=ge_stn_uu$lon, y=ge_stn_uu$lat, col='gray30', cex=0.6, pch=4, lwd = 0.5) # unsampled
 
-# # Plot station names
-# text(x=ge_fdms$lon, y=ge_fdms$lat, labels = ge_fdms$stn, col='black', cex=0.6, pos = 1, offset = 0.5, srt = 45) # sampled
+# Plot station names (sampled only). Position depending on dms or fdms circle size
+rot <- 0
+ca <- 20
+cb <- 5
+i4 <- ge_fdms$stn==413
+i6 <- ge_fdms$stn==604.5
+ia <- (ge_fdms$dms>ca | ge_fdms$fdms>ca) & !i4 & !i6
+ib <- (ge_fdms$dms>cb | ge_fdms$fdms>cb) & !i4 & !i6  & !ia
+ic <- !i4 & !i6 & !ia & !ib
+text(x=ge_fdms$lon[ia], y=ge_fdms$lat[ia], labels = ge_fdms$stn[ia],
+     col='black', cex=0.8, pos = 1, offset = 2, srt = rot)
+text(x=ge_fdms$lon[ib], y=ge_fdms$lat[ib], labels = ge_fdms$stn[ib],
+     col='black', cex=0.8, pos = 1, offset = 1.5, srt = rot)
+text(x=ge_fdms$lon[ic], y=ge_fdms$lat[ic], labels = ge_fdms$stn[ic],
+     col='black', cex=0.8, pos = 1, offset = 1, srt = rot)
+text(x=ge_fdms$lon[i4], y=ge_fdms$lat[i4], labels = ge_fdms$stn[i4],
+     col='black', cex=0.8, pos = 3, offset = 1, srt = rot)
+text(x=ge_fdms$lon[i6], y=ge_fdms$lat[i6], labels = ge_fdms$stn[i6],
+     col='black', cex=0.8, pos = 3, offset = 1.5, srt = rot)
 
 if (exportimg) {dev.off()}

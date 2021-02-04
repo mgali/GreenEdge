@@ -111,11 +111,11 @@ for (vv in diapigs) {
 # toplot <- data.table::rbindlist(toplot, use.names = F, fill = F) # Nearly equivalent: toplot <- do.call("rbind", toplot)
 # ...facet_wrap(vars(groupvar), labeller = labeller(yvariable = svarS))
 
-yvarS <- list(icp_z60 = expression(paste(sum(Cp[0-60]),' (-)')),
-              iTchla_z60 = expression(paste(sum(TChl_a[0-60]),' (mg ',m^-2,')')),
-              idmspt_z60 = expression(paste(sum(DMSPt[0-60]),' (mmol ',m^-2,')')),
-              idms_z60 = expression(paste(sum(DMS[0-60]),' (mmol ',m^-2,')')),
-              dms = expression('<DMS>'[0-5]*' (nM)'),
+yvarS <- list(icp_z60 = expression(paste(sum(Cp),' (',m^-1,' m)')),
+              iTchla_z60 = expression(paste(sum(TChl_a),' (mg ',m^-2,')')),
+              idmspt_z60 = expression(paste(sum(DMSPt),' (mmol ',m^-2,')')),
+              idms_z60 = expression(paste(sum(DMS),' (mmol ',m^-2,')')),
+              dms = expression('<DMS> (nM)'), # BEFORE WAS: expression('<DMS>'[0-5]*' (nM)')
               fdms = expression('FDMS (µmol m'^-2*' d'^-1*')'),
               # ichlc3_z60 = expression(paste(sum(Chlc3[0-60]),' (mg ',m^-2,')')),
               # ibut_z60 = expression(paste(sum(But[0-60]),' (mg ',m^-2,')')),
@@ -143,7 +143,7 @@ for (yvar in names(yvarS)) {
   
   p <- ggplot(toplot, aes(x=OWD, y=yvar, shape=Domain, colour=OWD_zone))
   p + geom_point(size = 3) +
-    geom_text(aes(label=station), hjust=-0.3, vjust=0.2, show.legend = F, size = 11/4, check_overlap = T, color = "gray60") + # Setting size to x/4 is to maintain proportion with default ggplot of 15/4
+    geom_text(aes(label=station), hjust=-0.3, vjust=0.2, show.legend = F, size = 12/4, check_overlap = T, color = "gray50") + # Setting size to x/4 is to maintain proportion with default ggplot of 15/4
     scale_color_manual(values = col) +
     scale_shape_manual(values = c(16,17)) +
     xlim(c(-23,37)) +
@@ -154,7 +154,7 @@ for (yvar in names(yvarS)) {
   
   if (exportimg) {
     ggsave(
-      filename = paste0(yvar,".png"),
+      filename = paste0(yvar,"_v2.png"),
       plot = last_plot(),
       device = NULL,
       path = opath,
