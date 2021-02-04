@@ -1,3 +1,7 @@
+*.Rhistory
+*.DS_Store
+*.odt
+*.ods
 *.docx
 *.doc
 *.xlsx

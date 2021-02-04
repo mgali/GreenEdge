@@ -12,10 +12,10 @@ library(dplyr)
 library(ade4)
 library(vegan)
 # library(packfor)
-# library(MASS)
-# library(ellipse)
-# library(FactoMineR)
-
+library(MASS)
+library(ellipse)
+library(FactoMineR)
+  
 # Load data
 genpath <- '~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/RDA/'
 prof <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header = T)
@@ -33,7 +33,7 @@ prof <- prof[,names(prof)[grep("cf",names(prof), invert = T)]]
 
 # Rename PAR
 prof$PAR24h <- prof$par_d_p24h_ein_m_2_day_1
-
+  
 # Remove data where no DMS or DMSPt are available (needed for assignment of new values in next step)
 prof <- prof[(!is.na(prof$dms) | !is.na(prof$dmspt)) & !is.na(prof$depth),]
 
@@ -63,73 +63,58 @@ prof$pras[is.na(prof$pras)] <- 0
 # Prepare matrices
 # Pigments with less than 50% available data not considered
 
-# yvarS <- c("dmspt")
-# yvarS <- c("dms")
 yvarS <- c("dmspt","dms")
-
-xvarS <- list(physics_and_dmspt = c("temp","sal","N2","anp","PAR24h"),
-              physics = c("temp","sal","N2","anp","PAR24h"),
+xvarS <- list(physics = c("temp","sal","N2","anp","PAR24h"), # ,"cpsmooth1" 
               pigments = c("tchla","chlb","chlc2group","chlc3","fuco","hex","but","dd","tcar","phdaSUM","peri","but19_like","allo","pras","vaz"), # ,"phdaSUM"
-              # pigments = c("tchla","chlb","chlc2group","chlc3","fuco","hex","but","dd","tcar","phdaSUM","allo","pras","vaz"), # ,"phdaSUM"
               pigments_major = c("tchla","chlb","chlc2group","chlc3","fuco","hex","but","dd","tcar","phdaSUM"), # ,"phdaSUM"
+              pigments_major_bis = c("tchla","chlb","chlc2group","chlc3","fuco","hex","dd","tcar"), # ,"phdaSUM"
               pigments_reduced = c("chlb","chlc2group","hex","but","dd","tcar"), # Excluding pigments with high collinearity: VIF>20 (log psace data)
               pigments_19butlike = c("tchla","chlb","chlc2group","chlc3","fuco","hex","but","dd","tcar","but19_like"),
               pigments_19butlike_reduced = c("chlb","fuco","hex","tcar","but19_like"),
               bio = c("tchla","chlb","chlc2group","chlc3","fuco","hex","but","dd","tcar","cpsmooth1"),
               bio_19butlike = c("tchla","chlb","chlc2group","chlc3","fuco","hex","but","dd","tcar","but19_like","cpsmooth1"))
-xx <- "physics"; #yvarS <- c(xvarS$bio, yvarS) # yvarS <- c(xvarS$bio)
-# xx <- "pigments"
-# xx <- "pigments_major"
-# xx <- "pigments_reduced"
-# xx <- "pigments_19butlike"
-# xx <- "pigments_19butlike_reduced"
-# xx <- "bio"
-# xx <- "bio_19butlike"
+xx <- "physics";
+ww <- "pigments"
+# ww <- "pigments_reduced"
+# ww <- "bio"
+# ww <- "bio_19butlike"
+# ww <- "pigments_major_bis"
 
 # Select complete cases (rows)
-coca <- complete.cases(prof[,c(yvarS,xvarS[[xx]])])
-PRE <- prof[coca,c(yvarS,xvarS[[xx]])]
-
-# Create unique names for each sample
-# prof = prof %>% 
-#   tidyr::unite(rn, stn, cast, depth, sep = "_", remove = FALSE)
-# rownames(PRE) <- prof[coca,"stn"] # Not unique!
-# rownames(PRE) <- 1:dim(PRE)[1]
+coca <- complete.cases(prof[,c(yvarS,xvarS[[xx]],xvarS[[ww]])])
+PRE <- prof[coca,c(yvarS,xvarS[[xx]],xvarS[[ww]])]
+# rownames(PRE) <- 1:dim(PRE)[1] # Create unique names for each sample
 rownames(PRE) <- NULL
-  
-# ==== Test for normality ====
-# for (vv in names(prof)) {
-#   if (sum(diff(prof[[vv]]), na.rm = T) != 0) {
-#     sw <- shapiro.test(prof[[vv]]) # Shapiro-Wilk test
-#   }
-#   if (sw$p.value >= 0.05) {
-#     print(paste0(vv," is normal"))
-#   } else {
-#     print(sw$p.value)
-#   }
-# }
+
+# ==== Check normality ====
+# Shapiro-Wilk method?
 
 # ==== Transform and center ====
+# Check decostand function from vegan, can be called from varpart
 PRE <- log10(PRE + 1)
 PRE <- as.data.frame(scale(PRE, center = T, scale = T))
 # ==============================
 
 # Define X and Y matrices for RDA
 Y <- PRE[,yvarS]
-names(Y) <- c("DMSPt","DMS")
-
 X <- PRE[,xvarS[[xx]]]
-if (xx=="pigments") {
-  names(X) <- c("tchla","chlb","chlc2","chlc3","fuco","hex","but","dd","tcar","pheo","peri","but_like","allo","pras","vaz")
-  # names(X) <- c("tchla","chlb","chlc2","chlc3","fuco","hex","but","dd","tcar","pheo","allo","pras","vaz")
-}
-
-# Triplot scaling. Default is 2
-scsc <- 2 # Choose 1 or 2
+W <- PRE[,xvarS[[ww]]]
 
 # ------------------------------------------------------------------------
-# Simple, exploratory RDAs (Redundancy analysis)
+# Variation partitioning: 3 RDAs in one: Y vs. X, W vs. X, and Y vs X&W.
+# The common explanatory power of X&W on Y can be estimated by difference
+# Main drawback is that the model is linear whereas DMS(P) may show unimodal
+# rather than linear response to some physical variables (eg ANP)
 # ------------------------------------------------------------------------
+vp <- varpart(Y, X, W)
+# Xnames = )#, chisquare = T, permutations = 1000)
+print(vp)
+
+plot(vp, digits=1, bg = c("blue", "red"), Xnames = c("Physics","Pigments")) # Venn diagram of explained variances
+
+# Consider performing here forward selection of variables in X and W separately
+
+# Plot RDAs
 
 # # Simple RDA (no qualitative factors)
 # rda1 <- rda(Y,X) # default (simple) call: useful for exploratory purposes
@@ -138,6 +123,7 @@ scsc <- 2 # Choose 1 or 2
 # rd1.sc <- scores(rda1, choices=1:2, scaling=scsc, display="sp") # Compute scores
 # 
 # # Triplot
+# scsc <- 2 # Choose scaling. default is 2
 # plot(rda1,
 #      scaling=scsc,
 #      display = c("sp","lc","cn"),
@@ -185,6 +171,7 @@ scsc <- 2 # Choose 1 or 2
 # print(testbyax)
 # 
 # # Triplot
+# scsc <- 2 # Choose scaling. default is 2
 # plot(rda2,
 #      scaling=scsc,
 #      display = c("sp","lc","cn"),
@@ -193,44 +180,35 @@ scsc <- 2 # Choose 1 or 2
 
 
 # ------------------------------------------------------------------------
-# More targetted RDA
+# More targetted RDA: Biological stocks versus physics
 # ------------------------------------------------------------------------
-rda3 <- rda(Y ~ temp+sal+N2+anp+PAR24h,
-# rda3 <- rda(Y ~ tchla+chlb+chlc2+chlc3+fuco+hex+but+dd+tcar+pheo+allo+pras+vaz,
-# rda3 <- rda(Y ~ tchla+chlb+chlc2+chlc3+fuco+hex+but+dd+tcar+pheo+allo+pras+but_like+peri+vaz,
-# rda3 <- rda(Y ~ tchla+chlb+chlc2group+chlc3+fuco+hex+but+dd+tcar+phdaSUM,
-            data = X) # formula call: once exploration has been done
-print(rda3)
-print(coef(rda3))
-rda3.sc <- scores(rda3, choices=1:2, scaling=scsc, display="sp") # Compute scores
-
-# Compute adjusted R2
-R2 <- RsquareAdj(rda3)$adj.r.squared
-print(R2)
-
-# Variance inflation factors (VIF), which measure the proportion by which the variance of a
-# regression coefficient is inflated in the presence of other explanatory variables.
-VIF <- vif.cca(rda3)
-print(VIF)
-
-# Global test of the RDA result
-testglob <- anova.cca(rda3, step = 1000)
-print(testglob)
-
-# Tests of all canonical axes
-testbyax <- anova.cca(rda3, by="axis", step=1000)
-print(testbyax)
-
-# Triplot
-scsc <- 2 # Choose scaling. default is 2
-plot(rda3,
-     scaling=scsc,
-     pch = 2,
-     display = c("sp","lc","cn"),
-     # main = paste("Triplot ",paste(yvarS,collapse = "_"),sep="_"),
-     # main = paste("DMS and DMSPt vs. pigments"),
-     main = paste("DMS and DMSPt vs. physics"),
-     xlab = paste0(round(100*testbyax$Variance[1]/sum(testbyax$Variance),digits = 1),"% variance"),
-     ylab = paste0(round(100*testbyax$Variance[2]/sum(testbyax$Variance),digits = 1),"% variance"),
-     )
-arrows(0,0,rda3.sc[,1],rda3.sc[,2], length = 0, lty = 3, lwd = 1, col = "red")
+# rda3 <- rda(Y ~ temp+sal+N2+anp+PAR24h,
+#             data = X) # formula call: once exploration has been done
+# print(rda3)
+# print(coef(rda3))
+# rda3.sc <- scores(rda3, choices=1:2, scaling=scsc, display="sp") # Compute scores
+# 
+# # Compute adjusted R2
+# R2 <- RsquareAdj(rda3)$adj.r.squared
+# print(R2)
+# 
+# # Variance inflation factors (VIF), which measure the proportion by which the variance of a
+# # regression coefficient is inflated in the presence of other explanatory variables.
+# VIF <- vif.cca(rda3)
+# print(VIF)
+# 
+# # Global test of the RDA result
+# testglob <- anova.cca(rda3, step = 1000)
+# print(testglob)
+# 
+# # Tests of all canonical axes
+# testbyax <- anova.cca(rda3, by="axis", step=1000)
+# print(testbyax)
+# 
+# # Triplot
+# scsc <- 2 # Choose scaling. default is 2
+# plot(rda3,
+#      scaling=scsc,
+#      display = c("sp","lc","cn"),
+#      main = paste("Triplot ",paste(yvarS,collapse = "_"),sep="_"))
+# arrows(0,0,rda3.sc[,1],rda3.sc[,2], length = 0, lty = 3, lwd = 2, col = "red")
