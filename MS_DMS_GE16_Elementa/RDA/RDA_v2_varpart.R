@@ -227,7 +227,7 @@ plot(rda1,
      display = c("sp","cn"), # c("sp","lc","cn"),
      xlim = c(-1.8,1),
      ylim = c(-1, 1),
-     main = paste("DMS and DMSPt vs. Physics"),
+     main = expression("DMS and DMSP"[t]*" vs. Physics"),
      xlab = paste0("RDA1, ",round(100*testbyax1$Variance[1]/sum(testbyax1$Variance),digits = 1),"% variance"),
      ylab = paste0("RDA2, ",round(100*testbyax1$Variance[2]/sum(testbyax1$Variance),digits = 1),"% variance")
 )
@@ -251,7 +251,7 @@ plot(rda2,
      ylim = c(-1, 1),
      main = ifelse(cp_norm,
                    paste("DMS and DMSPt vs. Pigments, Cp-normalized"),
-                   paste("DMS and DMSPt vs. Pigments")),
+                   expression("DMS and DMSP"[t]*" vs. Pigments")),
      xlab = paste0("RDA1, ",round(100*testbyax2$Variance[1]/sum(testbyax2$Variance),digits = 1),"% variance"),
      ylab = paste0("RDA2, ",round(100*testbyax2$Variance[2]/sum(testbyax2$Variance),digits = 1),"% variance")
 )
