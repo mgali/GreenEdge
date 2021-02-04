@@ -28,7 +28,7 @@ if (cmethod == "intraconc"){
 }
 
 # Stefels2007 ratios? Does not apply if using quotas
-Stefels <- "_Stefels" # leave empty or put _Stefels
+Stefels <- "" # leave empty or put _Stefels
 if(cmethod == "intraconc") {Stefels <- ""}
 
 # Function to compute carbon content of phytoplankton
@@ -266,16 +266,14 @@ barplot(height = t(as.matrix(dfplot[dfplot$scm=="surface",6:dim(dfplot)[2]])),
         # args.legend = list(x = "right", bty = "n", cex = 1.2),
         col = phycol,
         border = F,
-        ylab = expression("% of DMSP"[p]),
-        # ylab = "",
+        ylab = ifelse(Stefels == "_Stefels", expression("% of DMSP"[p]), ""),
         axes = F,
         ylim = c(0,ymax),
         cex = 1.2,
         cex.names = 1.2,
         cex.lab = 1.2,
         las = 1,
-        main = "a) Surface",
-        # main = "c) Surface, adjusted",
+        main = ifelse(Stefels == "_Stefels", "a) Surface", "c) Surface, adjusted"),
         cex.main = 1.3)
 abline(h = 100, col = "gray80", lwd = 1)
 mtext(text = as.character(round(fp*dfplot[dfplot$scm=="surface", "dmspt"], digits = 0)),
@@ -295,16 +293,14 @@ barplot(height = t(as.matrix(dfplot[dfplot$scm=="SCM",6:dim(dfplot)[2]])),
         beside = F,
         col = phycol,
         border = F,
-        ylab = expression("% of DMSP"[p]),
-        # ylab = "",
+        ylab = ifelse(Stefels == "_Stefels", expression("% of DMSP"[p]), ""),
         axes = F,
         ylim = c(0,ymax),
         cex = 1.2,
         cex.names = 1.2,
         cex.lab = 1.2,
         las = 1,
-        main = "b) SCM",
-        # main = "d) SCM, adjusted",
+        main = ifelse(Stefels == "_Stefels", "b) SCM", "d) SCM, adjusted"),
         cex.main = 1.3,
         xlab = "Station")
 abline(h = 100, col = "gray80", lwd = 1)
