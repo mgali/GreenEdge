@@ -15,7 +15,7 @@ diatL$diat_Laf.mgC_L.mic <- diatL$diat_Laf.mgC_L.mic/1000 # Correct units
 FC <- read.csv(file = "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_phyto/flow_cyto_preprocessed.Rda", header = T) # from flo_cyto_preprocess.R
 
 # Exporting image?
-exportimg <- F
+exportimg <- T
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_phyto/"
 ymax <- 158
 
@@ -28,7 +28,7 @@ if (cmethod == "intraconc"){
 }
 
 # Stefels2007 ratios? Does not apply if using quotas
-Stefels <- "" # leave empty or put _Stefels
+Stefels <- "_Stefels" # leave empty or put _Stefels
 if(cmethod == "intraconc") {Stefels <- ""}
 
 # Function to compute carbon content of phytoplankton
@@ -266,7 +266,7 @@ barplot(height = t(as.matrix(dfplot[dfplot$scm=="surface",6:dim(dfplot)[2]])),
         # args.legend = list(x = "right", bty = "n", cex = 1.2),
         col = phycol,
         border = F,
-        ylab = "% of DMSPp",
+        ylab = expression("% of DMSP"[p]),
         # ylab = "",
         axes = F,
         ylim = c(0,ymax),
@@ -274,8 +274,9 @@ barplot(height = t(as.matrix(dfplot[dfplot$scm=="surface",6:dim(dfplot)[2]])),
         cex.names = 1.2,
         cex.lab = 1.2,
         las = 1,
-        # main = "a) Surface")
-        main = "c) Surface, adjusted")
+        main = "a) Surface",
+        # main = "c) Surface, adjusted",
+        cex.main = 1.3)
 abline(h = 100, col = "gray80", lwd = 1)
 mtext(text = as.character(round(fp*dfplot[dfplot$scm=="surface", "dmspt"], digits = 0)),
       side = 3,
@@ -294,7 +295,7 @@ barplot(height = t(as.matrix(dfplot[dfplot$scm=="SCM",6:dim(dfplot)[2]])),
         beside = F,
         col = phycol,
         border = F,
-        ylab = "% of DMSPp",
+        ylab = expression("% of DMSP"[p]),
         # ylab = "",
         axes = F,
         ylim = c(0,ymax),
@@ -302,8 +303,9 @@ barplot(height = t(as.matrix(dfplot[dfplot$scm=="SCM",6:dim(dfplot)[2]])),
         cex.names = 1.2,
         cex.lab = 1.2,
         las = 1,
-        # main = "b) SCM",
-        main = "d) SCM, adjusted",
+        main = "b) SCM",
+        # main = "d) SCM, adjusted",
+        cex.main = 1.3,
         xlab = "Station")
 abline(h = 100, col = "gray80", lwd = 1)
 mtext(text = as.character(round(fp*dfplot[dfplot$scm=="SCM", "dmspt"], digits = 0)),

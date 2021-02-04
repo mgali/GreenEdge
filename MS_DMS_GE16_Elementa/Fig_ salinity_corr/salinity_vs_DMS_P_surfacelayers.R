@@ -147,7 +147,9 @@ arrows(+0.1,2,max(xrange),2, length = 0.03, angle = 30, col = "black")
 
 legend(x = min(xrange)-0.05,
        y = 15,
-       legend = yvarS, bty = "n",
+       # legend = yvarS,
+       legend = c(expression("DMSP"[t]),"DMS","TChl a","But-fuco-like","Chl c3",expression("c"[p])),
+       bty = "n",
        pch = 16,
        cex = 1.1,
        col = col)

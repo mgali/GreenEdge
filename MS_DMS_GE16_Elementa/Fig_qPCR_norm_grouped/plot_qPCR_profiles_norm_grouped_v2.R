@@ -216,7 +216,7 @@ for (sc in "owd_class") {
 
 xvarS <- list(ANP = "ANP (-)",
               BA = expression('Bact. abund. (cells mL'^-1*')'),
-              dmspt = "DMSPt (nM)",
+              dmspt = expression("DMSP"[t]*" (nM)"),
               dms = "DMS (nM)",
               BP = expression('Bact. prod. (µg C L'^-1*' d'^-1*')'),
               dddP = expression('dddP (copies mL'^-1*')'),
@@ -289,7 +289,7 @@ if (exportfig) {
 # ---------------------
 # Reduced figure with T5 profiles potentially for main text
 
-xvarS <- list(dmspt = "DMSPt (nM)",
+xvarS <- list(dmspt = expression("DMSP"[t]*" (nM)"),
               dms = "DMS (nM)",
               # dms2dmspt = expression('DMS:DMSPt (mol mol'-1*')'),
               dddP = expression('dddP (copies mL'^-1*')'),
@@ -300,7 +300,7 @@ names(lett) <- names(xvarS)
 
 if (exportfig) {
   
-  png(filename = paste0(opath,"FigSX_qpcr_v2red_stn_507_519.png"), width = 8, height = 9, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')
+  png(filename = paste0(opath,"Fig9_qpcr_v2red_stn_507_519.png"), width = 8, height = 9, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)

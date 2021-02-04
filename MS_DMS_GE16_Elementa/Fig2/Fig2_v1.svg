@@ -15,7 +15,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.2 r9819"
-   sodipodi:docname="Fig2_v1.svg"
+   sodipodi:docname="Fig2_v1.pdf"
    inkscape:export-filename="/Users/martigalitapias/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig2/Fig2_v0.png"
    inkscape:export-xdpi="600"
    inkscape:export-ydpi="600">
@@ -133,9 +133,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284274"
-     inkscape:cx="180.46538"
-     inkscape:cy="953.37431"
+     inkscape:zoom="1.4142137"
+     inkscape:cx="387.42027"
+     inkscape:cy="1009.8479"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -162,7 +162,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -2906,7 +2906,10 @@
            sodipodi:role="line"
            id="tspan6884"
            x="0"
-           y="0">DMSPt (nM)</tspan>
+           y="0">DMSP<tspan
+   style="font-size:16.20545356px;baseline-shift:sub"
+   id="tspan4538">t</tspan>
+ (nM)</tspan>
       </text>
     </g>
     <g

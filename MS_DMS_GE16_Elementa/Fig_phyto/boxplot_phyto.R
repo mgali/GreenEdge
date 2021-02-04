@@ -8,6 +8,7 @@ library(reshape2) # to convert wide to long using melt
 genpath <- '~/Desktop/GreenEdge/GCMS/'
 prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header = T)
 surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
+FC <- read.csv(file = "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_phyto/flow_cyto_preprocessed.Rda", header = T) # from flo_cyto_preprocess.R
 
 # Exporting image?
 exportimg <- T
@@ -37,18 +38,27 @@ pplot <- pplot[!dd,]
 
 # Add surface and SCM categories
 pplot$scm <- 'SCM'
-pplot$scm[pplot$depth < 10] <- '1m'
+pplot$scm[pplot$depth < 10] <- 'surface'
 # pplot$scm <- 'Subsurface Chl max'
 # pplot$scm[pplot$depth < 10] <- 'Surface'
 
-xl <- list("diat_cen"="Diatoms_C",
-           "diat_pen"="Diatoms_P",
-           "dino_athec"="Dino_A",
-           "dino_thec"="Dino_T",
+
+# Merge flow cytometry
+pplot <- merge(x = pplot, y = FC[,c("cast","scm","Pico_FC","Nano_FC","Crypto_FC","Bact_FC")], by = c("cast","scm"), all.x = T)
+
+xl <- list("diat_cen"="Diatoms (centric)",
+           "diat_pen"="Diatoms (pennate)",
+           "dino_athec"="Dinoflagellates (athecate)",
+           "dino_thec"="Dinoflagellates (thecate)",
+           # "chlor"="Chlorophytes",
+           "dictyo"="Dictyochophytes",
            "chrys"="Chrysophytes",
            "crypt"="Cryptophytes",
-           "Phaeo"="Phaeocystis",
-           "flag"="Flag_other")
+           "pras"="Prasino. (Pyramimonas)",
+           "Pico_FC"="Picophytoeukaryotes (other)",
+           "flag"="Nanoflagellates (other)",
+           # "prym"="Prymnesiophyceae", # Nearly equivalent to Phaeocystis
+           "Phaeo"="Phaeocystis pouchetii")
 pplot[,names(xl)] <- pplot[,names(xl)]+1
 
 pplot <- melt(data = pplot[,c("station","scm",names(xl))],
@@ -70,7 +80,8 @@ p <- ggplot(pplot, aes(x=group, y=counts, fill=Depth)) +
                outlier.shape = 19,
                outlier.size = 0.4,
                outlier.stroke = 0.5) + 
-  scale_fill_brewer(palette="BuPu") +
+  # scale_fill_brewer(palette="YlGnBu") +
+  scale_fill_manual(values = rev(brewer.pal(4,"YlGnBu"))[c(2,4)]) +
   # geom_jitter(aes(colour = Depth), width = 0.1, size = 0.1) +
   xlab("") +
   ylab("Abundance (cells/mL)") +

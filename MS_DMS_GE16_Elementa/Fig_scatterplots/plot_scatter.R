@@ -115,8 +115,8 @@ ccol <- findColours(class, col)
 #   box()
 #   axis(side = 1, cex.axis = 1.1)
 #   axis(side = 2, cex.axis = 1.1)
-#   mtext(side = 1, xlabS[[p]], cex = 0.9, line = 3)
-#   mtext(side = 2, ylabS[[p]], cex = 0.9, line = 2.8)
+#   mtext(side = 1, xlabS[[p]], cex = 1.1, line = 3)
+#   mtext(side = 2, ylabS[[p]], cex = 1.1, line = 2.8)
 # 
 #   for (j in 10^seq(-4,4)) {
 #     lines(refline, refline*j, lty = 1, lwd = 0.5, col = "gray")
@@ -146,8 +146,8 @@ ccol <- findColours(class, col)
 
 xvarS <- list(a = "cpsmooth1", b = "dmspt")
 yvarS <- list(a = "dmspt", b = "dms")
-xlabS <- list(a = expression('Cp (m'^-1*')'), b = "DMSPt (nM)")
-ylabS <- list(a = "DMSPt (nM)", b = "DMS (nM)")
+xlabS <- list(a = expression('c'[p]*' (m'^-1*')'), b = expression("DMSP"[t]*" (nM)"))
+ylabS <- list(a = expression("DMSP"[t]*" (nM)"), b = "DMS (nM)")
 xtickS <- list(a = c(.005,.01,.02,.05,.1,.2,.5,1,2),
                b = c(2,5,10,20,50,100,200,500))
 ytickS <- list(a = c(2,5,10,20,50,100,200,500),
@@ -199,10 +199,10 @@ for (p in names(xvarS)) {
   # Background plot with all points
   plot(tp$x, tp$y, pch = 20, col = pcol, cex = 0.1, axes = F, xlab = "", ylab = "", log = "xy", xlim = xl, ylim = yl)
   box()
-  axis(side = 1, cex.axis = 1.1, at = xtickS[[p]], labels = xtickS[[p]])
-  axis(side = 2, cex.axis = 1.1, at = ytickS[[p]], labels = ytickS[[p]])
-  mtext(side = 1, xlabS[[p]], cex = 0.9, line = 3)
-  mtext(side = 2, ylabS[[p]], cex = 0.9, line = 2.8)
+  axis(side = 1, cex.axis = 1.2, at = xtickS[[p]], labels = xtickS[[p]])
+  axis(side = 2, cex.axis = 1.2, at = ytickS[[p]], labels = ytickS[[p]])
+  mtext(side = 1, xlabS[[p]], cex = 1.1, line = 3)
+  mtext(side = 2, ylabS[[p]], cex = 1.1, line = 2.8)
 
   # Ref lines and their labels
   for (j in 10^seq(-4,4)) {
@@ -214,7 +214,7 @@ for (p in names(xvarS)) {
   rl <- reflabS[[p]]
   # Ref line labels
   for (j in length(rl$x)) {
-   text(rl$x, rl$y, rl$t, srt = 42, col = "darkgray")
+   text(rl$x, rl$y, rl$t, srt = 42, col = "darkgray", cex=1.1)
   }
   print(paste(p,xlabS[[p]],round(med,2),sep = " "))
 
@@ -224,9 +224,9 @@ for (p in names(xvarS)) {
   points(tp$x[tp$z_class==2], tp$y[tp$z_class==2], pch = 15, col = pcol[tp$z_class==2], cex = 1.5)
   points(tp$x[tp$z_class==3], tp$y[tp$z_class==3], pch = 18, col = pcol[tp$z_class==3], cex = 1.5)
 
-text(0.5*xl[2], 3*yl[1], bquote( r[S] ~ ' = ' ~ .(round(cor(tp$x, tp$y, "pairwise", "spear"), 2)) ), cex = 1.4)
-text(0.5*xl[2], 2*yl[1], bquote( r[P] ~ ' = ' ~ .(round(cor(tp$x, tp$y, "pairwise", "pears"), 2)) ), cex = 1.4)
-text(0.45*xl[2], (4/3)*yl[1], paste0("n = ", round(length(tp$x), 0)), cex = 1.4)
+text(0.5*xl[2], 3*yl[1], bquote( r[S] ~ ' = ' ~ .(round(cor(tp$x, tp$y, "pairwise", "spear"), 2)) ), cex = 1.5)
+text(0.5*xl[2], 2*yl[1], bquote( r[P] ~ ' = ' ~ .(round(cor(tp$x, tp$y, "pairwise", "pears"), 2)) ), cex = 1.5)
+text(0.45*xl[2], (4/3)*yl[1], paste0("n = ", round(length(tp$x), 0)), cex = 1.5)
 
   # Labels and legends
   text(1.1*xl[1], 0.9*yl[2], paste0(p,")"), cex = 1.5)
@@ -235,14 +235,14 @@ text(0.45*xl[2], (4/3)*yl[1], paste0("n = ", round(length(tp$x), 0)), cex = 1.4)
            y = 0.7*yl[2],
            pch = 16,
            legend = c("ICE","MIZ","OW"),
-           cex = 1.3,
+           cex = 1.5,
            col = col,
            bg = "white", box.lwd = 0)
     legend(x = xl[1],
            y = 0.2*yl[2],
            pch = c(16,17,15,18),
            legend = c("0_9","10_20","21_40","41_80"),
-           cex = 1.3,
+           cex = 1.5,
            col = "black",
            bg = "white", box.lwd = 0)
   }
@@ -263,7 +263,7 @@ text(0.45*xl[2], (4/3)*yl[1], paste0("n = ", round(length(tp$x), 0)), cex = 1.4)
 
   # Label outliers
   for (j in which(io)) {
-    text(tp$x[j], tp$y[j], tp$stn[j], pos = 4)
+    text(tp$x[j], tp$y[j], tp$stn[j], pos = 4, cex=1.1)
   }
 
 }
@@ -330,8 +330,8 @@ if (exportimg) {dev.off()}
 #   # Background plot with all points
 #   plot(tp$x, tp$y, pch = 20, col = pcol, cex = 0.1, axes = F, xlab = "", ylab = "", log = "xy", xlim = xl, ylim = yl)
 #   box()
-#   axis(side = 1, cex.axis = 1.1, at = xtickS[[p]], labels = xtickS[[p]])
-#   axis(side = 2, cex.axis = 1.1, at = ytickS[[p]], labels = ytickS[[p]])
+#   axis(side = 1, cex.axis = 1.2, at = xtickS[[p]], labels = xtickS[[p]])
+#   axis(side = 2, cex.axis = 1.2, at = ytickS[[p]], labels = ytickS[[p]])
 #   mtext(side = 1, xlabS[[p]], cex = 0.9, line = 3)
 #   mtext(side = 2, ylabS[[p]], cex = 0.9, line = 2.8)
 #   
@@ -345,7 +345,7 @@ if (exportimg) {dev.off()}
 #   rl <- reflabS[[p]]
 #   # Ref line labels
 #   for (j in length(rl$x)) {
-#     text(rl$x, rl$y, rl$t, srt = 42, col = "darkgray") 
+#     text(rl$x, rl$y, rl$t, srt = 42, col = "darkgray", cex=1.1)
 #   }
 #   print(paste(p,xlabS[[p]],round(med*100*5*0.9/1000,2),sep = " "))
 #   print(paste(p,xlabS[[p]],round(max(tp$y2x, na.rm = T)*100*5*0.9/1000,2),sep = " "))
@@ -356,9 +356,9 @@ if (exportimg) {dev.off()}
 #   points(tp$x[tp$z_class==2], tp$y[tp$z_class==2], pch = 15, col = pcol[tp$z_class==2], cex = 1.5)
 #   points(tp$x[tp$z_class==3], tp$y[tp$z_class==3], pch = 18, col = pcol[tp$z_class==3], cex = 1.5)
 #   
-#   text(0.5*xl[2], 3*yl[1], bquote( r[S] ~ ' = ' ~ .(round(cor(tp$x, tp$y, "pairwise", "spear"), 2)) ), cex = 1.4)
-#   text(0.5*xl[2], 2*yl[1], bquote( r[P] ~ ' = ' ~ .(round(cor(tp$x, tp$y, "pairwise", "pears"), 2)) ), cex = 1.4)
-#   text(0.45*xl[2], (4/3)*yl[1], paste0("n = ", round(length(tp$x), 0)), cex = 1.4)
+#   text(0.5*xl[2], 3*yl[1], bquote( r[S] ~ ' = ' ~ .(round(cor(tp$x, tp$y, "pairwise", "spear"), 2)) ), cex = 1.5)
+#   text(0.5*xl[2], 2*yl[1], bquote( r[P] ~ ' = ' ~ .(round(cor(tp$x, tp$y, "pairwise", "pears"), 2)) ), cex = 1.5)
+#   text(0.45*xl[2], (4/3)*yl[1], paste0("n = ", round(length(tp$x), 0)), cex = 1.5)
 #   
 #   # Labels and legends
 #   text(1.1*xl[1], 0.9*yl[2], paste0(p,")"), cex = 1.5)
@@ -367,14 +367,14 @@ if (exportimg) {dev.off()}
 #            y = 0.7*yl[2],
 #            pch = 16,
 #            legend = c("ICE","MIZ","OW"),
-#            cex = 1.3,
+#            cex = 1.5,
 #            col = col,
 #            bg = "white", box.lwd = 0)
 #     legend(x = xl[1],
 #            y = 0.2*yl[2],
 #            pch = c(16,17,15,18),
 #            legend = c("0_9","10_20","21_40","41_80"),
-#            cex = 1.3,
+#            cex = 1.5,
 #            col = "black",
 #            bg = "white", box.lwd = 0)
 #   }
@@ -397,7 +397,7 @@ if (exportimg) {dev.off()}
 #   
 #   # Label outliers
 #   for (j in which(io)) {
-#     text(tp$x[j], tp$y[j], tp$stn[j], pos = 4)
+#     text(tp$x[j], tp$y[j], tp$stn[j], pos = 4, cex=1.1)
 #   }
 #   
 # }
@@ -412,7 +412,7 @@ if (exportimg) {dev.off()}
 xvarS <- list(a = "tchla", b = "tchla")
 yvarS <- list(a = "dmspt", b = "dms")
 xlabS <- list(a = expression('TChl a (µg L'^-1*')'), b = expression('TChl a (µg L'^-1*')'))
-ylabS <- list(a = "DMSPt (nM)", b = "DMS (nM)")
+ylabS <- list(a = expression("DMSP"[t]*" (nM)"), b = "DMS (nM)")
 xtickS <- list(a = c(.05,.01,.02,.05,.1,.2,.5,1,2,5,10),
                b = c(.05,.01,.02,.05,.1,.2,.5,1,2,5,10))
 ytickS <- list(a = c(2,5,10,20,50,100,200,500),
@@ -464,10 +464,10 @@ for (p in names(xvarS)) {
   # Background plot with all points
   plot(tp$x, tp$y, pch = 20, col = pcol, cex = 0.1, axes = F, xlab = "", ylab = "", log = "xy", xlim = xl, ylim = yl)
   box()
-  axis(side = 1, cex.axis = 1.1, at = xtickS[[p]], labels = xtickS[[p]])
-  axis(side = 2, cex.axis = 1.1, at = ytickS[[p]], labels = ytickS[[p]])
-  mtext(side = 1, xlabS[[p]], cex = 0.9, line = 3)
-  mtext(side = 2, ylabS[[p]], cex = 0.9, line = 2.8)
+  axis(side = 1, cex.axis = 1.2, at = xtickS[[p]], labels = xtickS[[p]])
+  axis(side = 2, cex.axis = 1.2, at = ytickS[[p]], labels = ytickS[[p]])
+  mtext(side = 1, xlabS[[p]], cex = 1.1, line = 3)
+  mtext(side = 2, ylabS[[p]], cex = 1.1, line = 2.8)
 
   # Ref lines and their labels
   for (j in 10^seq(-4,4)) {
@@ -479,7 +479,7 @@ for (p in names(xvarS)) {
   rl <- reflabS[[p]]
   # Ref line labels
   for (j in length(rl$x)) {
-    text(rl$x, rl$y, rl$t, srt = 42, col = "darkgray")
+    text(rl$x, rl$y, rl$t, srt = 42, col = "darkgray", cex=1.1)
   }
   print(paste(p,xlabS[[p]],round(med,2),sep = " "))
 
@@ -489,9 +489,9 @@ for (p in names(xvarS)) {
   points(tp$x[tp$z_class==2], tp$y[tp$z_class==2], pch = 15, col = pcol[tp$z_class==2], cex = 1.5)
   points(tp$x[tp$z_class==3], tp$y[tp$z_class==3], pch = 18, col = pcol[tp$z_class==3], cex = 1.5)
 
-text(0.5*xl[2], 3*yl[1], bquote( r[S] ~ ' = ' ~ .(round(cor(tp$x, tp$y, "pairwise", "spear"), 2)) ), cex = 1.4)
-text(0.5*xl[2], 2*yl[1], bquote( r[P] ~ ' = ' ~ .(round(cor(tp$x, tp$y, "pairwise", "pears"), 2)) ), cex = 1.4)
-text(0.45*xl[2], (4/3)*yl[1], paste0("n = ", round(length(tp$x), 0)), cex = 1.4)
+text(0.5*xl[2], 3*yl[1], bquote( r[S] ~ ' = ' ~ .(round(cor(tp$x, tp$y, "pairwise", "spear"), 2)) ), cex = 1.5)
+text(0.5*xl[2], 2*yl[1], bquote( r[P] ~ ' = ' ~ .(round(cor(tp$x, tp$y, "pairwise", "pears"), 2)) ), cex = 1.5)
+text(0.45*xl[2], (4/3)*yl[1], paste0("n = ", round(length(tp$x), 0)), cex = 1.5)
 
   # Labels and legends
   text(1.1*xl[1], 0.9*yl[2], paste0(p,")"), cex = 1.5)
@@ -500,14 +500,14 @@ text(0.45*xl[2], (4/3)*yl[1], paste0("n = ", round(length(tp$x), 0)), cex = 1.4)
            y = 0.7*yl[2],
            pch = 16,
            legend = c("ICE","MIZ","OW"),
-           cex = 1.3,
+           cex = 1.5,
            col = col,
            bg = "white", box.lwd = 0)
     legend(x = xl[1],
            y = 0.2*yl[2],
            pch = c(16,17,15,18),
            legend = c("0_9","10_20","21_40","41_80"),
-           cex = 1.3,
+           cex = 1.5,
            col = "black",
            bg = "white", box.lwd = 0)
   }
@@ -528,7 +528,7 @@ text(0.45*xl[2], (4/3)*yl[1], paste0("n = ", round(length(tp$x), 0)), cex = 1.4)
 
   # Label outliers
   for (j in which(io)) {
-    text(tp$x[j], tp$y[j], tp$stn[j], pos = 4)
+    text(tp$x[j], tp$y[j], tp$stn[j], pos = 4, cex=1.1)
   }
 
 }

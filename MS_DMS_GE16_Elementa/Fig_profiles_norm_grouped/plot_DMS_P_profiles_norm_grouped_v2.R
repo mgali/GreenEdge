@@ -11,7 +11,7 @@ prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header
 surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
 # Exporting image?
-exportimg <- F
+exportimg <- T
 clco <- ""            # Either NULL (plot all stations), "Arctic" or "Atlantic"
 doexploreplot <- F
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_profiles_norm_grouped/"
@@ -336,8 +336,8 @@ pplot.bin$median[pplot.bin$count<2] <- NA
 # Figure with concentrations
 
 xvarS <- list(tchla = expression('TChl a (µg L'^-1*')'),
-              cpsmooth1 = expression('Cp (m'^-1*')'),
-              dmspt = "DMSPt (nM)",
+              cpsmooth1 = expression('c'[p]*' (m'^-1*')'),
+              dmspt = expression("DMSP"[t]*" (nM)"),
               dms = "DMS (nM)",
               chlc3 = expression('Chl c3 (µg L'^-1*')'),
               but19_like = expression('But-fuco-like (µg L'^-1*')'),
@@ -346,8 +346,8 @@ xvarS <- list(tchla = expression('TChl a (µg L'^-1*')'),
               # psc = expression('PSC (µg L'^-1*')'), # Choose either photosynthetic carotenoids or Pheophorbide a (below)
               phdaSUM = expression('Pheophorbide a (µg L'^-1*')'),
               temp = expression('Temperature ('*degree*'C)'),
-              # N2 = expression('Brunt-Väisälä freq. (h'^-1*')'),
-              sal = 'Salinity',
+              N2 = expression('Brunt-Väisälä freq. (h'^-1*')'),
+              # sal = 'Salinity',
               anp = "ANP (-)",
               par_d_p24h_ein_m_2_day_1 = expression('PAR (mol phot. m'^-2*' d'^-1*')')
 )
@@ -357,8 +357,8 @@ names(lett) <- names(xvarS)
 
 for (sc in  "owd_class") { #names(st_class), "owd_class"
   
-  # if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,clco,"_wHex.png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
-  if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,clco,"_wSal"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,clco,"_wHex.png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+  # if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,clco,"_wSal"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)
@@ -407,13 +407,13 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
           col = col[3], lwd = 2)
     text(x = xl[1]+0.95*(xl[2]-xl[1]), y = 6, labels = lett[xvar], cex = 1.3)
     if (xvar %in% c("tchla","chlc3","temp")) {
-    legend(x = xl[1]+0.7*(xl[2]-xl[1]),
-           y = 45,
-           pch = 19,
-           legend = c("ICE","MIZ","OW"),
-           cex = 1.3,
-           col = col,
-           bg= "white", box.lwd = 0)
+      legend(x = xl[1]+0.7*(xl[2]-xl[1]),
+             y = 45,
+             pch = 19,
+             legend = c("ICE","MIZ","OW"),
+             cex = 1.3,
+             col = col,
+             bg= "white", box.lwd = 0)
     }
     
   } # end loop on variables
@@ -426,13 +426,13 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
 # ---------------------
 # Figure with ratios
 
-xvarS <- list(dmspt2cp = expression('DMSPt:Cp (µmol m'^-2*')'),
-              dmspt2tchla = expression('DMSPt:TChl a (mmol g'^-1*')'),
+xvarS <- list(dmspt2cp = expression('DMSP'[t]*':c'[p]*' (µmol m'^-3*' m)'),
+              dmspt2tchla = expression('DMSP'[t]*':TChl a (nmol µg'^-1*')'),
               # cp2tchla = expression('Cp:TChl a (m'^2*' mg'^-1*')'),
-              dms2dmspt = expression('DMS:DMSPt (mol mol'^-1*')'),
+              dms2dmspt = expression('DMS:DMSP'[t]*' (mol mol'^-1*')'),
               phdaSUM2tchla = expression('Pheophorb a:TChl a (g g'^-1*')'),
               chlc3_2_tchla = expression('Chl c3:TChl a (g g'^-1*')'),
-              but19like_2_tchla = expression('But-fuco-like/TChl a (g g'^-1*')'),
+              but19like_2_tchla = expression('But-fuco-like:TChl a (g g'^-1*')'),
               hex_2_tchla = expression('Hex-fuco:TChl a (g g'^-1*')'),
               peri_2_tchla = expression('Peridinin:TChl a (g g'^-1*')'),
               # psc2tchla = expression('PS carotenoids:TChl a (g g'^-1*')'),

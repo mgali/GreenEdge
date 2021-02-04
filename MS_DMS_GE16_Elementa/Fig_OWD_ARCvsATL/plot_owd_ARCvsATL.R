@@ -111,12 +111,12 @@ for (vv in diapigs) {
 # toplot <- data.table::rbindlist(toplot, use.names = F, fill = F) # Nearly equivalent: toplot <- do.call("rbind", toplot)
 # ...facet_wrap(vars(groupvar), labeller = labeller(yvariable = svarS))
 
-yvarS <- list(icp_z60 = expression(paste(sum(Cp),' (',m^-1,' m)')),
-              iTchla_z60 = expression(paste(sum(TChl_a),' (mg ',m^-2,')')),
-              idmspt_z60 = expression(paste(sum(DMSPt),' (mmol ',m^-2,')')),
+yvarS <- list(icp_z60 = expression(paste(sum(c[p]),' (',m^-1,' m)')),
+              iTchla_z60 = expression(paste(sum(TChl),' a (mg ',m^-2,')')),
+              idmspt_z60 = expression(paste(sum(DMSP[t]),' (mmol ',m^-2,')')),
               idms_z60 = expression(paste(sum(DMS),' (mmol ',m^-2,')')),
               dms = expression('<DMS> (nM)'), # BEFORE WAS: expression('<DMS>'[0-5]*' (nM)')
-              fdms = expression('FDMS (µmol m'^-2*' d'^-1*')'),
+              fdms = expression('F'[DMS]*' (µmol m'^-2*' d'^-1*')'),
               # ichlc3_z60 = expression(paste(sum(Chlc3[0-60]),' (mg ',m^-2,')')),
               # ibut_z60 = expression(paste(sum(But[0-60]),' (mg ',m^-2,')')),
               # ihex_z60 = expression(paste(sum(Hex[0-60]),' (mg ',m^-2,')')),

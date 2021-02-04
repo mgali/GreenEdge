@@ -130,14 +130,14 @@ surf$kvent <- surf$fdmsW97c24 / surf$mld03 / surf$dms
 # FINAL PLOTTING FOR PAPER
 
 # Plot settings
-xvarS <- list(fdms = expression('FDMS (µmol m'^-2*' d'^-1*')'),
+xvarS <- list(fdms = expression('F'[DMS]*' (µmol m'^-2*' d'^-1*')'),
               SIC = "SIC",
               wsp = expression('Wind speed (m s'^-1*')'),
               sst = expression('SST ('*degree*'C)'),
               dms = "DMS (nM)",
               kvent = expression('k'[vent]*' (d'^-1*')'),
-              dms2dmspt = "DMS:DMSPt",
-              dmspt = "DMSPt (nM)")
+              dms2dmspt = expression("DMS:DMSP"[t]*" (mol mol"^-1*")"),
+              dmspt = expression("DMSP"[t]*" (nM)"))
 
 if (exportimg) {png(filename = paste0(opath,"Fig8_boxplots_v0.png"), width = 14, height = 7, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
 

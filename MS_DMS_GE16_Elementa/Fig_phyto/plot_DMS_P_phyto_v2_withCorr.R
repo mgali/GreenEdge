@@ -78,7 +78,7 @@ plot(x = pplot[[pg]], y = pplot$dmspt, log = "xy",
      cex.axis = 0.9,
      xaxt = "n",
      xlab = "",
-     ylab = "DMSPt (nM)",
+     ylab = expression("DMSP"[t]*" (nM)"),
      ylim = c(10,550)
 )
 if (pg=="Phaeo") {axis(side = 1, at = 10^(4:7), cex.axis = 1, labels = NULL)}
@@ -94,9 +94,10 @@ points(x = pplot[[pg]][pplot$scm=='SCM'], y = pplot$dmspt[pplot$scm=='SCM'],
        cex = 1.6)
 if (pg=="Phaeo") {
   text(labels = expression(paste(r[S],' = 0.68, p = 0.05 (surf.)')),
-       x = 2e5, y = 18, cex = 0.8, adj = 0)
+       x = 1e5, y = 18, cex = 0.9, adj = 0)
   text(labels = expression(paste(r[S],' = 0.82, p < 0.05 (SCM)')),
-       x = 2e5, y = 12, cex = 0.8, adj = 0)
+       x = 1e5, y = 12, cex = 0.9, adj = 0)
+  mtext(text = "a)", line = -1.5, adj = 0.05, cex = 0.9)
 }
 
 # ---------------------
@@ -110,7 +111,9 @@ plot(x = pplot[[pg]], y = pplot$dms_consens_cf68, log = "xy",
      cex.axis = 0.9,
      xaxp = c(10^4, 10^7, 1), # Uncomment only if (pg=="Phaeo") 
      # yaxp = c(1, 100, 2),
-     xlab = xl[[pg]],
+     xlab = expression(paste(italic("Phaeocystis ")," (cells ",mL^-1,")")), #Not crashing but not working
+     # xlab = bquote('Example with'~italic(.("word"))), #Not working either
+     # xlab = substitute(paste(italic('Phaeocystis'), " cells/mL")), #Not working either
      ylab = "DMS (nM)",
      ylim = c(0.5,100)
 )
@@ -126,9 +129,12 @@ points(x = pplot[[pg]][pplot$scm=='SCM'], y = pplot$dms_consens_cf68[pplot$scm==
        cex = 1.6)
 if (pg=="Phaeo") {
   text(labels = expression(paste(r[S],' = 0.80, p < 0.05 (surf.)')),
-       x = 2e5, y = 1.2, cex = 0.8, adj = 0)
+       x = 1e5, y = 1.2, cex = 0.9, adj = 0)
   text(labels = expression(paste(r[S],' = 0.98, p < ',10^-4,' (SCM)')),
-       x = 2e5, y = 0.7, cex = 0.8, adj = 0)
+       x = 1e5, y = 0.7, cex = 0.9, adj = 0)
+  mtext(text = "b)", line = -1.5, adj = 0.05, cex = 0.9)
+  # mtext(side=1, line=3, cex=0.8, font=3, 
+  #       expression(paste(italic("Phaeocystis ")," (cells ",mL^-1,")"))) #Not working either
 }
 
 # ---------------------
