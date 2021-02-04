@@ -73,8 +73,8 @@ p <- ggplot(pplot, aes(x=group, y=counts, fill=Depth)) +
   scale_fill_brewer(palette="BuPu") +
   # geom_jitter(aes(colour = Depth), width = 0.1, size = 0.1) +
   xlab("") +
-  ylab("Abundance (cells/mL)")
-theme_bw()
+  ylab("Abundance (cells/mL)") +
+  theme_bw()
 print(p)
 
 if (exportimg) {dev.off()}
