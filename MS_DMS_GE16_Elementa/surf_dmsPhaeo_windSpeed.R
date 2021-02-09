@@ -58,7 +58,8 @@ pplot[pplot$stn<=400 & pplot$depth < 5,] <- NA
 pplot$N2 <- sqrt(pplot$N2) * 3600
 
 # Select surface data
-pplot <- pplot[pplot$depth == 0.7 & !is.na(pplot$Phaeo), c("stn","depth","dms","Phaeo","tchla","cpsmooth1","wsp24","wsc24","fdmsW97c24")]
+# pplot <- pplot[pplot$depth == 0.7 & !is.na(pplot$Phaeo), c("stn","depth","dms","Phaeo","tchla","cpsmooth1","wsp24","wsc24","fdmsW97c24")]
+pplot <- pplot[pplot$depth == 0.7, c("stn","depth","dms","Phaeo","tchla","cpsmooth1","wsp24","wsc24","fdmsW97c24")]
 
 # Add variables
 pplot$dms2phaeo <- pplot$dms/pplot$Phaeo
@@ -69,10 +70,9 @@ print(cor.test(pplot$wsp24, pplot$dms, method = "spearman"))
 
 # -------------------------------
 # Remove NA
-pplot <- pplot[!is.na(pplot$Phaeo),]
 
-ff <- lsfit(pplot$Phaeo, pplot$dms, wt = NULL, intercept = TRUE, tolerance = 1e-07)
-# ff <- lsfit(pplot$tchla, pplot$dms, wt = NULL, intercept = TRUE, tolerance = 1e-07)
+# ff <- lsfit(pplot$Phaeo, pplot$dms, wt = NULL, intercept = TRUE, tolerance = 1e-07)
+ff <- lsfit(pplot$tchla, pplot$dms, wt = NULL, intercept = TRUE, tolerance = 1e-07)
 # ff <- lsfit(pplot$cpsmooth1, pplot$dms, wt = NULL, intercept = TRUE, tolerance = 1e-07)
 
 print(cor.test(pplot$wsp24, ff$residuals, method = "spearman"))
