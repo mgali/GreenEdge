@@ -27,10 +27,6 @@ surf[is.nan(as.matrix(surf))] <- NA
 # Remove data where no DMS or DMSPt are available
 surf <- surf[!is.na(surf$dms) | !is.na(surf$dmspt),]
 
-# !!!!!! Correct DMS and DMSPt in stn 519 surface !!!!!
-# surf[surf$stn==519,c("dms","dmspt")] <- c(3.93,79.9)
-surf[surf$stn==519,c("dms","dmspt")] <- c(11.42,79.9)
-
 # Add MIZ classification by OWD
 surf$OWD_zone = cut(surf$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MIZ","OW"))
 
@@ -112,7 +108,7 @@ for (vv in diapigs) {
 # ...facet_wrap(vars(groupvar), labeller = labeller(yvariable = svarS))
 
 yvarS <- list(icp_z60 = expression(paste(sum(c[p]),' (',m^-1,' m)')),
-              iTchla_z60 = expression(paste(sum(TChl),' a (mg ',m^-2,')')),
+              iTchla_z60 = expression(paste(sum(TChl),' ',italic(a),' (mg ',m^-2,')')),
               idmspt_z60 = expression(paste(sum(DMSP[t]),' (mmol ',m^-2,')')),
               idms_z60 = expression(paste(sum(DMS),' (mmol ',m^-2,')')),
               dms = expression('<DMS> (nM)'), # BEFORE WAS: expression('<DMS>'[0-5]*' (nM)')
