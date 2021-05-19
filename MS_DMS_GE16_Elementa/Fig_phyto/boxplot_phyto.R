@@ -58,6 +58,7 @@ xl <- list("diat_cen"="Diatoms (centric)",
            "Pico_FC"="Picophytoeukaryotes (other)",
            "flag"="Nanoflagellates (other)",
            # "prym"="Prymnesiophyceae", # Nearly equivalent to Phaeocystis
+           # "Phaeo"=expression(italic("Phaeocystis pouchetii"))) # italics with expression() not working here
            "Phaeo"="Phaeocystis pouchetii")
 pplot[,names(xl)] <- pplot[,names(xl)]+1
 
@@ -84,7 +85,7 @@ p <- ggplot(pplot, aes(x=group, y=counts, fill=Depth)) +
   scale_fill_manual(values = rev(brewer.pal(4,"YlGnBu"))[c(2,4)]) +
   # geom_jitter(aes(colour = Depth), width = 0.1, size = 0.1) +
   xlab("") +
-  ylab("Abundance (cells/mL)") +
+  ylab(expression(paste("Abundance ","(cells ",L^-1*")"))) +
   theme_bw()
 print(p)
 

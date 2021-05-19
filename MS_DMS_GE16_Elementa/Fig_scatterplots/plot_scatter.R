@@ -1,7 +1,7 @@
 # MAKE PLOTS OF DMS AND DMSP VS. OTHER RELEVANT X VARIABLES
 
 library(RColorBrewer)
-library(tidyverse)
+library(tidyr)
 library(classInt) # for function classIntervals
 
 # Load data
@@ -33,10 +33,6 @@ prof.all <- prof.all[,toinclude]
 
 # Remove data where no DMS or DMSPt are available
 prof.all <- prof.all[(!is.na(prof.all$dms) | !is.na(prof.all$dmspt)) & !is.na(prof.all$depth),]
-
-# !!!!!! Correct DMS and DMSPt in stn 519 surface !!!!!
-# prof.all[prof.all$stn==519 & prof.all$depth==0.7,c("dms","dmspt")] <- c(3.93,79.9)
-prof.all[prof.all$stn==519 & prof.all$depth==0.7,c("dms","dmspt")] <- c(11.42,79.9)
 
 # Merge with profiles to get clustering coefficient and SIC classification
 pplot <- merge(x = prof.all, y = surf.all, all.x = T, all.y = F, by = 'stn', suffixes = "")
@@ -79,7 +75,7 @@ ccol <- findColours(class, col)
 # ylabS <- list(a = "DMSPt (nM)", d = "DMS (nM)", b = "", e = "", c = "DMS (nM)", f = "")
 # refline <- c(1e-4, 1e4)
 # 
-# if (exportimg) {png(filename = paste0(opath,"Fig5_",length(xvarS),"panels",".png"), width = 17, height = 12, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+# if (exportimg) {png(filename = paste0(opath,"Fig5_",length(xvarS),"panels",".png"), width = 17, height = 12, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')}
 # 
 # # Multipanel setup
 # m0 <- matrix(data = 0, nrow = 4, ncol = 4)
@@ -160,7 +156,7 @@ reflabS <- list(a = data.frame(x = c(.15,.45,1.5,3),
                                y = c(75,75,50,18,6),
                                t = as.character(c(1,.3,.1,.03,.01))))
 
-if (exportimg) {png(filename = paste0(opath,"Fig5_",length(xvarS),"panels",".png"), width = 17, height = 8, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+if (exportimg) {png(filename = paste0(opath,"Fig6_",length(xvarS),"panels",".png"), width = 17, height = 8, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')}
 
 # Multipanel setup
 m <-  cbind(matrix(data = 1, nrow = 4, ncol = 4), matrix(data = 2, nrow = 4, ncol = 4))
@@ -291,7 +287,7 @@ if (exportimg) {dev.off()}
 #                                y = c(75,75,50,18,6),
 #                                t = as.character(c(1,.3,.1,.03,.01))))
 # 
-# if (exportimg) {png(filename = paste0(opath,"Fig5_",length(xvarS),"panels",".png"), width = 17, height = 8, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+# if (exportimg) {png(filename = paste0(opath,"Fig5_",length(xvarS),"panels",".png"), width = 17, height = 8, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')}
 # 
 # # Multipanel setup
 # m <-  cbind(matrix(data = 1, nrow = 4, ncol = 4), matrix(data = 2, nrow = 4, ncol = 4))
@@ -411,7 +407,8 @@ if (exportimg) {dev.off()}
 
 xvarS <- list(a = "tchla", b = "tchla")
 yvarS <- list(a = "dmspt", b = "dms")
-xlabS <- list(a = expression('TChl a (µg L'^-1*')'), b = expression('TChl a (µg L'^-1*')'))
+expression(paste(italic("Phaeocystis "),"(cells ",L^-1*")"))
+xlabS <- list(a = expression(paste('TChl ',italic(a),' (µg L'^-1*')')), b = expression(paste('TChl ',italic(a),' (µg L'^-1*')')))
 ylabS <- list(a = expression("DMSP"[t]*" (nM)"), b = "DMS (nM)")
 xtickS <- list(a = c(.05,.01,.02,.05,.1,.2,.5,1,2,5,10),
                b = c(.05,.01,.02,.05,.1,.2,.5,1,2,5,10))
@@ -425,7 +422,7 @@ reflabS <- list(a = data.frame(x = c(.15,.45,1.5,3),
                                y = c(75,75,50,25,8),
                                t = as.character(c(100,30,10,3,1))))
 
-if (exportimg) {png(filename = paste0(opath,"FigS2_",length(xvarS),"panels_tchla",".png"), width = 17, height = 8, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+if (exportimg) {png(filename = paste0(opath,"FigS2_",length(xvarS),"panels_tchla",".png"), width = 17, height = 8, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')}
 
 # Multipanel setup
 m <-  cbind(matrix(data = 1, nrow = 4, ncol = 4), matrix(data = 2, nrow = 4, ncol = 4))

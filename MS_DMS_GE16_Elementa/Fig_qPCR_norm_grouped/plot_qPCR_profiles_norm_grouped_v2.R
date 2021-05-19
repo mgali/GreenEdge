@@ -129,7 +129,7 @@ for (sc in "owd_class") { #names(st_class)
 # Figure with concentrations at all stations
 
 xvarS <- list(
-  ANP = "ANP (-)",
+  ANP = "ANP",
   BA = expression('Bact. abund. (cells mL'^-1*')'),
   BP = expression('Bact. prod. (µg C L'^-1*' d'^-1*')'),
   # BP_per_cell = expression('BP/cell (fg C cell'^-1*' d'^-1*')'),
@@ -148,7 +148,7 @@ for (sc in "owd_class") {
   
   if (exportimg) {
     
-    png(filename = paste0(opath,"FigS5_qpcr_v2_",sc,".png"), width = 12, height = 9, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')
+    png(filename = paste0(opath,"FigS4_qpcr_v2_",sc,".png"), width = 12, height = 9, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')
     
     # Multipanel setup
     m0 <- matrix(data = 0, nrow = 4, ncol = 4)
@@ -215,7 +215,7 @@ for (sc in "owd_class") {
 # ---------------------
 # Figure with T5 profiles
 
-xvarS <- list(ANP = "ANP (-)",
+xvarS <- list(ANP = "ANP",
               BA = expression('Bact. abund. (cells mL'^-1*')'),
               dmspt = expression("DMSP"[t]*" (nM)"),
               dms = "DMS (nM)",

@@ -27,9 +27,6 @@ prof <- prof[,names(prof)[grep("cf",names(prof), invert = T)]]
 # Remove data where no DMS or DMSPt are available (needed for assignment of new values in next step)
 prof <- prof[(!is.na(prof$dms) | !is.na(prof$dmspt)) & !is.na(prof$depth),]
 
-# !!!!!! Correct DMS and DMSPt in stn 519 surface !!!!!
-prof[prof$stn==519 & prof$depth==0.7,c("dms","dmspt")] <- c(11.42,79.9)
-
 # # Count proportion of empty cells in each column (mostly used to exclude some pigments or group them into functional units as DD or VAZ xanthophylls)
 # noNAcount <- sapply(prof, function(x) round( sum(!is.na(x) & (!is.na(prof$dms) | !is.na(prof$dmspt))), digits = 2) )
 

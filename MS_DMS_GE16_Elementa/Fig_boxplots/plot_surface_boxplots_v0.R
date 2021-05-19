@@ -84,10 +84,6 @@ surf[is.nan(as.matrix(surf))] <- NA
 # Remove data where no DMS or DMSPt are available
 surf <- surf[!is.na(surf$dms) | !is.na(surf$dmspt),]
 
-# !!!!!! Correct DMS and DMSPt in stn 519 surface !!!!!
-# surf[surf$stn==519,c("dms","dmspt")] <- c(3.93,79.9)
-surf[surf$stn==519,c("dms","dmspt")] <- c(11.42,79.9)
-
 # Add MIZ classification by SIC
 icecrit1 <- 0.15
 icecrit2 <- 0.70
@@ -139,7 +135,7 @@ xvarS <- list(fdms = expression('F'[DMS]*' (µmol m'^-2*' d'^-1*')'),
               dms2dmspt = expression("DMS:DMSP"[t]*" (mol mol"^-1*")"),
               dmspt = expression("DMSP"[t]*" (nM)"))
 
-if (exportimg) {png(filename = paste0(opath,"Fig8_boxplots_v0.png"), width = 14, height = 7, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+if (exportimg) {png(filename = paste0(opath,"Fig10_boxplots_v0.png"), width = 14, height = 7, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')}
 
 # Multipanel setup
 m0 <- matrix(data = 0, nrow = 4, ncol = 5)

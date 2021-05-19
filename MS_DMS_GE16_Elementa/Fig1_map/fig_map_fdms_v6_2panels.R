@@ -14,7 +14,7 @@
 
 # Skip loading data and pre-processing after the first time
 # ===========================================================
-init <- F
+init <- T
 if (init) {
   
   # Load packages
@@ -52,9 +52,6 @@ if (init) {
   
   genpath <- '~/Desktop/GreenEdge/GCMS/'
   surf <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
-  
-  # # Correct error in cordinates: already corrected in csv file
-  # ge_fdms$lon[ge_fdms$stn==507] <- -59.123
   
   # Remove some ice data in southwest corner which do not display nicely (they overlap land)
   mask <- matrix(data = F, nrow = length(sat1$lon), ncol = length(sat1$lat))

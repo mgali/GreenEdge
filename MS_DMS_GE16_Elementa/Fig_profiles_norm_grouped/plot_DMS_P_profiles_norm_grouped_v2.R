@@ -32,10 +32,6 @@ prof.all <- prof.all[,toinclude]
 # Remove data where no DMS or DMSPt are available
 prof.all <- prof.all[(!is.na(prof.all$dms) | !is.na(prof.all$dmspt)) & !is.na(prof.all$depth),]
 
-# !!!!!! Correct DMS and DMSPt in stn 519 surface !!!!!
-# prof.all[prof.all$stn==519 & prof.all$depth==0.7,c("dms","dmspt")] <- c(3.93,79.9)
-prof.all[prof.all$stn==519 & prof.all$depth==0.7,c("dms","dmspt")] <- c(11.42,79.9)
-
 # Add MIZ classification
 icecrit1 <- 0.15
 icecrit2 <- 0.70

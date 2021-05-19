@@ -28,10 +28,6 @@ prof.all <- prof.all[,toinclude]
 # Remove data where no DMS or DMSPt are available
 prof.all <- prof.all[(!is.na(prof.all$dms) | !is.na(prof.all$dmspt)) & !is.na(prof.all$depth),]
 
-# !!!!!! Correct DMS and DMSPt in stn 519 surface !!!!!
-# prof.all[prof.all$stn==519 & prof.all$depth==0.7,c("dms","dmspt")] <- c(3.93,79.9)
-prof.all[prof.all$stn==519 & prof.all$depth==0.7,c("dms","dmspt")] <- c(11.42,79.9)
-
 # Add MIZ classification
 icecrit1 <- 0.15
 icecrit2 <- 0.70
@@ -102,7 +98,7 @@ col <- col[names(col) %in% selvars]
 
 CC <- list()
 
-if (exportimg) {png(filename = paste0(opath,"Fig_salinity_corr.png"), width = 8, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = plotres, type = 'cairo')}
+if (exportimg) {png(filename = paste0(opath,"Fig_salinity_corr.png"), width = 8, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = plotres, type = 'quartz')}
 
 par(mar=c(4,4,3,8))
 
@@ -148,7 +144,7 @@ arrows(+0.1,2,max(xrange),2, length = 0.03, angle = 30, col = "black")
 legend(x = min(xrange)-0.05,
        y = 15,
        # legend = yvarS,
-       legend = c(expression("DMSP"[t]),"DMS","TChl a","But-fuco-like","Chl c3",expression("c"[p])),
+       legend = c(expression("DMSP"[t]),"DMS",expression(paste("TChl ",italic(a))),"But-fuco-like",expression(paste("Chl ",italic(c3))),expression("c"[p])),
        bty = "n",
        pch = 16,
        cex = 1.1,
