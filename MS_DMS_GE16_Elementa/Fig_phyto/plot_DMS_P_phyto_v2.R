@@ -4,6 +4,10 @@ library(RColorBrewer)
 library(classInt) # for function classIntervals
 # Check http://geog.uoregon.edu/GeogR/topics/multiplots01.html
 
+# Useful for info on axis label formatting
+# https://stackoverflow.com/questions/34213424/how-to-use-italics-in-r-graph-axis-labels
+# https://stackoverflow.com/questions/10628547/use-superscripts-in-r-axis-labels
+
 # Load data
 genpath <- '~/Desktop/GreenEdge/GCMS/'
 prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header = T)
@@ -59,8 +63,10 @@ parcol <- findColours(class, parpal)
 
 # ---------------------
 # Plot
+# NOTE: to get italics rendered correctly, export pdf OR png with quartz (not cairo)
 
-if (exportimg) {png(filename = paste0(opath,"dms_dmspt_",pg,"_counts.png"), width = 6, height = 7, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
+if (exportimg) {png(filename = paste0(opath,"dms_dmspt_",pg,"_counts.png"), width = 6, height = 7, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'quartz')}
+# if (exportimg) {pdf(file = paste0(opath,"dms_dmspt_",pg,"_counts.pdf"), width = 6/2.54, height = 7/2.54, pointsize = 8, bg = 'white')}
 
 m1_2 <- rbind(matrix(data = 1, nrow = 4, ncol = 5), matrix(data = 2, nrow = 4, ncol = 5))
 m <- cbind(m1_2, matrix(data = 3, nrow = 8, ncol = 2))
@@ -104,7 +110,8 @@ plot(x = pplot[[pg]], y = pplot$dms_consens_cf68, log = "xy",
      cex.axis = 0.9,
      xaxp = c(10^4, 10^7, 1), # Uncomment only if (pg=="Phaeo") 
      # yaxp = c(1, 100, 2),
-     xlab = xl[[pg]],
+     # xlab = xl[[pg]],
+     xlab = expression(paste(italic("Phaeocystis "),"(cells ",L^-1*")")),
      ylab = "DMS (nM)",
      ylim = c(0.5,100)
      )
@@ -130,7 +137,7 @@ image(t(cbar), cbar,
       cex.axis = 0.9,
       xaxt = "n", yaxt = "n")
 axis(4, cex.axis=1, mgp = c(0, .5, 0), at = zbreaks-2.5, labels = zbreaks)
-mtext(text = expression(paste('daily PAR (mol photons ',m^-2,' ',d^-1,')')), side = 4, cex = 0.7, line = 2.5)
+mtext(text = expression(paste('Daily PAR (mol photons ',m^-2,' ',d^-1,')')), side = 4, cex = 0.7, line = 2.5)
 
 if (exportimg) {dev.off()}
 

@@ -6,7 +6,6 @@ library(dplyr)
 # Load data
 genpath <- '~/Desktop/GreenEdge/GCMS/'
 pdir <- 'plots_pigments_vs_DMS_zColorScale/'
-# prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header = T)
 prof.all <- read.csv(file = paste0(genpath,'GE2016.profiles.ALL.OK.csv'), header = T)
 surf.all <- read.csv(file = paste0(genpath,'GE2016.casts.ALLSURF.csv'), header = T)
 
@@ -18,7 +17,7 @@ opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_profiles_norm_grouped/"
 showtable <- "owd_class"    # either empty, owd_class or sic_class
 
 # ---------------------
-pal <- colorRampPalette(brewer.pal(9, "Spectral"))              # Color palette (Consistent with Matlab plots)
+pal <- colorRampPalette(brewer.pal(9, "Spectral"))              # Color palette (Consistent with older Matlab plots)
 col <- pal(n = 21)[c(21,18,5)]
 plotres <- 600                                                  # resolution dpi
 plet <- sapply(letters, paste0, ")")                            # plot letters
@@ -56,17 +55,9 @@ pplot <- merge(x = prof.all, y = surf.all, all.x = T, all.y = F, by = 'stn', suf
 pplot <- pplot[,grep("NA",names(pplot), invert = T)]
 
 # Remove duplicated rows 
-# dd <- (duplicated(pplot[,c("dmspt","cast","depth")]) | duplicated(pplot[,c("dms","cast","depth")])) & (!is.na(pplot$tchla) | !is.na(pplot$cpsmooth1)) # Does not work well, too many repeated DMSPt get in
-# dd <- (duplicated(pplot[,c("dmspt","cast","depth")]) | duplicated(pplot[,c("dms","cast","depth")])) # Does not work well, too many repeated DMSPt get in
 dd <- duplicated(pplot[,c("dmspt","dms","cast","depth")]) | is.na(pplot$dmspt)
 pplot <- pplot[!dd,]
 # View(pplot[,c("stn","cast","AW_ArW_clustering_coefficient","depth","dms","dmspt","cpsmooth1","tchla")])
-
-# f_mydiff <- function(x) {y <- as.logical(c(1,diff(x))); y[is.na(y)] <- T; return(y)}
-# ddms <- f_mydiff(pplot$dms)
-# ddepth <- f_mydiff(pplot$depth)
-# dcast <- f_mydiff(pplot$cast)
-# pplot <- pplot[ddms&!is.na(pplot$dmspt)&!is.na(pplot$tchla),]
 
 # Hide data from stn 400 (either entire or just surface)
 # pplot[pplot$stn<=400,] <- NA
@@ -93,11 +84,6 @@ pplot$dd <- rowSums(pplot[,c("diadino","diato")], na.rm = T)
 pplot$vaz <- rowSums(pplot[,c("zea","anthera","viola")], na.rm = T)
 pplot$tpig <- rowSums(pplot[,seq(59,88,1)], na.rm = T)
 
-# ========================================================
-# # TWEAK BUT- PIGMENTS. ADD _BIS_ to figure 3 and 5 names
-# pplot$but19_like <- pplot$but19_like + pplot$but
-# ========================================================
-
 # Add ratios
 pplot$cp2tchla <- pplot$cpsmooth1/pplot$tchla                           # Cp/tchla ratio
 pplot$dms2dmspt <- pplot$dms/pplot$dmspt                                # dms/dmspt ratio
@@ -118,7 +104,6 @@ pplot$fuco_2_tchla <- pplot$fuco/pplot$tchla                            # Fucoxa
 pplot$peri_2_tchla <- pplot$peri/pplot$tchla                            # Peridinin to tchla (peri in dinos)
 pplot$chlc3_2_psc <- pplot$chlc3/pplot$psc                              # chlc3 to PSC (Phaeocystis proxy?)
 pplot$phaeo2chl <- pplot$phaeo_Tu_ugL/pplot$chla_Tu_ugL                 # Phaeopigments to Chl (Turner)
-# pplot$phdaSUM2tchla <- pplot$phbda/pplot$tchla                            # Pheophorbide a to TChl (HPLC)
 pplot$phdaSUM2tchla <- pplot$phdaSUM/pplot$tchla                        # Pheophorbide a to TChl (HPLC)
 
 # Remove phaeopigments outlier
@@ -139,8 +124,7 @@ z_class <- cut(df2bin$depth, breaks = c(0,9,21,41,81), labels = c(0,1,2,3))
 st_class <- list(sic_class = pplot$sic_class,
                  # owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,4.5,35), labels = c("ICE","MIZ","OW")))
                  # owd_class = cut(df2bin$OWD, breaks = c(-35,-2.5,5.5,35), labels = c("ICE","MIZ","OW")))
-                 # owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MIZ","OW"))) # STANDARD
-                 owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MIZ","OW")))
+                 owd_class = cut(df2bin$OWD, breaks = c(-35,-3.5,3.5,35), labels = c("ICE","MIZ","OW"))) # FINAL VERSION
 
 # ---------------------
 # Plot settings. EXPLORATORY
@@ -237,7 +221,7 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
   for (xvar in names(xvarS)) {
     
     if (doexploreplot) {
-      if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = plotres, type = 'cairo')}
+      if (exportimg) {png(filename = paste0(opath,paste(sc,xvar,sep = "_"),".png"), width = 6, height = 6, units = 'cm', pointsize = 6, bg = 'white', res = plotres, type = 'quartz')}
       
       print(xvar)
       xl <- c(min(c(0,1.1*min(cbind(pplot.bin$mean[,xvar],pplot.bin$median[,xvar]), na.rm = T))),
@@ -300,9 +284,9 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
     # print(mean(b[c(1,2),1]))
     # print(mean(b[c(5,6),1]))
     
-    dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
-    dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
-    dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
+    # dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
+    # dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
+    # dmax <- pplot.bin$max[pplot.bin$max$Z_CLASS==1,c("SIC_CLASS","mld03","hBD_m","isolume_m_at_0415","Nitracline_m","dbm","anp")]
     
     # dmean <- pplot.bin$mean[pplot.bin$mean$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
     # dmin <- pplot.bin$min[pplot.bin$min$Z_CLASS==0,c("SIC_CLASS","idms_z60","idmspt_z60","icp_z60","iTchla_z60")]
@@ -335,20 +319,20 @@ pplot.bin$median[pplot.bin$count<2] <- NA
 # ---------------------
 # Figure with concentrations
 
-xvarS <- list(tchla = expression('TChl a (µg L'^-1*')'),
+xvarS <- list(tchla = expression(paste('TChl ',italic(a),' (µg ',L^-1*')')),
               cpsmooth1 = expression('c'[p]*' (m'^-1*')'),
               dmspt = expression("DMSP"[t]*" (nM)"),
               dms = "DMS (nM)",
-              chlc3 = expression('Chl c3 (µg L'^-1*')'),
+              chlc3 = expression(paste('Chl ',italic(c3),' (µg ',L^-1*')')),
               but19_like = expression('But-fuco-like (µg L'^-1*')'),
               hex = expression('Hex-fuco (µg L'^-1*')'),
-              # peri = expression('Peridinin (µg L'^-1*')'),
-              # psc = expression('PSC (µg L'^-1*')'), # Choose either photosynthetic carotenoids or Pheophorbide a (below)
-              phdaSUM = expression('Pheophorbide a (µg L'^-1*')'),
+              # peri = expression('Peridinin (µg L'^-1*')'), # NOT INCLUDED
+              # psc = expression('PSC (µg L'^-1*')'), # Choose either photosynthetic carotenoids or Pheophorbide a (below) # NOT INCLUDED
+              phdaSUM = expression(paste('Pheophorbide ',italic(a),' (µg ',L^-1*')')),
               temp = expression('Temperature ('*degree*'C)'),
               N2 = expression('Brunt-Väisälä freq. (h'^-1*')'),
-              # sal = 'Salinity',
-              anp = "ANP (-)",
+              # sal = 'Salinity', # NOT INCLUDED
+              anp = "ANP",
               par_d_p24h_ein_m_2_day_1 = expression('PAR (mol phot. m'^-2*' d'^-1*')')
 )
 yvar <- "depth"
@@ -357,8 +341,8 @@ names(lett) <- names(xvarS)
 
 for (sc in  "owd_class") { #names(st_class), "owd_class"
   
-  if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,clco,"_wHex.png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
-  # if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,clco,"_wSal"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,clco,"_wHex.png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')}
+  # if (exportimg) {png(filename = paste0(opath,"Fig3_",sc,clco,"_wSal"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')}
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)
@@ -427,20 +411,20 @@ for (sc in  "owd_class") { #names(st_class), "owd_class"
 # Figure with ratios
 
 xvarS <- list(dmspt2cp = expression('DMSP'[t]*':c'[p]*' (µmol m'^-3*' m)'),
-              dmspt2tchla = expression('DMSP'[t]*':TChl a (nmol µg'^-1*')'),
-              # cp2tchla = expression('Cp:TChl a (m'^2*' mg'^-1*')'),
+              dmspt2tchla = expression(paste('DMSP'[t]*':TChl ',italic(a),' (g ',g^-1*')')),
+              # cp2tchla = expression('Cp:TChl a (m'^2*' mg'^-1*')'), # NOT INCLUDED
               dms2dmspt = expression('DMS:DMSP'[t]*' (mol mol'^-1*')'),
-              phdaSUM2tchla = expression('Pheophorb a:TChl a (g g'^-1*')'),
-              chlc3_2_tchla = expression('Chl c3:TChl a (g g'^-1*')'),
-              but19like_2_tchla = expression('But-fuco-like:TChl a (g g'^-1*')'),
-              hex_2_tchla = expression('Hex-fuco:TChl a (g g'^-1*')'),
-              peri_2_tchla = expression('Peridinin:TChl a (g g'^-1*')'),
-              # psc2tchla = expression('PS carotenoids:TChl a (g g'^-1*')'),
-              chlc2_2_tchla = expression('Chl c2:TChl a (g g'^-1*')'),
-              fuco_2_tchla = expression('Fucoxanthin:TChl a (g g'^-1*')'),
-              ppc2tchla = expression('PP carotenoids:TChl a (g g'^-1*')'),
-              dd2tchla = expression('DD:TChl a (g g'^-1*')')
-              # vaz2tchla = expression('VAZ:TChl a (g g'^-1*')')
+              phdaSUM2tchla = expression(paste('Pheophorb ',italic(a),':TChl ',italic(a),' (g ',g^-1*')')),
+              chlc3_2_tchla = expression(paste('Chl ',italic(c3),':TChl ',italic(a),' (g ',g^-1*')')),
+              but19like_2_tchla = expression(paste('But-fuco-like:TChl ',italic(a),' (g ',g^-1*')')),
+              hex_2_tchla = expression(paste('Hex-fuco:TChl ',italic(a),' (g ',g^-1*')')),
+              peri_2_tchla = expression(paste('Peridinin:TChl ',italic(a),' (g ',g^-1*')')),
+              # psc2tchla = expression('PS carotenoids:TChl a (g g'^-1*')'), # NOT INCLUDED
+              chlc2_2_tchla = expression(paste('Chl ',italic(c2),':TChl ',italic(a),' (g ',g^-1*')')),
+              fuco_2_tchla = expression(paste('Fucoxanthin:TChl ',italic(a),' (g ',g^-1*')')),
+              ppc2tchla = expression(paste('PP carotenoids:TChl ',italic(a),' (g ',g^-1*')')),
+              dd2tchla = expression(paste('DD:TChl ',italic(a),' (g ',g^-1*')'))
+              # vaz2tchla = expression('VAZ:TChl a (g g'^-1*')') # NOT INCLUDED
 )
 yvar <- "depth"
 lett <- plet
@@ -448,7 +432,7 @@ names(lett) <- names(xvarS)
 
 for (sc in  "owd_class") { #names(st_class), "owd_class"
   
-  if (exportimg) {png(filename = paste0(opath,"Fig8_",sc,clco,"_wHexChlc2Fuco.png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig8_",sc,clco,"_wHexChlc2Fuco.png"), width = 17, height = 14, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')}
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)

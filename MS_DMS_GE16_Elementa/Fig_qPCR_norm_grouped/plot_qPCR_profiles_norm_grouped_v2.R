@@ -133,9 +133,10 @@ xvarS <- list(
   BA = expression('Bact. abund. (cells mL'^-1*')'),
   BP = expression('Bact. prod. (µg C L'^-1*' d'^-1*')'),
   # BP_per_cell = expression('BP/cell (fg C cell'^-1*' d'^-1*')'),
-  dddP = expression('dddP (copies mL'^-1*')'),
-  dmdA = expression('dmdA (copies mL'^-1*')'),
-  dddP2dmdA = "dddP:dmdA"
+  # dddP = expression('dddP (copies mL'^-1*')'),
+  dddP = expression(paste(italic("dddP")," (copies ",mL^-1*")")),
+  dmdA = expression(paste(italic("dmdA")," (copies ",mL^-1*")")),
+  dddP2dmdA = expression(paste(italic("dddP"),":",italic(dmdA)))
   # mxaF = expression('mxaF (copies mL'^-1*')'),
   # mxaF2dddP = "mxaF:dddP"
 )
@@ -147,7 +148,7 @@ for (sc in "owd_class") {
   
   if (exportimg) {
     
-    png(filename = paste0(opath,"FigS5_qpcr_v2_",sc,".png"), width = 12, height = 9, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')
+    png(filename = paste0(opath,"FigS5_qpcr_v2_",sc,".png"), width = 12, height = 9, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')
     
     # Multipanel setup
     m0 <- matrix(data = 0, nrow = 4, ncol = 4)
@@ -219,9 +220,9 @@ xvarS <- list(ANP = "ANP (-)",
               dmspt = expression("DMSP"[t]*" (nM)"),
               dms = "DMS (nM)",
               BP = expression('Bact. prod. (µg C L'^-1*' d'^-1*')'),
-              dddP = expression('dddP (copies mL'^-1*')'),
-              dmdA = expression('dmdA (copies mL'^-1*')'),
-              dddP2dmdA = "dddP:dmdA"
+              dddP = expression(paste(italic("dddP")," (copies ",mL^-1*")")),
+              dmdA = expression(paste(italic("dmdA")," (copies ",mL^-1*")")),
+              dddP2dmdA = expression(paste(italic("dddP"),":",italic(dmdA)))
               # mxaF = expression('mxaF (copies mL'^-1*')'),
               # mxaF2dddP = "mxaF:dddP"
 )
@@ -230,7 +231,7 @@ names(lett) <- names(xvarS)
 
 if (exportfig) {
   
-  png(filename = paste0(opath,"FigS6_qpcr_v2_stn_507_519.png"), width = 14, height = 9, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')
+  png(filename = paste0(opath,"FigS6_qpcr_v2_stn_507_519.png"), width = 14, height = 9, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)
@@ -292,15 +293,15 @@ if (exportfig) {
 xvarS <- list(dmspt = expression("DMSP"[t]*" (nM)"),
               dms = "DMS (nM)",
               # dms2dmspt = expression('DMS:DMSPt (mol mol'-1*')'),
-              dddP = expression('dddP (copies mL'^-1*')'),
-              dddP2dmdA = "dddP:dmdA"
+              dddP = expression(paste(italic("dddP")," (copies ",mL^-1*")")),
+              dddP2dmdA = expression(paste(italic("dddP"),":",italic(dmdA)))
 )
 lett <- plet
 names(lett) <- names(xvarS)
 
 if (exportfig) {
   
-  png(filename = paste0(opath,"Fig9_qpcr_v2red_stn_507_519.png"), width = 8, height = 9, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')
+  png(filename = paste0(opath,"Fig9_qpcr_v2red_stn_507_519.png"), width = 8, height = 9, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')
   
   # Multipanel setup
   m0 <- matrix(data = 0, nrow = 4, ncol = 4)
@@ -368,7 +369,7 @@ if (exportfig) {
 
 
 # ---------------------------------------
-# Correlation analysis for dddP and dmdA
+# Quick correlation analysis for dddP and dmdA
 
 # xvars1 <- c("ANP","BA","BP")
 # yvarS <- list(dddP = "dddP copies/mL",
