@@ -60,7 +60,7 @@ parcol <- findColours(class, parpal)
 # ---------------------
 # Plot
 
-if (exportimg) {png(filename = paste0(opath,"dms_dmspt_",pg,"_counts_withCorr.png"), width = 6, height = 7, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'cairo')}
+if (exportimg) {png(filename = paste0(opath,"Fig7_dms_dmspt_",pg,"_counts_withCorr.png"), width = 6, height = 7, units = 'cm', pointsize = 8, bg = 'white', res = 600, type = 'quartz')}
 
 m1_2 <- rbind(matrix(data = 1, nrow = 4, ncol = 5), matrix(data = 2, nrow = 4, ncol = 5))
 m <- cbind(m1_2, matrix(data = 3, nrow = 8, ncol = 2))
@@ -111,7 +111,7 @@ plot(x = pplot[[pg]], y = pplot$dms_consens_cf68, log = "xy",
      cex.axis = 0.9,
      xaxp = c(10^4, 10^7, 1), # Uncomment only if (pg=="Phaeo") 
      # yaxp = c(1, 100, 2),
-     xlab = expression(paste(italic("Phaeocystis ")," (cells ",mL^-1,")")), #Not crashing but not working
+     xlab = expression(paste(italic("Phaeocystis "),"(cells ",L^-1*")")),
      # xlab = bquote('Example with'~italic(.("word"))), #Not working either
      # xlab = substitute(paste(italic('Phaeocystis'), " cells/mL")), #Not working either
      ylab = "DMS (nM)",
@@ -148,7 +148,7 @@ image(t(cbar), cbar,
       cex.axis = 0.9,
       xaxt = "n", yaxt = "n")
 axis(4, cex.axis=1, mgp = c(0, .5, 0), at = zbreaks-2.5, labels = zbreaks)
-mtext(text = expression(paste('daily PAR (mol photons ',m^-2,' ',d^-1,')')), side = 4, cex = 0.7, line = 2.5)
+mtext(text = expression(paste('Daily PAR (mol photons ',m^-2,' ',d^-1,')')), side = 4, cex = 0.7, line = 2.5)
 
 if (exportimg) {dev.off()}
 

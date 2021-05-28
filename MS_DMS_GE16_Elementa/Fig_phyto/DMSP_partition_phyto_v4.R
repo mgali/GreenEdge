@@ -15,7 +15,7 @@ diatL$diat_Laf.mgC_L.mic <- diatL$diat_Laf.mgC_L.mic/1000 # Correct units
 FC <- read.csv(file = "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_phyto/flow_cyto_preprocessed.Rda", header = T) # from flo_cyto_preprocess.R
 
 # Exporting image?
-exportimg <- T
+exportimg <- t
 opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_phyto/"
 ymax <- 158
 

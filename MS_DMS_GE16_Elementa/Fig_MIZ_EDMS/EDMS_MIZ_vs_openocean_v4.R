@@ -1,11 +1,11 @@
 # Calculate relative weight of MIZ EDMS compared to open ocean EDMS, in 5 degrees latitude bands
 
-datapath <- '~/Desktop/DMS-SAT/Artic_DOSES/Arctic_DOSES_timeseries/time_series_3Dmatrix/'
-
 # Exporting image?
 exportimg <- T
-opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_MIZ_EDMS/"
 plotres <- 600
+opath <- "~/Desktop/GreenEdge/MS_DMS_GE16_Elementa/Fig_MIZ_EDMS/"
+# datapath <- '~/Desktop/DMS-SAT/Artic_DOSES/Arctic_DOSES_timeseries/time_series_3Dmatrix/'
+datapath <- opath
 
 # Read data
 ooedms <- list(year = read.csv(paste0(datapath,'INTFLUX_MIZcompare_5degBins_year_TS_fdmsNO_gsm_filled_AM20032016_FDMS_W97_8D_28km.mat.csv'), header = F),
@@ -51,18 +51,19 @@ names(pletS) <- rev(rownames(mizedms$A))
 xp <- colnames(mizedms$A)       # x axis of bar plot
 xl <- seq(1,length(xp)) - 0.5   # x axis of lines plot
 colA <- "cadetblue3"
-# colB <- "cadetblue2"
-colB <- "azure1"
+# colA <- "cadetblue3"
+colB <- "lightblue1"
+# colB <- "azure1"
 m0 <- matrix(data = 0, nrow = 4, ncol = 5)
 m <- rbind(m0+1,m0+2,m0+3,m0+4)
 
 for (iseason in names(ooedms)[2]) {
   
-  if (exportimg) {png(filename = paste0(opath,"Fig9_MIZ_EDMS_v4_",iseason,".png"), width = 8, height = 10, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'cairo')}
+  if (exportimg) {png(filename = paste0(opath,"Fig11_MIZ_EDMS_v4_",iseason,".png"), width = 8, height = 10, units = 'cm', pointsize = 8, bg = 'white', res = plotres, type = 'quartz')}
   
   # Multipanel setup
   layout(m)
-  par(oma = c(1,1,0.5,0.5))
+  par(oma = c(3,1,0.5,0.5))
   
   # Common left y axes for all panels
   ybarBmax <- max(mizedms$B, na.rm = T) * 1.4
@@ -78,39 +79,39 @@ for (iseason in names(ooedms)[2]) {
     yfracBmax <- max(yfracB, na.rm = T) * 1.4
     sfactor <- ybarBmax / yfracBmax
     
-    # Output
-    print(mean(yfracA))
-    print(sd(yfracA))
-    print(mean(yfracB))
-    print(sd(yfracB))
+    # # Output
+    # print(mean(yfracA))
+    # print(sd(yfracA))
+    # print(mean(yfracB))
+    # print(sd(yfracB))
     
     par(mar = c(2,5,1,5))
     if (ilat==80) {
       barplot(height = as.matrix(rbind(unlist(ybarA), unlist(ybarB))),
               names.arg = xp,
               ylim = c(0, ybarBmax),
-              col = c(colB,colA), border = "black", lwd = 0.5,
+              col = c(colB,colA), border = NA, lwd = 0.5,
               beside = T,
               legend.text = c("Method A","Method B"),
-              args.legend = list(bty="n", cex=0.9),
+              args.legend = list("topright", bty="n", cex=1.1),
               axes = F)
     } else {
       barplot(height = as.matrix(rbind(unlist(ybarA), unlist(ybarB))),
               names.arg = xp,
               ylim = c(0, ybarBmax),
-              col = c(colB,colA), border = "black", lwd = 0.5,
+              col = c(colB,colA), border = NA, lwd = 0.5,
               beside = T,
               axes = F)        
     }
-    lines(xl*3+1, yfracB * sfactor, col = "black", lwd = 1, lty = 1)
-    lines(xl*3, yfracA * sfactor, col = "black", lwd = 1, lty = 2)
+    lines(xl*3+1, yfracB * sfactor, col = "black", lwd = 0.8, lty = 1)
+    lines(xl*3, yfracA * sfactor, col = "black", lwd = 0.8, lty = 3)
     points(xl*3+1, yfracB * sfactor, pch = 19, col = colA, cex = 1.2)
     points(xl*3, yfracA * sfactor, pch = 19, col = colB, cex = 1.2)
-    points(xl*3+1, yfracB * sfactor, pch = 1, col = "black", lwd = 1, cex = 1.2)
-    points(xl*3, yfracA * sfactor, pch = 1, col = "black", lwd = 1, cex = 1.2)
+    points(xl*3+1, yfracB * sfactor, pch = 1, col = "black", lwd = 0.8, cex = 1.2)
+    points(xl*3, yfracA * sfactor, pch = 1, col = "black", lwd = 0.8, cex = 1.2)
     
     # Axes
-    axis(side = 1, lwd.ticks = F, labels = F)
+    axis(side = 1, lwd.ticks = F, labels = F, xaxp = c(-1,38,12))
     nticks <- 4
     yint <- round(ybarBmax / nticks, -round(log10(ybarBmax) - 1))
     ybarBticks <- seq(0, ybarBmax, yint)
@@ -128,8 +129,11 @@ for (iseason in names(ooedms)[2]) {
     mtext(side = 3, t2, line = -1.5, cex = 0.8, font.axis=2)
     mtext(side = 3, t3, line = -1.5, cex = 0.8, font.axis=2)
     if (plet == "c") {
-      mtext(side = 2, expression("                          E"[DMS_MIZ]*", Gg S yr"^-1), line = 3, cex = 1.1)
-      mtext(side = 4, expression("                          -o-   100 x E"[DMS_MIZ]*" / E"[DMS_OW]), line = 3.5, cex = 1.1)
+      mtext(side = 2, expression("                          E"[DMS]*","[MIZ]*" (Gg S yr"^-1*")"), line = 3, cex = 1.1)
+      mtext(side = 4, expression("                          E"[DMS]*","[MIZ]*" / E"[DMS]*","[OW]*" (%)"), line = 3.5, cex = 1.1)
+    }
+    if (plet == "d") {
+      mtext(side = 1, "Year", line = 3)
     }
   } # end loop on latitude bands
   
@@ -138,25 +142,20 @@ for (iseason in names(ooedms)[2]) {
 } # end loop on periods (annual, MJJA, JJ)
 
 
-# ------------------------------------------
-# # Old plot settings
-# ybarBmaxS <- c(10, 10, 50, 100)
-# names(ybarBmaxS) <- rownames(mizedms$A)
-# yfracBmaxS <- c(1.25, 1.25, 1.25, 0.5)
-# names(yfracBmaxS) <- rownames(mizedms$A)
-# maxmax <- max(unlist(mizedms), na.rm = T)
 
+# Some calculations ------------------------------------------
 
-# Rate of increase north of 80N
-x <- seq(2003,2014)/10
-y <- unlist(mizedms$B[4,])
+# Rate of increase north of 80N per year
+x <- seq(2003,2014)
+y <- unlist(mizedms$A[4,])
 fit <- lm(y ~ x)
 fit$coefficients[2] * 100 / mean(y)
 
+summary(fit)
 
 # Pan-Arctic sums
 colsums <- lapply(mizedms, colSums)
 
 
-
+fit <- lm(y ~ x)
 
